@@ -49,6 +49,42 @@ namespace ClientApp
             _stream?.Close();
             _client?.Close();
         }
+        public async Task<bool> SendLoginAttemptAsync(string firebaseToken)
+        {
+            if (!IsConnected) throw new Exception("Chưa kết nối đến server TCP!");
+            // Gửi ngay token này cho Server TCP
+            await _writer.WriteLineAsync($"{ProtocolCommands.LOGIN_ATTEMPT}|{firebaseToken}");
+
+            string response = await _reader.ReadLineAsync();
+            if (response == null) throw new IOException("Server ngắt kết nối!");
+
+            string[] parts = response.Split('|');
+            if (parts[0] == ProtocolCommands.LOGIN_SUCCESS)
+            {
+                return true;
+            }
+
+            string errorMessage = parts.Length > 1 ? parts[1] : "Lỗi không xác định";
+            throw new Exception($"Xác thực Server TCP thất bại: {errorMessage}");
+        }
+
+        public async Task<bool> SendFirstLoginRegisterAsync(string firebaseToken, string phoneNumber)
+        {
+            if (!IsConnected) throw new Exception("Chưa kết nối đến server TCP!");
+            await _writer.WriteLineAsync($"{ProtocolCommands.FIRST_LOGIN_REGISTER}|{firebaseToken}|{phoneNumber}");
+
+            string response = await _reader.ReadLineAsync();
+            if (response == null) throw new IOException("Server ngắt kết nối!");
+
+            string[] parts = response.Split('|');
+            if (parts[0] == ProtocolCommands.LOGIN_SUCCESS)
+            {
+                return true;
+            }
+
+            string errorMessage = parts.Length > 1 ? parts[1] : "Lỗi không xác định";
+            throw new Exception($"Đăng ký profile trên Server TCP thất bại: {errorMessage}");
+        }
 
         public async Task<bool> UploadFileAsync(string fileId, string localFilePath)
         {

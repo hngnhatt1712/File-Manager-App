@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(File_App));
-            tb_name = new TextBox();
+            tb_email = new TextBox();
             tb_pass = new TextBox();
             label1 = new Label();
             label2 = new Label();
@@ -40,13 +40,13 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
-            // tb_name
+            // tb_email
             // 
-            tb_name.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            tb_name.Location = new Point(56, 115);
-            tb_name.Name = "tb_name";
-            tb_name.Size = new Size(176, 27);
-            tb_name.TabIndex = 0;
+            tb_email.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            tb_email.Location = new Point(56, 115);
+            tb_email.Name = "tb_email";
+            tb_email.Size = new Size(176, 27);
+            tb_email.TabIndex = 0;
             // 
             // tb_pass
             // 
@@ -61,9 +61,9 @@
             label1.AutoSize = true;
             label1.Location = new Point(56, 95);
             label1.Name = "label1";
-            label1.Size = new Size(90, 15);
+            label1.Size = new Size(101, 15);
             label1.TabIndex = 2;
-            label1.Text = "Tên người dùng";
+            label1.Text = "Email người dùng";
             // 
             // label2
             // 
@@ -83,6 +83,7 @@
             btn_login.TabIndex = 4;
             btn_login.Text = "Đăng nhập";
             btn_login.UseVisualStyleBackColor = true;
+            btn_login.Click += btn_login_Click;
             // 
             // btn_signup
             // 
@@ -93,6 +94,7 @@
             btn_signup.TabIndex = 5;
             btn_signup.Text = "Đăng ký";
             btn_signup.UseVisualStyleBackColor = true;
+            btn_signup.Click += btn_signup_Click;
             // 
             // label3
             // 
@@ -127,7 +129,7 @@
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(tb_pass);
-            Controls.Add(tb_name);
+            Controls.Add(tb_email);
             Name = "File_App";
             Text = "File_App";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
@@ -137,7 +139,7 @@
 
         #endregion
 
-        private TextBox tb_name;
+        private TextBox tb_email;
         private TextBox tb_pass;
         private Label label1;
         private Label label2;
