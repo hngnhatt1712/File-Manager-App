@@ -416,3 +416,5 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+# Firebase Admin Key (Bảo mật)
+service-account-key.json

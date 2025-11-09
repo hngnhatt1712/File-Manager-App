@@ -1,0 +1,28 @@
+{
+  "users": {
+    "Document_ID": "UID",
+    "fields": {
+      "e-mail": {
+        "type": "string",
+        "description": "Email dùng để đăng nhập"
+      },
+      "nameUser": {
+        "type": "string",
+        "description": "Tên hiển thị của người dùng"
+      },
+      "sdt": {
+        "type": "string",
+        "description": "Số điện thoại"
+      },
+      "storageCap": {
+        "type": "string",
+        "description": "Dung lượng tối đa (ví dụ: '10GB')"
+      },
+      "storageUsed": {
+        "type": "number",
+        "description": "Dung lượng đã sử dụng (tính bằng bytes), mặc định là 0",
+        "default": 0
+      }
+    }
+  }
+}
