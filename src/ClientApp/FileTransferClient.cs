@@ -42,7 +42,7 @@ namespace ClientApp
             {
                 await _writer.WriteLineAsync(ProtocolCommands.QUIT);
             }
-            catch { /* Bỏ qua lỗi nếu không gửi được */ }
+            catch {  }
 
             _reader?.Close();
             _writer?.Close();
@@ -123,9 +123,13 @@ namespace ClientApp
 
             string[] parts = response.Split('|');
             if (parts[0] == ProtocolCommands.DELETE_SUCCESS)
+            {
+                return true;
             }
-            
-            throw new Exception($"Server báo lỗi xoá file: {response}");
+            else
+            {
+                throw new Exception($"Server báo lỗi xoá file: {response}");
+            }
         }
         // Hàm trợ giúp
         private async Task ReadFileFromStream(string savePath, long fileSize)
