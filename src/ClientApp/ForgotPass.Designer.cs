@@ -112,6 +112,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.Window;
             ClientSize = new Size(350, 281);
             Controls.Add(btn_send);
             Controls.Add(label1);

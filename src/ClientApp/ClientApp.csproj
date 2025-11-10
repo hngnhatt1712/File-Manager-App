@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\image-from-rawpixel-id-23103344-png1.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\image-from-rawpixel-id-23103344-png1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FirebaseAuthentication.net" Version="4.1.0" />
   </ItemGroup>
 

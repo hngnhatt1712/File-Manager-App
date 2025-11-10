@@ -3,7 +3,7 @@ using Firebase.Auth.Providers;
 
 namespace ClientApp
 {
-    internal class FirebaseAuthService
+    public class FirebaseAuthService
     {
         private const string FIREBASE_WEB_API_KEY = "WEB_API_KEY";
         private readonly FirebaseAuthClient _authClient;

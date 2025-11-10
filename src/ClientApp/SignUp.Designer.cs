@@ -79,9 +79,9 @@
             // pictureBox3
             // 
             pictureBox3.Image = Properties.Resources.image_from_rawpixel_id_23103341_png;
-            pictureBox3.Location = new Point(126, 283);
+            pictureBox3.Location = new Point(98, 281);
             pictureBox3.Name = "pictureBox3";
-            pictureBox3.Size = new Size(22, 23);
+            pictureBox3.Size = new Size(23, 23);
             pictureBox3.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox3.TabIndex = 19;
             pictureBox3.TabStop = false;
@@ -89,15 +89,15 @@
             // panel3
             // 
             panel3.BackColor = Color.FromArgb(192, 255, 255);
-            panel3.Location = new Point(126, 311);
+            panel3.Location = new Point(98, 309);
             panel3.Name = "panel3";
-            panel3.Size = new Size(179, 2);
+            panel3.Size = new Size(229, 2);
             panel3.TabIndex = 17;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(126, 265);
+            label2.Location = new Point(98, 263);
             label2.Name = "label2";
             label2.Size = new Size(57, 15);
             label2.TabIndex = 15;
@@ -106,25 +106,25 @@
             // tb_pass
             // 
             tb_pass.BorderStyle = BorderStyle.None;
-            tb_pass.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            tb_pass.Location = new Point(154, 283);
+            tb_pass.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            tb_pass.Location = new Point(126, 281);
             tb_pass.Name = "tb_pass";
             tb_pass.PasswordChar = '*';
-            tb_pass.Size = new Size(150, 22);
+            tb_pass.Size = new Size(200, 20);
             tb_pass.TabIndex = 13;
             // 
             // panel1
             // 
             panel1.BackColor = Color.FromArgb(192, 255, 255);
-            panel1.Location = new Point(127, 257);
+            panel1.Location = new Point(99, 255);
             panel1.Name = "panel1";
-            panel1.Size = new Size(179, 2);
+            panel1.Size = new Size(229, 2);
             panel1.TabIndex = 22;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(127, 211);
+            label4.Location = new Point(99, 209);
             label4.Name = "label4";
             label4.Size = new Size(76, 15);
             label4.TabIndex = 21;
@@ -133,17 +133,17 @@
             // tb_sdt
             // 
             tb_sdt.BorderStyle = BorderStyle.None;
-            tb_sdt.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            tb_sdt.Location = new Point(155, 229);
+            tb_sdt.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            tb_sdt.Location = new Point(127, 227);
             tb_sdt.Name = "tb_sdt";
             tb_sdt.PasswordChar = '*';
-            tb_sdt.Size = new Size(150, 22);
+            tb_sdt.Size = new Size(200, 20);
             tb_sdt.TabIndex = 20;
             // 
             // pictureBox4
             // 
             pictureBox4.Image = Properties.Resources.iphone__2_;
-            pictureBox4.Location = new Point(127, 228);
+            pictureBox4.Location = new Point(99, 226);
             pictureBox4.Name = "pictureBox4";
             pictureBox4.Size = new Size(22, 23);
             pictureBox4.SizeMode = PictureBoxSizeMode.Zoom;
@@ -157,7 +157,7 @@
             btn_signup.ForeColor = Color.Blue;
             btn_signup.Location = new Point(106, 394);
             btn_signup.Name = "btn_signup";
-            btn_signup.Size = new Size(221, 30);
+            btn_signup.Size = new Size(207, 30);
             btn_signup.TabIndex = 24;
             btn_signup.Text = "Đăng ký";
             btn_signup.UseVisualStyleBackColor = false;
@@ -166,15 +166,15 @@
             // panel4
             // 
             panel4.BackColor = Color.FromArgb(192, 255, 255);
-            panel4.Location = new Point(127, 205);
+            panel4.Location = new Point(99, 203);
             panel4.Name = "panel4";
-            panel4.Size = new Size(179, 2);
+            panel4.Size = new Size(229, 2);
             panel4.TabIndex = 21;
             // 
             // pictureBox5
             // 
             pictureBox5.Image = Properties.Resources.mail;
-            pictureBox5.Location = new Point(126, 177);
+            pictureBox5.Location = new Point(98, 175);
             pictureBox5.Name = "pictureBox5";
             pictureBox5.Size = new Size(23, 30);
             pictureBox5.SizeMode = PictureBoxSizeMode.Zoom;
@@ -184,7 +184,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(126, 159);
+            label5.Location = new Point(98, 157);
             label5.Name = "label5";
             label5.Size = new Size(36, 15);
             label5.TabIndex = 20;
@@ -193,16 +193,16 @@
             // tb_email
             // 
             tb_email.BorderStyle = BorderStyle.None;
-            tb_email.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            tb_email.Location = new Point(155, 177);
+            tb_email.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            tb_email.Location = new Point(127, 175);
             tb_email.Name = "tb_email";
-            tb_email.Size = new Size(150, 22);
+            tb_email.Size = new Size(200, 20);
             tb_email.TabIndex = 19;
             // 
             // pictureBox2
             // 
             pictureBox2.Image = Properties.Resources.image_from_rawpixel_id_23103341_png;
-            pictureBox2.Location = new Point(127, 336);
+            pictureBox2.Location = new Point(99, 334);
             pictureBox2.Name = "pictureBox2";
             pictureBox2.Size = new Size(22, 23);
             pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
@@ -212,15 +212,15 @@
             // panel2
             // 
             panel2.BackColor = Color.FromArgb(192, 255, 255);
-            panel2.Location = new Point(127, 364);
+            panel2.Location = new Point(99, 362);
             panel2.Name = "panel2";
-            panel2.Size = new Size(179, 2);
+            panel2.Size = new Size(229, 2);
             panel2.TabIndex = 27;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(127, 318);
+            label3.Location = new Point(99, 316);
             label3.Name = "label3";
             label3.Size = new Size(109, 15);
             label3.TabIndex = 26;
@@ -229,11 +229,11 @@
             // tb_cfpass
             // 
             tb_cfpass.BorderStyle = BorderStyle.None;
-            tb_cfpass.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            tb_cfpass.Location = new Point(155, 336);
+            tb_cfpass.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            tb_cfpass.Location = new Point(127, 334);
             tb_cfpass.Name = "tb_cfpass";
             tb_cfpass.PasswordChar = '*';
-            tb_cfpass.Size = new Size(150, 22);
+            tb_cfpass.Size = new Size(200, 20);
             tb_cfpass.TabIndex = 25;
             // 
             // SignUp
@@ -241,7 +241,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Window;
-            ClientSize = new Size(452, 466);
+            ClientSize = new Size(415, 466);
             Controls.Add(pictureBox2);
             Controls.Add(panel2);
             Controls.Add(label3);
