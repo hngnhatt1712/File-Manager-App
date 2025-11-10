@@ -24,7 +24,7 @@ namespace ClientApp
 
         }
 
-        private void btn_send_Click(object sender, EventArgs e)
+        private async void btn_send_Click(object sender, EventArgs e)
         {
             string email = tb_email.Text.Trim();
             if (string.IsNullOrEmpty(email) || !email.Contains("@"))

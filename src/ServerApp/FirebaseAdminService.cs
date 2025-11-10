@@ -23,7 +23,11 @@ namespace ServerApp
                 throw new FileNotFoundException("Không tìm thấy file 'service-account-key.json'!");
             }
             // 2. Khởi tạo Firebase App
-            var credential = GoogleCredential.FromFile(keyPath);
+            GoogleCredential credential;
+            using (var stream = new FileStream(keyPath, FileMode.Open, FileAccess.Read))
+            {
+                credential = GoogleCredential.FromStream(stream);
+            }
             FirebaseApp.Create(new AppOptions()
             {
                 Credential = credential

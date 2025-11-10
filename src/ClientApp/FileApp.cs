@@ -4,18 +4,18 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.CompilerServices;
 
 namespace ClientApp
 {
-    public partial class File_App : Form
+    public partial class FileApp : Form
     {
         private readonly FileTransferClient _fileClient;
         private readonly FirebaseAuthService _authService;
-        public File_App()
+        public FileApp()
         {
             InitializeComponent();
             _fileClient = new FileTransferClient();
@@ -37,6 +37,7 @@ namespace ClientApp
 
                 MessageBox.Show("Đăng nhập và xác thực thành công!");
                 this.Hide();
+            }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
@@ -46,7 +47,7 @@ namespace ClientApp
         private void btn_signup_Click(object sender, EventArgs e)
         {
             SignUp signUp = new SignUp(_authService, _fileClient);
-            signUp.Show();
+            signUp.ShowDialog();
         }
         private async Task EnsureConnectedAsync()
         {

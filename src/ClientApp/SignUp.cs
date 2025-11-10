@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.ComponentModel;
 
 namespace ClientApp
 {
@@ -27,7 +26,7 @@ namespace ClientApp
 
         }
 
-        private void btn_signup_Click(object sender, EventArgs e)
+        private async void btn_signup_Click(object sender, EventArgs e)
         {
             string email = tb_email.Text.Trim();
             string phone = tb_sdt.Text.Trim();

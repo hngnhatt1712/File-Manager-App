@@ -8,7 +8,7 @@ using SharedLibrary;
 
 namespace ClientApp
 {
-    internal class FileTransferClient
+    public class FileTransferClient
     {
         private TcpClient _client;
         private NetworkStream _stream;
