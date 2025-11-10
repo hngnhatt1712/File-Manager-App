@@ -1,13 +1,23 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using FileApp.Server;
+using ServerApp;
 
 const int PORT = 8888;
 const string STORAGE_PATH = "ServerStorage";
 
 // Đảm bảo thư mục lưu trữ tồn tại
 Directory.CreateDirectory(STORAGE_PATH);
-
+try
+{
+    FirebaseAdminService.Initialize();
+    Console.WriteLine("Firebase Admin SDK đã khởi tạo thành công!");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"LỖI KHỞI TẠO FIREBASE: {ex.Message}");
+    Console.WriteLine("Server sẽ tắt!");
+    return; 
+}
 TcpListener listener = new TcpListener(IPAddress.Any, PORT);
 listener.Start();
 Console.WriteLine($"Server đang lắng nghe trên cổng {PORT}...");

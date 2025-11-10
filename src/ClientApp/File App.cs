@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -21,7 +22,7 @@ namespace ClientApp
             _authService = new FirebaseAuthService();
         }
 
-        private void btn_login_Click(object sender, EventArgs e)
+        private async void btn_login_Click(object sender, EventArgs e)
         {
             string email = tb_email.Text;
             string password = tb_pass.Text;
@@ -35,7 +36,7 @@ namespace ClientApp
                 await _authService.LoginAsync(email, password, _fileClient);
 
                 MessageBox.Show("Đăng nhập và xác thực thành công!");
-            }
+                this.Hide();
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
@@ -44,16 +45,16 @@ namespace ClientApp
 
         private void btn_signup_Click(object sender, EventArgs e)
         {
-            SignUp signUp = new SignUp();
-            signUp.Show();  
+            SignUp signUp = new SignUp(_authService, _fileClient);
+            signUp.Show();
         }
         private async Task EnsureConnectedAsync()
         {
             if (_fileClient.IsConnected) return;
             try
             {
-                string ip = "127.0.0.1"; 
-                int port = 8888;         
+                string ip = "127.0.0.1";
+                int port = 8888;
                 await _fileClient.ConnectAsync(ip, port);
             }
             catch (Exception ex)
@@ -61,4 +62,11 @@ namespace ClientApp
                 throw new Exception($"Kết nối TCP thất bại: {ex.Message}");
             }
         }
+
+        private void llb_forgotPass_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            ForgotPass forgotPass = new ForgotPass(_authService);
+            forgotPass.ShowDialog();
+        }
+    }
 }
