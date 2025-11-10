@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using SharedLibrary;
+using ServerApp;
 
 namespace ServerApp
 {
@@ -15,6 +16,7 @@ namespace ServerApp
         private NetworkStream _stream;
         private StreamReader _reader;
         private StreamWriter _writer;
+        private string _authenticatedUserId = null;
 
         public ClientHandler(TcpClient client, string storagePath)
         {
@@ -43,6 +45,15 @@ namespace ServerApp
 
                     switch (command)
                     {
+                        case ProtocolCommands.FIRST_LOGIN_REGISTER:
+                            // FIRST_LOGIN_REGISTER|jwt_token|phone_number
+                            await HandleFirstLoginRegisterAsync(parts);
+                            break;
+
+                        case ProtocolCommands.LOGIN_ATTEMPT:
+                            // LOGIN_ATTEMPT|jwt_token
+                            await HandleLoginAttemptAsync(parts);
+                            break;
                         case ProtocolCommands.PING:
                             await _writer.WriteLineAsync(ProtocolCommands.PONG);
                             break;
@@ -84,15 +95,75 @@ namespace ServerApp
                 CloseConnection();
             }
         }
+        private async Task HandleFirstLoginRegisterAsync(string[] parts)
+        {
+            try
+            {
+                if (parts.Length < 3) throw new Exception("Thiếu token hoặc SĐT");
+                string token = parts[1];
+                string phone = parts[2];
 
+                // Xác thực token
+                var firebaseUser = await FirebaseAdminService.VerifyTokenAsync(token);
+
+                // Tạo Document trên Firestore
+                await FirebaseAdminService.CreateUserDocumentAsync(firebaseUser.Uid, firebaseUser.Email, phone);
+
+                _authenticatedUserId = firebaseUser.Uid;
+                await _writer.WriteLineAsync(ProtocolCommands.LOGIN_SUCCESS);
+                Console.WriteLine($"Client {firebaseUser.Uid} đã đăng ký và đăng nhập.");
+            }
+            catch (Exception ex)
+            {
+                await _writer.WriteLineAsync($"{ProtocolCommands.LOGIN_FAIL}|{ex.Message}");
+            }
+        }
+
+        private async Task HandleLoginAttemptAsync(string[] parts)
+        {
+            try
+            {
+                if (parts.Length < 2) throw new Exception("Thiếu token");
+                string token = parts[1];
+
+                // Xác thực token
+                var firebaseUser = await FirebaseAdminService.VerifyTokenAsync(token);
+
+                // Kiểm tra/Tạo Document (phòng trường hợp DB bị lỗi)
+                await FirebaseAdminService.CheckAndCreateUserAsync(firebaseUser.Uid, firebaseUser.Email);
+
+                _authenticatedUserId = firebaseUser.Uid;
+                await _writer.WriteLineAsync(ProtocolCommands.LOGIN_SUCCESS);
+                Console.WriteLine($"Client {firebaseUser.Uid} đã đăng nhập.");
+            }
+            catch (Exception ex)
+            {
+                await _writer.WriteLineAsync($"{ProtocolCommands.LOGIN_FAIL}|{ex.Message}");
+            }
+        }
+        private void CheckAuthentication()
+        {
+            if (string.IsNullOrEmpty(_authenticatedUserId))
+            {
+                throw new Exception("Lỗi bảo mật: Người dùng chưa đăng nhập!");
+            }
+        }
+        // Tạo đường dẫn file an toàn (mỗi user 1 thư mục)
+        private string GetSafeFilePath(string fileId)
+        {
+            string userStoragePath = Path.Combine(_storagePath, _authenticatedUserId);
+            Directory.CreateDirectory(userStoragePath); 
+            return Path.Combine(userStoragePath, fileId);
+        }
         private async Task HandleUploadAsync(string[] parts)
         {
             try
             {
+                CheckAuthentication();
                 if (parts.Length < 3) throw new Exception("Thiếu tham số UPLOAD");
                 string fileId = parts[1];
                 long fileSize = long.Parse(parts[2]);
-                string filePath = Path.Combine(_storagePath, fileId);
+                string filePath = GetSafeFilePath(fileId);
 
                 // 1. Báo client "Sẵn sàng"
                 await _writer.WriteLineAsync($"{ProtocolCommands.READY_FOR_UPLOAD}|{fileId}");
@@ -116,9 +187,10 @@ namespace ServerApp
         {
             try
             {
+                CheckAuthentication();
                 if (parts.Length < 2) throw new Exception("Thiếu tham số DOWNLOAD");
                 string fileId = parts[1];
-                string filePath = Path.Combine(_storagePath, fileId);
+                string filePath = GetSafeFilePath(fileId);
 
                 if (!File.Exists(filePath))
                 {
@@ -150,9 +222,10 @@ namespace ServerApp
         {
             try
             {
+                CheckAuthentication();
                 if (parts.Length < 2) throw new Exception("Thiếu tham số DELETE_FILE");
                 string fileId = parts[1];
-                string filePath = Path.Combine(_storagePath, fileId);
+                string filePath = GetSafeFilePath(fileId);
 
                 if (File.Exists(filePath))
                 {
