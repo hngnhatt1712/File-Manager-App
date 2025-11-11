@@ -12,9 +12,18 @@ namespace ClientApp
 {
     public partial class Dashboard : Form
     {
-        public Dashboard()
+        public Dashboard(FileTransferClient fileClient)
         {
             InitializeComponent();
+            _fileClient = _fileClient;
+        }
+
+        private readonly FileTransferClient _fileClient;
+
+
+        private void Dashboard_Load(object sender, EventArgs e)
+        {
+            
         }
     }
 }
