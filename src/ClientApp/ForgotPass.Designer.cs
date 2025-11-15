@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ForgotPass));
             label1 = new Label();
             panel2 = new Panel();
             pictureBox2 = new PictureBox();
@@ -52,7 +53,7 @@
             // 
             // panel2
             // 
-            panel2.BackColor = Color.FromArgb(192, 255, 255);
+            panel2.BackColor = Color.Teal;
             panel2.Location = new Point(15, 47);
             panel2.Name = "panel2";
             panel2.Size = new Size(246, 2);
@@ -99,13 +100,15 @@
             // 
             // btn_send
             // 
-            btn_send.Font = new Font("Segoe UI Semibold", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn_send.Location = new Point(114, 206);
+            btn_send.BackColor = Color.FromArgb(128, 128, 255);
+            btn_send.Font = new Font("Century Gothic", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btn_send.ForeColor = Color.Lavender;
+            btn_send.Location = new Point(114, 205);
             btn_send.Name = "btn_send";
-            btn_send.Size = new Size(93, 37);
+            btn_send.Size = new Size(93, 35);
             btn_send.TabIndex = 39;
             btn_send.Text = "Xác nhận";
-            btn_send.UseVisualStyleBackColor = true;
+            btn_send.UseVisualStyleBackColor = false;
             btn_send.Click += btn_send_Click;
             // 
             // ForgotPass
@@ -117,6 +120,7 @@
             Controls.Add(btn_send);
             Controls.Add(label1);
             Controls.Add(panel5);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "ForgotPass";
             Text = "ForgotPass";
             Load += ForgotPass_Load;
