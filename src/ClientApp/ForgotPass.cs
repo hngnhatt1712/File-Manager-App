@@ -29,7 +29,7 @@ namespace ClientApp
             string email = tb_email.Text.Trim();
             if (string.IsNullOrEmpty(email) || !email.Contains("@"))
             {
-                MessageBox.Show("Vui lòng nhập một địa chỉ email hợp lệ.", "Lỗi",
+                MessageBox.Show("Vui lòng nhập một địa chỉ email hợp lệ!", "Lỗi",
                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
