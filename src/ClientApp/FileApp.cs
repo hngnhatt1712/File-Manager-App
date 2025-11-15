@@ -37,6 +37,9 @@ namespace ClientApp
 
                 MessageBox.Show("Đăng nhập và xác thực thành công!");
                 this.Hide();
+                Dashboard dashboard = new Dashboard(_fileClient);
+                dashboard.ShowDialog();
+                this.Close();
             }
             catch (Exception ex)
             {
