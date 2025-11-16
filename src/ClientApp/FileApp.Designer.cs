@@ -52,7 +52,7 @@
             // pictureBox1
             // 
             pictureBox1.Image = Properties.Resources.folder;
-            pictureBox1.Location = new Point(380, 55);
+            pictureBox1.Location = new Point(356, 54);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(354, 388);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
@@ -72,7 +72,7 @@
             // 
             // panel4
             // 
-            panel4.BackColor = Color.FromArgb(192, 255, 255);
+            panel4.BackColor = Color.Teal;
             panel4.Location = new Point(33, 166);
             panel4.Name = "panel4";
             panel4.Size = new Size(262, 2);
@@ -118,10 +118,10 @@
             // 
             // panel3
             // 
-            panel3.BackColor = Color.FromArgb(192, 255, 255);
+            panel3.BackColor = Color.Teal;
             panel3.Location = new Point(33, 225);
             panel3.Name = "panel3";
-            panel3.Size = new Size(256, 2);
+            panel3.Size = new Size(259, 2);
             panel3.TabIndex = 29;
             // 
             // label2
@@ -171,7 +171,7 @@
             // 
             // panel1
             // 
-            panel1.BackColor = Color.FromArgb(192, 255, 255);
+            panel1.BackColor = Color.FromArgb(0, 64, 64);
             panel1.Location = new Point(48, 329);
             panel1.Name = "panel1";
             panel1.Size = new Size(230, 2);
@@ -204,7 +204,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Window;
-            ClientSize = new Size(768, 493);
+            ClientSize = new Size(737, 479);
             Controls.Add(llb_forgotPass);
             Controls.Add(label3);
             Controls.Add(btn_login);

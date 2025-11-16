@@ -24,5 +24,72 @@
         "default": 0
       }
     }
+  },
+  "folders": {
+    "Document_ID": "Auto-ID",
+    "description": "Chứa thông tin về các thư mục do người dùng tạo",
+    "fields": [
+      {
+        "fieldName": "createdAt",
+        "type": "timestamp",
+        "description": "Thời gian tạo folder."
+      },
+      {
+        "fieldName": "folderName",
+        "type": "string",
+        "description": "Tên của thư mục."
+      },
+      {
+        "fieldName": "ownerUid",
+        "type": "string",
+        "description": "UID của người sở hữu folder"
+      },
+      {
+        "fieldName": "parentFolderId",
+        "type": "string",
+        "description": "ID của folder cha (dùng '/' cho folder gốc)"
+      }
+    ]
+  },
+  "files": {
+    "Document_ID": "Auto-generated-ID",
+    "description": "Chứa siêu dữ liệu (metadata) của các file được lưu trữ trong Storage",
+    "fields": [
+      {
+        "fieldName": "createdAt",
+        "type": "timestamp",
+        "description": "Thời gian tạo file"
+      },
+      {
+        "fieldName": "fileName",
+        "type": "string",
+        "description": "Tên file gốc"
+      },
+      {
+        "fieldName": "fileSize",
+        "type": "number",
+        "description": "Kích thước file (tính bằng bytes)"
+      },
+      {
+        "fieldName": "isStarred",
+        "type": "boolean",
+        "description": "Trạng thái đánh dấu sao/yêu thích"
+      },
+      {
+        "fieldName": "ownerUid",
+        "type": "string",
+        "description": "UID của người sở hữu file"
+      },
+      {
+        "fieldName": "parentFolderId",
+        "type": "string",
+        "description": "ID của folder chứa file"
+      },
+      {
+        "fieldName": "storagePath",
+        "type": "string",
+        "description": "Đường dẫn đến file trong Cloud Storage"
+      }
+    ]
   }
 }
