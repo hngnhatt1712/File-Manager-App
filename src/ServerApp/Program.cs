@@ -12,11 +12,33 @@ try
     FirebaseAdminService.Initialize();
     Console.WriteLine("Firebase Admin SDK đã khởi tạo thành công!");
 }
+catch(TypeInitializationException ex) // <-- Bắt lỗi "Type Initializer"
+{
+    Console.WriteLine("!!!!!!!!!! LỖI KHỞI TẠO FIREBASE (TypeInitializationException) !!!!!!!!!!");
+
+    // ĐÂY LÀ PHẦN QUAN TRỌNG NHẤT: In ra lỗi thật
+    if (ex.InnerException != null)
+    {
+        Console.WriteLine("\n--- LỖI THẬT (INNER EXCEPTION) ---");
+        Console.WriteLine(ex.InnerException.Message);
+        Console.WriteLine("\n--- STACK TRACE CỦA LỖI THẬT ---");
+        Console.WriteLine(ex.InnerException.StackTrace);
+    }
+    else
+    {
+        Console.WriteLine("Không tìm thấy InnerException. Lỗi gốc là:");
+        Console.WriteLine(ex.Message);
+    }
+
+    Console.WriteLine("\nServer sẽ tắt. Vui lòng CHỤP ẢNH MÀN HÌNH lỗi trên và gửi lại.");
+    Console.ReadKey(); // Dừng lại để bạn đọc lỗi
+    return; // Dừng server
+}
 catch (Exception ex)
 {
     Console.WriteLine($"LỖI KHỞI TẠO FIREBASE: {ex.Message}");
     Console.WriteLine("Server sẽ tắt!");
-    return; 
+    return;
 }
 TcpListener listener = new TcpListener(IPAddress.Any, PORT);
 listener.Start();
