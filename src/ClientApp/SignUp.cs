@@ -61,7 +61,7 @@ namespace ClientApp
             }
             catch (Exception ex)
             {
-                // Hiển thị bất kỳ lỗi nào (từ Firebase hoặc Server TCP)
+                // Hiển thị bất kỳ lỗi nào (từ Firebase hoặc Server TCP)   
                 MessageBox.Show($"Đăng ký thất bại: {ex.Message}");
             }
         }
