@@ -79,7 +79,8 @@ namespace ClientApp
                 throw new Exception($"Kết nối TCP thất bại: {ex.Message}");
             }
         }
-
+        
+        //kiểm tra định dạnh sdt
         private void tb_sdt_TextChanged(object sender, EventArgs e)
         {
             if (!(int.TryParse(tb_sdt.Text, out int value)) && (tb_sdt.Text != ""))
