@@ -26,7 +26,6 @@ namespace ServerApp
                     "2. Chọn 'Copy to Output Directory' = Copy if newer.");
             }
 
-            // Khởi tạo Firebase Admin (dùng xác thực)
             GoogleCredential credential = GoogleCredential.FromFile(keyPath);
 
             FirebaseApp.Create(new AppOptions()
@@ -34,10 +33,8 @@ namespace ServerApp
                 Credential = credential
             });
 
-            // Lấy project_id từ file key JSON
             string projectId = GetProjectIdFromKeyFile(keyPath);
 
-            // Khởi tạo Firestore (THƯ VIỆN ĐÚNG)
             _firestoreDb = new FirestoreDbBuilder
             {
                 ProjectId = projectId,
@@ -45,10 +42,8 @@ namespace ServerApp
             }.Build();
         }
 
-        // Hàm này để kích hoạt static constructor
         public static void Initialize() { }
 
-        // --- Lấy project_id từ JSON ---
         private static string GetProjectIdFromKeyFile(string path)
         {
             string json = File.ReadAllText(path);
@@ -56,14 +51,12 @@ namespace ServerApp
             return data.project_id;
         }
 
-        // ================= FIREBASE AUTH =================
 
         public static async Task<FirebaseToken> VerifyTokenAsync(string token)
         {
             return await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
         }
 
-        // ================= FIRESTORE METHODS =================
 
         public static async Task CreateUserDocumentAsync(string uid, string email, string phoneNumber)
         {

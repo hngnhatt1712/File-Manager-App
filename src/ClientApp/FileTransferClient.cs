@@ -30,7 +30,6 @@ namespace ClientApp
             }
             catch (Exception ex)
             {
-                // Ném lỗi ra để UI hiển thị
                 throw new Exception($"Không thể kết nối đến server: {ex.Message}");
             }
         }
@@ -48,6 +47,39 @@ namespace ClientApp
             _writer?.Close();
             _stream?.Close();
             _client?.Close();
+        }
+
+        public async Task SendPingAsync()
+        {
+            try
+            {
+                await _writer.WriteLineAsync(ProtocolCommands.PING);
+                await _writer.FlushAsync();
+
+                string response = await _reader.ReadLineAsync();
+                if (response != ProtocolCommands.PONG)
+                {
+                    throw new Exception($"Server trả lời PING không hợp lệ: {response}");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi PING: {ex.Message}");
+            }
+        }
+
+        public async Task SendLogoutCommandAsync()
+        {
+            try
+            {
+              
+                await _writer.WriteLineAsync("LOGOUT");
+                await _writer.FlushAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi gửi lệnh đăng xuất: {ex.Message}");
+            }
         }
         public async Task<bool> SendLoginAttemptAsync(string firebaseToken)
         {

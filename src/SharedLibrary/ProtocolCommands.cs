@@ -23,5 +23,6 @@
         public const string DELETE_FAIL = "DELETE_FAIL";
         public const string PONG = "PONG";
         public const string UNKNOWN_COMMAND = "UNKNOWN_COMMAND";
+        public const string LOGOUT = "LOGOUT";
     }
 }

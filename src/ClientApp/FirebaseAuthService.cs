@@ -10,7 +10,7 @@ namespace ClientApp
 
         public FirebaseAuthService()
         {
-            // 1. Cấu hình Firebase Auth
+            // 1. Cấu hình Firebase Authf
             var config = new FirebaseAuthConfig
             {
                 ApiKey = "AIzaSyC9rPbS1Ks85CIdHo98WJCLb8n7V6UR8OE",
@@ -74,6 +74,20 @@ namespace ClientApp
             catch (Exception ex)
             {
                 throw new Exception($"Lỗi gửi email reset: {ex.Message}");
+            }
+        }
+
+        public void Logout()
+        {
+            try
+            {
+                // Đây chính là hàm bạn cần
+                // Nó đã có sẵn trong đối tượng _authClient
+                _authClient.SignOut();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi đăng xuất khỏi Firebase: {ex.Message}");
             }
         }
     }
