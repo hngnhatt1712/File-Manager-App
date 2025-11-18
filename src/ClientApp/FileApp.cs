@@ -15,6 +15,7 @@ namespace ClientApp
     {
         private readonly FileTransferClient _fileClient;
         private readonly FirebaseAuthService _authService;
+
         public FileApp()
         {
             InitializeComponent();
@@ -26,24 +27,37 @@ namespace ClientApp
         {
             string email = tb_email.Text;
             string password = tb_pass.Text;
+            if (email == "" || password == "")
+            {
+                MessageBox.Show("Email và mật khẩu không được để trống!",
+                                "Thông báo",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
+                return;
+            }
+
 
             try
             {
-                // 1. Đảm bảo đã kết nối đến Server TCP
                 await EnsureConnectedAsync();
 
-                // 2. Gọi hàm Login mới
                 await _authService.LoginAsync(email, password, _fileClient);
 
                 MessageBox.Show("Đăng nhập và xác thực thành công!");
                 this.Hide();
-                Dashboard dashboard = new Dashboard(_fileClient);
-                dashboard.ShowDialog();
-                this.Close();
+
+                Dashboard dashboard = new Dashboard(_authService, _fileClient);
+                dashboard.ShowDialog(); 
+
+         
+                this.Show(); 
+                tb_pass.Clear();
+                tb_email.Clear();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+                this.Show();
             }
         }
 
@@ -72,5 +86,6 @@ namespace ClientApp
             ForgotPass forgotPass = new ForgotPass(_authService);
             forgotPass.ShowDialog();
         }
+       
     }
 }

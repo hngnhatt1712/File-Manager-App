@@ -29,15 +29,27 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Dashboard));
+            btnTestLogout = new Button();
             SuspendLayout();
+            // 
+            // btnTestLogout
+            // 
+            btnTestLogout.Location = new Point(1110, 971);
+            btnTestLogout.Name = "btnTestLogout";
+            btnTestLogout.Size = new Size(410, 99);
+            btnTestLogout.TabIndex = 38;
+            btnTestLogout.Text = "Đăng Xuất";
+            btnTestLogout.UseVisualStyleBackColor = true;
+            btnTestLogout.Click += btnTestLogout_Click;
             // 
             // Dashboard
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(15F, 37F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1154, 769);
+            ClientSize = new Size(2164, 1423);
+            Controls.Add(btnTestLogout);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            Margin = new Padding(3, 4, 3, 4);
+            Margin = new Padding(6, 7, 6, 7);
             Name = "Dashboard";
             Text = "Dashboard";
             Load += Dashboard_Load;
@@ -45,5 +57,6 @@
         }
 
         #endregion
+        private Button btnTestLogout;
     }
 }

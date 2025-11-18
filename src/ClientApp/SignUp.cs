@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -33,7 +34,6 @@ namespace ClientApp
             string password = tb_pass.Text.Trim();
             string confirmPass = tb_cfpass.Text.Trim();
 
-            // 2. Kiểm tra dữ liệu
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(phone) ||
                 string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPass))
             {
@@ -47,21 +47,28 @@ namespace ClientApp
                 return;
             }
 
+            if (!CheckEmail(email))
+            {
+                MessageBox.Show("Vui lòng nhập đúng định dạng email");
+                return;
+            }
+            if (!CheckAccount(password))
+            {
+                MessageBox.Show("Vui lòng nhập mật khẩu dài từ 6 - 24 ký tự, với các ký tự là chữ và số, chữ hoa và chữ thường!");
+                return;
+            }
+
             try
             {
-                // 3. Đảm bảo đã kết nối đến Server TCP
                 await EnsureConnectedAsync();
 
-                // 4. Gọi hàm đăng ký (đã bao gồm gửi token lên Server)
                 await _authService.RegisterAndSubmitProfileAsync(email, password, phone, _fileClient);
 
-                // 5. Thông báo và đóng form
                 MessageBox.Show("Đăng ký thành công! Vui lòng quay lại đăng nhập!");
                 this.Close();
             }
             catch (Exception ex)
             {
-                // Hiển thị bất kỳ lỗi nào (từ Firebase hoặc Server TCP)   
                 MessageBox.Show($"Đăng ký thất bại: {ex.Message}");
             }
         }
@@ -80,7 +87,6 @@ namespace ClientApp
             }
         }
         
-        //kiểm tra định dạnh sdt
         private void tb_sdt_TextChanged(object sender, EventArgs e)
         {
             if (!(int.TryParse(tb_sdt.Text, out int value)) && (tb_sdt.Text != ""))
@@ -89,6 +95,17 @@ namespace ClientApp
                 tb_sdt.Clear();
                 tb_sdt.Focus();
             }
+        }
+
+        public bool CheckAccount(string account)
+        {
+            return Regex.IsMatch(account, "^[a-zA-Z0-9]{6,24}$");
+        }
+
+        public bool CheckEmail(string email)
+        {
+            return Regex.IsMatch(email, @"^[\w]{3,20}@gmail.com(.vn|)$");
+           
         }
     }
 }

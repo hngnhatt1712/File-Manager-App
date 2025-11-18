@@ -21,8 +21,11 @@ namespace ServerApp
         {
             _client = client;
             _storagePath = storagePath;
+
         }
 
+       
+    
         public async Task HandleClientAsync()
         {
             try
@@ -65,7 +68,14 @@ namespace ServerApp
                             break;
 
                         case ProtocolCommands.QUIT:
+                            Console.WriteLine($"Client {_client.Client.RemoteEndPoint} requested QUIT.");
                             return;
+
+                        // KHỐI LOGIC LOGOUT ĐÃ ĐƯỢC XÓA THEO YÊU CẦU MỚI:
+                        // case ProtocolCommands.LOGOUT:
+                        // Console.WriteLine($"Client {_client.Client.RemoteEndPoint} requested LOGOUT.");
+                        // return; 
+                        // KẾT THÚC KHỐI LOGOUT ĐÃ XÓA
 
                         default:
                             await _writer.WriteLineAsync(ProtocolCommands.UNKNOWN_COMMAND);
@@ -87,7 +97,6 @@ namespace ServerApp
             }
         }
 
-        // [Trong file ClientHandler.cs]
 
         private async Task HandleFirstLoginRegisterAsync(string[] parts)
         {
@@ -97,14 +106,11 @@ namespace ServerApp
                 string token = parts[1];
                 string phone = parts[2];
 
-                // 1. Xác thực token (vẫn trả về FirebaseToken)
                 var decodedToken = await FirebaseAdminService.VerifyTokenAsync(token);
 
-                // 2. Dùng Uid từ token để lấy UserRecord (Hồ sơ người dùng)
-                //    (Hàm này giờ sẽ chạy được nhờ 'using FirebaseAdmin.Auth;')
+           
                 var userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(decodedToken.Uid);
 
-                // 3. Tạo Document (Giờ userRecord.Email đã hợp lệ)
                 await FirebaseAdminService.CreateUserDocumentAsync(userRecord.Uid, userRecord.Email, phone);
 
                 _authenticatedUserId = userRecord.Uid;
@@ -124,13 +130,10 @@ namespace ServerApp
                 if (parts.Length < 2) throw new Exception("Thiếu token");
                 string token = parts[1];
 
-                // 1. Xác thực token
                 var decodedToken = await FirebaseAdminService.VerifyTokenAsync(token);
 
-                // 2. Dùng Uid từ token để lấy UserRecord
                 var userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(decodedToken.Uid);
 
-                // 3. Kiểm tra/Tạo Document (Giờ userRecord.Email đã hợp lệ)
                 await FirebaseAdminService.CheckAndCreateUserAsync(userRecord.Uid, userRecord.Email);
 
                 _authenticatedUserId = userRecord.Uid;
