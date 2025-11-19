@@ -22,6 +22,15 @@ namespace ClientApp
             string email = tb_email.Text;
             string password = tb_pass.Text;
 
+            if (email == "" || password == "")
+            {
+                MessageBox.Show("Email và mật khẩu không được để trống!",
+                                "Thông báo",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
                 // 1. Đảm bảo đã kết nối đến Server TCP
