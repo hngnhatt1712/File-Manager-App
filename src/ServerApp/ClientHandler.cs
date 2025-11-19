@@ -98,7 +98,34 @@ public class ClientHandler
     // Xử lý yêu cầu đăng nhập (Trần Chính)
     private async Task HandleLoginAsync()
     {
-       
+        try
+        {
+            // Đọc token mà Client gửi lên
+            string token = await _reader.ReadLineAsync();
+            if (string.IsNullOrEmpty(token))
+            {
+                await _writer.WriteLineAsync(ProtocolCommands.LOGIN_FAIL);
+                return;
+            }
+
+            // Dùng service để xác thực
+            FirebaseToken decodedToken = await _authService.VerifyIdTokenAsync(token);
+            if (decodedToken != null)
+            {
+                // LƯU LẠI TRẠNG THÁI
+                _isAuthenticated = true;
+                _authenticatedUid = decodedToken.Uid;
+                await _writer.WriteLineAsync(ProtocolCommands.LOGIN_SUCCESS);
+            }
+            else
+            {
+                await _writer.WriteLineAsync(ProtocolCommands.LOGIN_FAIL);
+            }
+        }
+        catch
+        {
+            await _writer.WriteLineAsync(ProtocolCommands.LOGIN_FAIL);
+        }
     }
     // Các hàm nghiệp vụ 
     // Lấy danh sách file
