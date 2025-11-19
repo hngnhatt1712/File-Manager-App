@@ -80,7 +80,10 @@ namespace ClientApp.Services
         // =================== LOG OUT ===================
         public void Logout()
         {
-            
+            // Đăng xuất khỏi Firebase Auth Client
+            _authClient.SignOut();
         }
+
+        
     }
 }

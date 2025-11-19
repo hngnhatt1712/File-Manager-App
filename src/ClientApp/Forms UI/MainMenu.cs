@@ -14,15 +14,39 @@ namespace ClientApp
     public partial class MainMenu : Form
     {
         private readonly FileTransferClient _fileClient;
-        public MainMenu(FileTransferClient fileClient)
+        private readonly UserAuth _authService;
+        public MainMenu(FileTransferClient fileClient, UserAuth authService)
         {
             InitializeComponent();
             _fileClient = fileClient;
+            _authService = authService;
         }
 
         private void MainMenu_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private async  void btnLogout_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // 1. Gọi Service Auth để đăng xuất Firebase
+                _authService.Logout();
+
+                // 2. Gọi Service File để ngắt kết nối TCP
+                await _fileClient.DisconnectAsync();
+
+                // 3. Reset giao diện về màn hình đăng nhập (tự làm)
+                // Hiện giao diện đăng nhập     
+                // Xóa trắng các ô nhập liệu cũ
+
+                MessageBox.Show("Đăng xuất thành công!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi đăng xuất: {ex.Message}");
+            }
         }
     }
 }
