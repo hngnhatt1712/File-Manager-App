@@ -1,69 +1,78 @@
-﻿using System.Net;
-using System.Net.Sockets;
+﻿using Microsoft.AspNetCore.Builder;     
+using Microsoft.Extensions.DependencyInjection; 
+using Microsoft.Extensions.Hosting;
 using ServerApp;
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 
-const int PORT = 8888;
-const string STORAGE_PATH = "ServerStorage";
-
-// Đảm bảo thư mục lưu trữ tồn tại
-Directory.CreateDirectory(STORAGE_PATH);
-try
+class Program
 {
-    FirebaseAdminService.Initialize();
-    Console.WriteLine("Firebase Admin SDK đã khởi tạo thành công!");
-}
-catch(TypeInitializationException ex) // <-- Bắt lỗi "Type Initializer"
-{
-    Console.WriteLine("!!!!!!!!!! LỖI KHỞI TẠO FIREBASE (TypeInitializationException) !!!!!!!!!!");
+    // Port cho API (HTTP) - Dùng để đăng ký, lấy metadata
+    private const int API_PORT = 5000;
+    // Port cho TCP (File Transfer) - Dùng để upload/download
+    private const int TCP_PORT = 8888;
 
-    // ĐÂY LÀ PHẦN QUAN TRỌNG NHẤT: In ra lỗi thật
-    if (ex.InnerException != null)
+    static async Task Main(string[] args)
     {
-        Console.WriteLine("\n--- LỖI THẬT (INNER EXCEPTION) ---");
-        Console.WriteLine(ex.InnerException.Message);
-        Console.WriteLine("\n--- STACK TRACE CỦA LỖI THẬT ---");
-        Console.WriteLine(ex.InnerException.StackTrace);
+        // PHẦN 1: CẤU HÌNH WEB API (ASP.NET CORE)
+        var builder = WebApplication.CreateBuilder(args);
+
+        // 1. Thêm Controllers (để nhận diện UserController.cs)
+        builder.Services.AddControllers();
+
+        // 2. Đăng ký Service (Dependency Injection)
+        // Để UserController và TCP Server dùng chung 1 bản thể (Singleton)
+        builder.Services.AddSingleton<FirebaseAuthService>();
+        builder.Services.AddSingleton<FirebaseAdminService>();
+
+        var app = builder.Build();
+
+        // 3. Định tuyến (Map) các Controller
+        app.MapControllers();
+        // PHẦN 2: KHỞI ĐỘNG TCP SERVER (CHẠY NGẦM)
+
+        // Lấy các service đã tạo ra từ "kho" của ứng dụng Web
+        // Để truyền cho TCP Handler
+        var authService = app.Services.GetRequiredService<FirebaseAuthService>();
+        var adminService = app.Services.GetRequiredService<FirebaseAdminService>();
+
+        // Chạy TCP Server trên một luồng riêng biệt (Background Task) để không chặn Web API hoạt động
+        _ = Task.Run(() => StartTcpServer(authService, adminService));
+
+        // PHẦN 3: CHẠY WEB API
+        Console.WriteLine($"WARNING: Web API running on port {API_PORT}");
+        Console.WriteLine($"WARNING: TCP Server running on port {TCP_PORT}");
+
+        // Lệnh này sẽ chặn luồng chính và lắng nghe HTTP request
+        app.Run($"http://0.0.0.0:{API_PORT}");
     }
-    else
+
+    // Hàm tách riêng logic TCP Server 
+    static async Task StartTcpServer(FirebaseAuthService authService, FirebaseAdminService adminService)
     {
-        Console.WriteLine("Không tìm thấy InnerException. Lỗi gốc là:");
-        Console.WriteLine(ex.Message);
+        TcpListener listener = new TcpListener(IPAddress.Any, TCP_PORT);
+        listener.Start();
+        Console.WriteLine($"[TCP] Server started on port {TCP_PORT}. Waiting for file transfers...");
+
+        while (true)
+        {
+            try
+            {
+                TcpClient client = await listener.AcceptTcpClientAsync();
+                Console.WriteLine("[TCP] New Client connected.");
+
+                // Tạo Handler và truyền service vào
+                ClientHandler handler = new ClientHandler(client, authService, adminService);
+
+                // Xử lý client trên thread riêng
+                _ = Task.Run(() => handler.HandleClientAsync());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[TCP] Error accepting client: {ex.Message}");
+            }
+        }
     }
-
-    Console.WriteLine("\nServer sẽ tắt. Vui lòng CHỤP ẢNH MÀN HÌNH lỗi trên và gửi lại.");
-    Console.ReadKey(); // Dừng lại để bạn đọc lỗi
-    return; // Dừng server
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"LỖI KHỞI TẠO FIREBASE: {ex.Message}");
-    Console.WriteLine("Server sẽ tắt!");
-    return;
-}
-TcpListener listener = new TcpListener(IPAddress.Any, PORT);
-listener.Start();
-Console.WriteLine($"Server đang lắng nghe trên cổng {PORT}...");
-Console.WriteLine($"Các file sẽ được lưu tại: {Path.GetFullPath(STORAGE_PATH)}");
-
-try
-{
-    // Main Listener
-    while (true)
-    {
-        // Chờ một client kết nối
-        TcpClient client = await listener.AcceptTcpClientAsync();
-        Console.WriteLine($"Client đã kết nối từ: {client.Client.RemoteEndPoint}");
-
-        // Khởi chạy một trình xử lý riêng cho client này
-        var handler = new ClientHandler(client, STORAGE_PATH);
-        _ = Task.Run(handler.HandleClientAsync);
-    }
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Lỗi server: {ex.Message}");
-}
-finally
-{
-    listener.Stop();
 }

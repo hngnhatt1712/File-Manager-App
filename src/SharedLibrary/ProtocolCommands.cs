@@ -1,28 +1,64 @@
 ﻿namespace SharedLibrary
 {
-    /// Định nghĩa các hằng số protocol dùng chung cho cả Client và Server
     public class ProtocolCommands
     {
-        // --- Chiều từ Client -> Server ---
+        // ============ AUTH (Client → Server) ============
         public const string FIRST_LOGIN_REGISTER = "FIRST_LOGIN_REGISTER";
         public const string LOGIN_ATTEMPT = "LOGIN_ATTEMPT";
-        public const string UPLOAD = "UPLOAD";
-        public const string DOWNLOAD = "DOWNLOAD";
-        public const string DELETE_FILE = "DELETE_FILE";
-        public const string PING = "PING";
-        public const string QUIT = "QUIT";
-        // --- Chiều từ Server -> Client ---
+
+        // ============ AUTH (Server → Client) ============
         public const string LOGIN_SUCCESS = "LOGIN_SUCCESS";
         public const string LOGIN_FAIL = "LOGIN_FAIL";
-        public const string READY_FOR_UPLOAD = "READY_FOR_UPLOAD";
-        public const string UPLOAD_SUCCESS = "UPLOAD_SUCCESS";
-        public const string UPLOAD_FAIL = "UPLOAD_FAIL";
-        public const string DOWNLOADING = "DOWNLOADING";
+
+        // ============ FILE UPLOAD ============
+        // Client → Server:
+        public const string UPLOAD = "UPLOAD";
+
+        // Server → Client:
+        public const string READY_FOR_UPLOAD = "READY_FOR_UPLOAD"; 
+        public const string UPLOAD_SUCCESS = "UPLOAD_SUCCESS";     
+        public const string UPLOAD_FAIL = "UPLOAD_FAIL";           
+        public const string QUOTA_EXCEEDED = "QUOTA_EXCEEDED";     // lỗi dung lượng
+        public const string INVALID_PATH = "INVALID_PATH";
+        public const string INVALID_FILENAME = "INVALID_FILENAME";
+
+        // ============ FILE DOWNLOAD ============
+        public const string DOWNLOAD = "DOWNLOAD"; 
+        public const string DOWNLOADING = "DOWNLOADING"; 
         public const string DOWNLOAD_FAIL = "DOWNLOAD_FAIL";
+        public const string FILE_NOT_FOUND = "FILE_NOT_FOUND";
+        public const string ACCESS_DENIED = "ACCESS_DENIED";
+
+        // ============ DELETE FILE ============
+        public const string DELETE_FILE = "DELETE_FILE";
         public const string DELETE_SUCCESS = "DELETE_SUCCESS";
         public const string DELETE_FAIL = "DELETE_FAIL";
+
+        // ============ FOLDER OPERATIONS ============
+        public const string CREATE_FOLDER = "CREATE_FOLDER";
+        public const string CREATE_FOLDER_SUCCESS = "CREATE_FOLDER_SUCCESS";
+        public const string CREATE_FOLDER_FAIL = "CREATE_FOLDER_FAIL";
+
+        public const string DELETE_FOLDER = "DELETE_FOLDER"; 
+        public const string DELETE_FOLDER_SUCCESS = "DELETE_FOLDER_SUCCESS";
+        public const string DELETE_FOLDER_FAIL = "DELETE_FOLDER_FAIL";
+
+        // ============ FILE LISTING ============
+        public const string LIST_FILES = "LIST_FILES";
+        public const string LIST_FILES_SUCCESS = "LIST_FILES_SUCCESS";
+        public const string LIST_FILES_FAIL = "LIST_FILES_FAIL";
+
+        // ============ RENAME ============
+        public const string RENAME_FILE = "RENAME_FILE";
+        public const string RENAME_SUCCESS = "RENAME_SUCCESS";
+        public const string RENAME_FAIL = "RENAME_FAIL";
+
+        // ============ SYSTEM ============
+        public const string PING = "PING";
         public const string PONG = "PONG";
+        public const string QUIT = "QUIT";
+
         public const string UNKNOWN_COMMAND = "UNKNOWN_COMMAND";
-        public const string LOGOUT = "LOGOUT";
     }
+
 }
