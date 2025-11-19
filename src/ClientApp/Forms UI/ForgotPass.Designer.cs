@@ -61,7 +61,7 @@
             // 
             // pictureBox2
             // 
-            pictureBox2.Image = Properties.Resources.image_from_rawpixel_id_23103344_png;
+            pictureBox2.Image = Properties.Resources.mail;
             pictureBox2.Location = new Point(15, 18);
             pictureBox2.Name = "pictureBox2";
             pictureBox2.Size = new Size(22, 23);

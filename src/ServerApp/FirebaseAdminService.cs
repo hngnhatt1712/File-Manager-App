@@ -1,14 +1,29 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using FirebaseAdmin;
+﻿using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ServerApp
 {
-    internal static class FirebaseAdminService
+    public class FileMetadata
+    {
+        [FirestoreProperty]
+        public string FileName { get; set; }
+        [FirestoreProperty]
+        public string Path { get; set; }
+        [FirestoreProperty]
+        public long Size { get; set; }
+        [FirestoreProperty]
+        public string OwnerUid { get; set; }
+        [FirestoreProperty]
+        public System.DateTime UploadedDate { get; set; }
+    }
+    public class FirebaseAdminService
     {
         private static readonly FirestoreDb _firestoreDb;
 
@@ -20,12 +35,10 @@ namespace ServerApp
 
             if (!File.Exists(keyPath))
             {
-                throw new FileNotFoundException($"Không tìm thấy file key: '{KeyFileName}'. " +
-                    "Hãy đảm bảo bạn đã:\n" +
-                    "1. Đặt file JSON đúng vào project.\n" +
-                    "2. Chọn 'Copy to Output Directory' = Copy if newer.");
+                throw new FileNotFoundException($"Không tìm thấy file key: '{KeyFileName}'");
             }
 
+            // Khởi tạo Firebase Admin (dùng xác thực)
             GoogleCredential credential = GoogleCredential.FromFile(keyPath);
 
             FirebaseApp.Create(new AppOptions()
@@ -33,8 +46,10 @@ namespace ServerApp
                 Credential = credential
             });
 
+            // Lấy project_id từ file key JSON
             string projectId = GetProjectIdFromKeyFile(keyPath);
 
+            // Khởi tạo Firestore (THƯ VIỆN ĐÚNG)
             _firestoreDb = new FirestoreDbBuilder
             {
                 ProjectId = projectId,
@@ -42,8 +57,10 @@ namespace ServerApp
             }.Build();
         }
 
+        // Hàm này để kích hoạt static constructor
         public static void Initialize() { }
 
+        // --- Lấy project_id từ JSON ---
         private static string GetProjectIdFromKeyFile(string path)
         {
             string json = File.ReadAllText(path);
@@ -51,12 +68,14 @@ namespace ServerApp
             return data.project_id;
         }
 
+        // ================= FIREBASE AUTH =================
 
         public static async Task<FirebaseToken> VerifyTokenAsync(string token)
         {
             return await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
         }
 
+        // ================= FIRESTORE METHODS =================
 
         public static async Task CreateUserDocumentAsync(string uid, string email, string phoneNumber)
         {
@@ -83,24 +102,26 @@ namespace ServerApp
             await docRef.SetAsync(newUser);
             Console.WriteLine($"Đã tạo Document Firestore cho UID: {uid}");
         }
-
-        public static async Task CheckAndCreateUserAsync(string uid, string email)
+        // Châu Sử
+        public async Task CheckAndCreateUserAsync(string uid, string email, string phone)
         {
-            DocumentReference docRef = _firestoreDb.Collection("users").Document(uid);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+            
+        }
+        public async Task<List<FileMetadata>> GetFileListAsync(string uid, string path)
+        {
+            var fileList = new List<FileMetadata>();
 
-            if (!snapshot.Exists)
+            // Truy vấn các file của user 'uid' tại đường dẫn 'path'
+            Query query = _firestoreDb.Collection("files")
+                .WhereEqualTo("OwnerUid", uid)
+                .WhereEqualTo("Path", path);
+
+            QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
+            foreach (DocumentSnapshot doc in querySnapshot.Documents)
             {
-                var newUser = new
-                {
-                    Email = email,
-                    StorageUsed = 0,
-                    CreatedAt = Timestamp.FromDateTime(DateTime.UtcNow)
-                };
-
-                await docRef.SetAsync(newUser);
-                Console.WriteLine($"Đã tự động tạo Document Firestore (thiếu SĐT) cho UID: {uid}");
+                fileList.Add(doc.ConvertTo<FileMetadata>());
             }
+            return fileList;
         }
     }
 }

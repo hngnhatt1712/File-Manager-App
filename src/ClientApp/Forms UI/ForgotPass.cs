@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClientApp.Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,8 +13,8 @@ namespace ClientApp
 {
     public partial class ForgotPass : Form
     {
-        private readonly FirebaseAuthService _authService;
-        public ForgotPass(FirebaseAuthService authService)
+        private readonly UserAuth _authService;
+        public ForgotPass(UserAuth authService)
         {
             InitializeComponent();
             _authService = authService;
@@ -40,7 +41,7 @@ namespace ClientApp
                 this.Text = "Đang gửi email...";
                 btn_send.Enabled = false;
 
-                await _authService.SendPasswordResetEmailAsync(email);
+                await _authService.ResetPasswordAsync(email);
 
                 MessageBox.Show("Đã gửi email thành công!\n\n" +
                                 "Vui lòng kiểm tra hộp thư và nhấp vào " +
