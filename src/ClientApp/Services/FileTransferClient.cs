@@ -109,9 +109,42 @@ public class FileTransferClient
             tcpClient.Close();
         }
     }
+
+    public async Task DisconnectAsync()
+    {
+        try
+        {
+            // 1. Xóa token
+            jwtToken = null;
+            apiClient.DefaultRequestHeaders.Authorization = null;
+
+            // 2. Gửi lệnh QUIT báo cho Server biết (Nếu đang kết nối)
+            if (IsConnected)
+            {
+                string quitCommand = $"{ProtocolCommands.QUIT}\n";
+                byte[] buffer = Encoding.UTF8.GetBytes(quitCommand);
+                await _stream.WriteAsync(buffer, 0, buffer.Length);
+            }
+        }
+        catch
+        {
+            // Bỏ qua lỗi nếu server đã ngắt trước
+        }
+        finally
+        {
+            // 3. Đóng kết nối vật lý
+            if (tcpClient != null)
+            {
+                tcpClient.Close();
+                // _tcpClient = new TcpClient(); // (Tùy chọn: tạo mới để sẵn sàng cho lần sau)
+            }
+        }
+    }
+
+
     //  Xây dựng API (Phần gọi từ Client)
-    #region API Authentication (Xác thực người dùng)
-    // Đăng ký user lên Server
+            #region API Authentication (Xác thực người dùng)
+            // Đăng ký user lên Server
     public async Task RegisterUserOnServerAsync(string uid, string email, string phone, string jwtToken)
     {
         // Sử
