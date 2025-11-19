@@ -28,13 +28,26 @@
         /// </summary>
         private void InitializeComponent()
         {
+            btnLogout = new Button();
             SuspendLayout();
+            // 
+            // btnLogout
+            // 
+            btnLogout.Location = new Point(1173, 894);
+            btnLogout.Name = "btnLogout";
+            btnLogout.Size = new Size(350, 84);
+            btnLogout.TabIndex = 0;
+            btnLogout.Text = "Đăng Kí";
+            btnLogout.UseVisualStyleBackColor = true;
+            btnLogout.Click += btnLogout_Click;
             // 
             // MainMenu
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(15F, 37F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(1714, 1110);
+            Controls.Add(btnLogout);
+            Margin = new Padding(6, 7, 6, 7);
             Name = "MainMenu";
             Text = "MainMenu";
             Load += MainMenu_Load;
@@ -42,5 +55,7 @@
         }
 
         #endregion
+
+        private Button btnLogout;
     }
 }
