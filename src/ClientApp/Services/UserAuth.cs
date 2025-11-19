@@ -33,7 +33,28 @@ namespace ClientApp.Services
 
         public async Task<AuthResult> LoginAsync(string email, string password)
         {
-            
+            try
+            {
+                // 1. GỌI FIREBASE AUTH ĐỂ ĐĂNG NHẬP
+                var authResult = await _authClient.SignInWithEmailAndPasswordAsync(email, password);
+
+                // 2. LẤY TOKEN VÀ UID
+                string jwtToken = await authResult.User.GetIdTokenAsync();
+                string uid = authResult.User.Uid;
+
+                // 3. TRẢ VỀ ĐỐI TƯỢNG AuthResult ĐƠN GIẢN
+                return new AuthResult
+                {
+                    IsSuccess = true,
+                    Message = "Đăng nhập thành công",
+                    Uid = uid,
+                    Token = jwtToken
+                };
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         // ======================= REGISTER =======================
