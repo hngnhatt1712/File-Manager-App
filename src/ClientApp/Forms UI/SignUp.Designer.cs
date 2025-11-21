@@ -128,7 +128,6 @@
             tb_sdt.Name = "tb_sdt";
             tb_sdt.Size = new Size(200, 20);
             tb_sdt.TabIndex = 20;
-            tb_sdt.TextChanged += tb_sdt_TextChanged;
             // 
             // pictureBox4
             // 
