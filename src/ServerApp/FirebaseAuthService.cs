@@ -26,7 +26,24 @@ public class FirebaseAuthService
     // Quốc Sử: 'Xây dựng API đăng kí' + 'Xây dựng API thêm user mới'
     public async Task<string> RegisterUserAsync(string email, string password, string displayName)
     {
-       
+        try
+        {
+            UserRecordArgs args = new UserRecordArgs()
+            {
+                Email = email,
+                Password = password,
+                DisplayName = displayName,
+                Disabled = false,
+            };
+
+            UserRecord userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(args);
+            return userRecord.Uid;
+        }
+        catch (FirebaseAuthException ex)
+        {
+            // TODO: Xử lý lỗi ( email đã tồn tại)
+            return $"Error: {ex.Message}";
+        }
     }
 
     // Client gửi token, Server xác thực

@@ -148,6 +148,22 @@ public class FileTransferClient
     public async Task RegisterUserOnServerAsync(string uid, string email, string phone, string jwtToken)
     {
         // Sử
+        var payload = new UserServerPayload { Uid = uid, Email = email, Phone = phone };
+        string jsonBody = JsonSerializer.Serialize(payload);
+        var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "api/users/register");
+        request.Content = content;
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+
+        var response = await apiClient.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            string error = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Lỗi API Server: {error}");
+        }
+
     }
 
     #endregion
