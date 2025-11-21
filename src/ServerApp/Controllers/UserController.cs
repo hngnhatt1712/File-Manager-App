@@ -25,6 +25,26 @@ public class UserController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] UserServerPayload payload)
     {
+        // [FromBody] nghĩa là lấy dữ liệu JSON client gửi lên
+
+        // Xác thực token 
+        string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        var decoded = await _authService.VerifyIdTokenAsync(token);
+        if (decoded == null) return Unauthorized("Token không hợp lệ");
+
+        try
+        {
+            // BƯỚC 2: Gọi Service để lưu vào Firestore
+            await _firestoreService.CheckAndCreateUserAsync(payload.Uid, payload.Email, payload.Phone);
+
+            // Trả về 200 OK
+            return Ok(new { message = "Lưu database thành công" });
+        }
+        catch (System.Exception ex)
+        {
+            // Trả về lỗi 500 hoặc 400
+            return BadRequest(ex.Message);
+        }
 
     }
     // Lấy thông tin User hiện lên UI

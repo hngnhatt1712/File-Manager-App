@@ -41,7 +41,7 @@ namespace ClientApp
 
                 MessageBox.Show("Đăng nhập và xác thực thành công!");
                 this.Hide();
-                MainMenu main = new MainMenu(_fileClient);
+                MainMenu main = new MainMenu(_fileClient, _authService);
                 main.ShowDialog();
                 this.Close();
             }
