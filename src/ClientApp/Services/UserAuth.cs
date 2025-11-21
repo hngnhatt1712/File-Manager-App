@@ -61,7 +61,42 @@ namespace ClientApp.Services
 
         public async Task<AuthResult> RegisterAsync(string email, string password, string phone)
         {
-            
+            string uid = null;
+            string jwtToken = null;
+
+            // TẠO USER TRÊN FIREBASE AUTHENTICATION
+            try
+            {
+                // Gọi SDK của Firebase để tạo user
+                var authResult = await _authClient.CreateUserWithEmailAndPasswordAsync(email, password);
+
+                // Lấy Token và UID (LocalId chính là UID)
+                jwtToken = await authResult.User.GetIdTokenAsync();
+                uid = authResult.User.Uid;
+            }
+            catch (Exception authEx)
+            {
+                throw new Exception($"Lỗi Firebase Auth: {authEx.Message}");
+            }
+
+            //BÁO CHO SERVER BIẾT ĐỂ LƯU VÀO FIRESTORE 
+            try
+            {
+                // Hàm này sẽ dùng HttpClient để gọi API Server của bạn
+                await _fileClient.RegisterUserOnServerAsync(uid, email, phone, jwtToken);
+            }
+            catch (Exception apiEx)
+            {
+                throw new Exception($"Tạo Auth thành công, nhưng lưu vào DB thất bại: {apiEx.Message}");
+            }
+            return new AuthResult
+            {
+                IsSuccess = true,
+                Message = $"Đăng ký thành công cho: {email}",
+                Uid = uid,
+                Token = jwtToken
+            };
+
         }
 
         // =================== RESET PASSWORD ===================

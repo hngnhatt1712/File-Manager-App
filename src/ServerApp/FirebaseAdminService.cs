@@ -105,7 +105,28 @@ namespace ServerApp
         // Châu Sử
         public async Task CheckAndCreateUserAsync(string uid, string email, string phone)
         {
-            
+            // Đảm bảo biến _firestoreDb đã được khởi tạo trong Constructor của class này
+            DocumentReference docRef = _firestoreDb.Collection("users").Document(uid);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists)
+            {
+                var newUser = new
+                {
+                    Email = email,
+                    Phone = phone,
+                    StorageUsed = 0,
+                    CreatedAt = Timestamp.FromDateTime(DateTime.UtcNow)
+                };
+
+                await docRef.SetAsync(newUser);
+                Console.WriteLine($"Đã tạo user mới: UID={uid}, Email={email}, Phone={phone}");
+            }
+            else
+            {
+                Console.WriteLine($"User {uid} đã tồn tại");
+            }
+
         }
         public async Task<List<FileMetadata>> GetFileListAsync(string uid, string path)
         {
