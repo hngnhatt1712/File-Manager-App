@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 public class FileTransferClient
 {
-    private string authToken;
     private HttpClient apiClient; // Dùng để gọi Web API
     private string jwtToken;
     private TcpClient tcpClient;  // Dùng để truyền file
@@ -50,8 +49,14 @@ public class FileTransferClient
 
         try
         {
+            // Nếu tcpClient cũ đã bị đóng hoặc null, phải tạo mới
+            if (tcpClient == null || !tcpClient.Connected)
+            {
+                tcpClient = new TcpClient();
+            }
+
             // 3. Kết nối đến TCP Server 
-            await  tcpClient.ConnectAsync(_host, _port);
+            await tcpClient.ConnectAsync(_host, _port);
             _stream = tcpClient.GetStream();
 
             // 4. Gửi token cho Server để xác thực (Handshake)
@@ -172,12 +177,34 @@ public class FileTransferClient
 
     public async Task<string> GetFileList(string path)
     {
+        // 1. Kiểm tra token
+        if (string.IsNullOrEmpty(jwtToken))
+            return "[]";
 
-         apiClient.DefaultRequestHeaders.Authorization = 
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
-         var response = await apiClient.GetAsync($"api/files?path={path}");
-         return await response.Content.ReadAsStringAsync();
-        return "[]"; // Trả về JSON string rỗng
+        try
+        {
+            // 2. Đảm bảo Header luôn mới nhất 
+            apiClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            // 3. Gọi API
+            string encodedPath = System.Net.WebUtility.UrlEncode(path);
+            var response = await apiClient.GetAsync($"api/files?path={encodedPath}");
+
+            // 4. Kiểm tra lỗi HTTP (200 OK)
+            if (!response.IsSuccessStatusCode)
+            {
+                // Có thể log lỗi hoặc throw exception tùy bạn
+                return "[]";
+            }
+
+            // 5. Trả về kết quả JSON
+            return await response.Content.ReadAsStringAsync();
+        }
+        catch
+        {
+            return "[]";
+        }
     }
 
     //Code chức năng Rename

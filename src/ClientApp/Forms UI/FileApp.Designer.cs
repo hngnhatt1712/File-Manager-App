@@ -174,7 +174,7 @@
             pictureBox1.Image = Properties.Resources.mail;
             pictureBox1.Location = new Point(26, 135);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(36, 30);
+            pictureBox1.Size = new Size(29, 30);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 35;
             pictureBox1.TabStop = false;
@@ -184,7 +184,7 @@
             pictureBox2.Image = Properties.Resources._lock;
             pictureBox2.Location = new Point(26, 194);
             pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(36, 30);
+            pictureBox2.Size = new Size(29, 30);
             pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox2.TabIndex = 36;
             pictureBox2.TabStop = false;
