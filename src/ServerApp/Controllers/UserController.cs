@@ -49,12 +49,43 @@ public class UserController : ControllerBase
     }
     // Lấy thông tin User hiện lên UI
     [HttpGet("profile")]
-    public async Task<IAsyncResult> GetProfile()
+    public async Task<IActionResult> GetProfile()
     {
-        // Lấy User ID từ Token
-        
-        // Gọi Service lấy từ Firestore
-        
+        try
+        {
+            // 1. Lấy token từ Header
+            string authHeader = HttpContext.Request.Headers["Authorization"];
+
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                return Unauthorized("Missing or invalid Authorization header");
+
+            string idToken = authHeader.Replace("Bearer ", "");
+
+            // 2. Xác thực Token bằng FirebaseAuthService
+            var decoded = await _authService.VerifyIdTokenAsync(idToken);
+            if (decoded == null)
+                return Unauthorized("Invalid or expired token");
+
+            string uid = decoded.Uid;
+
+            // 3. Lấy dữ liệu user từ Firestore (bạn cần có hàm GetUserAsync trong FirebaseAdminService)
+            var userData = await _firestoreService.GetUserAsync(uid);
+            if (userData == null)
+                return NotFound($"User with uid {uid} not found in Firestore");
+
+            // 4. Trả JSON về UI
+            return Ok(new
+            {
+                Uid = uid,
+                email = userData.Email,
+                phone = userData.Phone,
+                userData = userData
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Server error: {ex.Message}");
+        }
     }
 }
 
