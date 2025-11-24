@@ -1,6 +1,8 @@
 ﻿using ClientApp.Services;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
+using Firebase.Auth;
 using System.Windows.Forms;
 
 namespace ClientApp
