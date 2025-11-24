@@ -2,6 +2,7 @@
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
+using Google.Cloud.Firestore.V1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,6 +128,17 @@ namespace ServerApp
                 Console.WriteLine($"User {uid} đã tồn tại");
             }
 
+        }
+        public async Task<UserServerPayload> GetUserAsync(string uid)
+        {
+            var doc = await _firestoreDb
+                .Collection("users")
+                .Document(uid)
+                .GetSnapshotAsync();
+
+            if (!doc.Exists) return null;
+
+            return doc.ConvertTo<UserServerPayload>();
         }
         public async Task<List<FileMetadata>> GetFileListAsync(string uid, string path)
         {
