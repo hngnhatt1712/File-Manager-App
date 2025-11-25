@@ -33,21 +33,22 @@
             // 
             // btnLogout
             // 
-            btnLogout.Location = new Point(1173, 894);
+            btnLogout.Location = new Point(626, 483);
+            btnLogout.Margin = new Padding(2, 2, 2, 2);
             btnLogout.Name = "btnLogout";
-            btnLogout.Size = new Size(350, 84);
+            btnLogout.Size = new Size(187, 45);
             btnLogout.TabIndex = 0;
-            btnLogout.Text = "Đăng Kí";
+            btnLogout.Text = "Đăng Xuất";
             btnLogout.UseVisualStyleBackColor = true;
             btnLogout.Click += btnLogout_Click;
             // 
             // MainMenu
             // 
-            AutoScaleDimensions = new SizeF(15F, 37F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1714, 1110);
+            ClientSize = new Size(914, 570);
             Controls.Add(btnLogout);
-            Margin = new Padding(6, 7, 6, 7);
+            Margin = new Padding(3, 4, 3, 4);
             Name = "MainMenu";
             Text = "MainMenu";
             Load += MainMenu_Load;
