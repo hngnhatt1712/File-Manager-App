@@ -68,7 +68,7 @@ public class UserController : ControllerBase
 
             string uid = decoded.Uid;
 
-            // 3. Lấy dữ liệu user từ Firestore (bạn cần có hàm GetUserAsync trong FirebaseAdminService)
+            // 3. Lấy dữ liệu user từ Firestore 
             var userData = await _firestoreService.GetUserAsync(uid);
             if (userData == null)
                 return NotFound($"User with uid {uid} not found in Firestore");
@@ -89,7 +89,7 @@ public class UserController : ControllerBase
     }
 }
 
-// Class để hứng dữ liệu gửi lên (Giống hệt class bên Client)
+// Class để hứng dữ liệu gửi lên
 public class UserServerPayload
 {
     public string Uid { get; set; }

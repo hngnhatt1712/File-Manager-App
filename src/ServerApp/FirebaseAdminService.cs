@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace ServerApp
 {
+    [FirestoreData]
     public class FileMetadata
     {
         [FirestoreProperty]
@@ -26,11 +27,11 @@ namespace ServerApp
     }
     public class FirebaseAdminService
     {
-        private static readonly FirestoreDb _firestoreDb;
+        private readonly FirestoreDb _firestoreDb;
 
         private const string KeyFileName = "service-account-key.json";
 
-        static FirebaseAdminService()
+        public FirebaseAdminService()
         {
             string keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, KeyFileName);
 
@@ -42,15 +43,19 @@ namespace ServerApp
             // Khởi tạo Firebase Admin (dùng xác thực)
             GoogleCredential credential = GoogleCredential.FromFile(keyPath);
 
-            FirebaseApp.Create(new AppOptions()
+            if (FirebaseApp.DefaultInstance == null)
             {
-                Credential = credential
-            });
+                // Nếu CHƯA có thì mới tạo mới
+                FirebaseApp.Create(new AppOptions()
+                {
+                    Credential = credential
+                });
+            }
 
             // Lấy project_id từ file key JSON
             string projectId = GetProjectIdFromKeyFile(keyPath);
 
-            // Khởi tạo Firestore (THƯ VIỆN ĐÚNG)
+            // Khởi tạo Firestore 
             _firestoreDb = new FirestoreDbBuilder
             {
                 ProjectId = projectId,
@@ -62,7 +67,7 @@ namespace ServerApp
         public static void Initialize() { }
 
         // --- Lấy project_id từ JSON ---
-        private static string GetProjectIdFromKeyFile(string path)
+        private string GetProjectIdFromKeyFile(string path)
         {
             string json = File.ReadAllText(path);
             dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
@@ -71,90 +76,96 @@ namespace ServerApp
 
         // ================= FIREBASE AUTH =================
 
-        public static async Task<FirebaseToken> VerifyTokenAsync(string token)
+        public async Task<FirebaseToken> VerifyTokenAsync(string token)
         {
             return await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
         }
 
         // ================= FIRESTORE METHODS =================
 
-        public static async Task CreateUserDocumentAsync(string uid, string email, string phoneNumber)
-        {
-            DocumentReference docRef = _firestoreDb.Collection("users").Document(uid);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
-
-            if (snapshot.Exists)
-            {
-                if (!snapshot.ContainsField("PhoneNumber"))
-                {
-                    await docRef.UpdateAsync("PhoneNumber", phoneNumber);
-                }
-                return;
-            }
-
-            var newUser = new
-            {
-                Email = email,
-                PhoneNumber = phoneNumber,
-                StorageUsed = 0,
-                CreatedAt = Timestamp.FromDateTime(DateTime.UtcNow)
-            };
-
-            await docRef.SetAsync(newUser);
-            Console.WriteLine($"Đã tạo Document Firestore cho UID: {uid}");
-        }
-        // Châu Sử
         public async Task CheckAndCreateUserAsync(string uid, string email, string phone)
         {
-            // Đảm bảo biến _firestoreDb đã được khởi tạo trong Constructor của class này
-            DocumentReference docRef = _firestoreDb.Collection("users").Document(uid);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
-
-            if (!snapshot.Exists)
+            try
             {
-                var newUser = new
+                DocumentReference docRef = _firestoreDb.Collection("users").Document(uid);
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+                if (!snapshot.Exists)
                 {
-                    Email = email,
-                    Phone = phone,
-                    StorageUsed = 0,
-                    CreatedAt = Timestamp.FromDateTime(DateTime.UtcNow)
-                };
+                    var newUser = new
+                    {
+                        Email = email,
+                        PhoneNumber = phone, 
+                        StorageUsed = 0,
+                        CreatedAt = Timestamp.FromDateTime(DateTime.UtcNow)
+                    };
 
-                await docRef.SetAsync(newUser);
-                Console.WriteLine($"Đã tạo user mới: UID={uid}, Email={email}, Phone={phone}");
+                    await docRef.SetAsync(newUser);
+                    Console.WriteLine($"[Firestore] Created new user: {email}");
+                }
+                else
+                {
+                    // Nếu user đã tồn tại nhưng chưa có SĐT 
+                    if (!snapshot.ContainsField("PhoneNumber") && !string.IsNullOrEmpty(phone))
+                    {
+                        await docRef.UpdateAsync("PhoneNumber", phone);
+                        Console.WriteLine($"[Firestore] Updated phone for user: {email}");
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine($"User {uid} đã tồn tại");
+                Console.WriteLine($"[Firestore Error] CheckAndCreateUser: {ex.Message}");
+                throw;
             }
-
         }
         public async Task<UserServerPayload> GetUserAsync(string uid)
         {
-            var doc = await _firestoreDb
-                .Collection("users")
-                .Document(uid)
-                .GetSnapshotAsync();
-
-            if (!doc.Exists) return null;
-
-            return doc.ConvertTo<UserServerPayload>();
+            try
+            {
+                var doc = await _firestoreDb.Collection("users").Document(uid).GetSnapshotAsync();
+                if (!doc.Exists) return null;
+                var data = doc.ToDictionary();
+                return new UserServerPayload
+                {
+                    Uid = uid,
+                    Email = data.ContainsKey("Email") ? data["Email"].ToString() : "",
+                    Phone = data.ContainsKey("PhoneNumber") ? data["PhoneNumber"].ToString() : ""
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Firestore Error] GetUser: {ex.Message}");
+                return null;
+            }
         }
+
         public async Task<List<FileMetadata>> GetFileListAsync(string uid, string path)
         {
-            var fileList = new List<FileMetadata>();
-
-            // Truy vấn các file của user 'uid' tại đường dẫn 'path'
-            Query query = _firestoreDb.Collection("files")
-                .WhereEqualTo("OwnerUid", uid)
-                .WhereEqualTo("Path", path);
-
-            QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
-            foreach (DocumentSnapshot doc in querySnapshot.Documents)
+            try
             {
-                fileList.Add(doc.ConvertTo<FileMetadata>());
+                var fileList = new List<FileMetadata>();
+
+                // Lưu ý: Query này có thể cần tạo Index trong Firebase Console
+                // (Files collection -> OwnerUid Ascending + Path Ascending)
+                Query query = _firestoreDb.Collection("files")
+                    .WhereEqualTo("OwnerUid", uid)
+                    .WhereEqualTo("Path", path);
+
+                QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
+
+                foreach (DocumentSnapshot doc in querySnapshot.Documents)
+                {
+                    var fileData = doc.ConvertTo<FileMetadata>();
+                    fileList.Add(fileData);
+                }
+                return fileList;
             }
-            return fileList;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Firestore Error] GetFileList: {ex.Message}");
+                return new List<FileMetadata>();
+            }
         }
     }
 }

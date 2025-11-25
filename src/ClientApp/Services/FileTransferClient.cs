@@ -11,11 +11,12 @@ using System.Threading.Tasks;
 
 public class FileTransferClient
 {
-    private string authToken;
     private HttpClient apiClient; // Dùng để gọi Web API
     private string jwtToken;
     private TcpClient tcpClient;  // Dùng để truyền file
     private NetworkStream _stream;
+    private StreamReader _reader;
+    private StreamWriter _writer;
     private readonly string _host = "127.0.0.1"; 
     private readonly int _port = 8888;
 
@@ -50,20 +51,26 @@ public class FileTransferClient
 
         try
         {
+            // Nếu tcpClient cũ đã bị đóng hoặc null, phải tạo mới
+            if (tcpClient == null || !tcpClient.Connected)
+            {
+                tcpClient = new TcpClient();
+            }
+
             // 3. Kết nối đến TCP Server 
-            await  tcpClient.ConnectAsync(_host, _port);
+            tcpClient = new TcpClient();
+            await tcpClient.ConnectAsync(_host, _port);
             _stream = tcpClient.GetStream();
 
+            // Cấu hình bộ đọc/ghi để khớp với Server
+            _reader = new StreamReader(_stream, Encoding.UTF8);
+            _writer = new StreamWriter(_stream, Encoding.UTF8) { AutoFlush = true };
             // 4. Gửi token cho Server để xác thực (Handshake)
-            string authMessage = $"{jwtToken}\n"; 
-            byte[] authBuffer = Encoding.UTF8.GetBytes(authMessage);
-            await _stream.WriteAsync(authBuffer, 0, authBuffer.Length);
+            await _writer.WriteLineAsync(jwtToken);
 
             // 5.Chờ Server phản hồi "OK"
             // Đây là thiết kế tốt để đảm bảo Server chấp nhận token
-            byte[] responseBuffer = new byte[1024];
-            int bytesRead = await _stream.ReadAsync(responseBuffer, 0, responseBuffer.Length);
-            string response = Encoding.UTF8.GetString(responseBuffer, 0, bytesRead).Trim();
+            string response = await _reader.ReadLineAsync();
 
             if (response != "AUTH_OK") 
             {
@@ -88,17 +95,12 @@ public class FileTransferClient
     {
         try
         {
-            byte[] buffer = new byte[4096];
-            while (IsConnected)
+            string serverMessage;
+            while (IsConnected && (serverMessage = await _reader.ReadLineAsync()) != null)
             {
-                int bytesRead = await _stream.ReadAsync(buffer, 0, buffer.Length);
-                if (bytesRead == 0)
-                {
-                    break;
-                }
-                string serverMessage = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                 // TODO: Xử lý các lệnh từ server (ví dụ: "UPLOAD_SUCCESS", "FILE_DELETED"...)
             }
+
         }
         catch
         {
@@ -121,9 +123,7 @@ public class FileTransferClient
             // 2. Gửi lệnh QUIT báo cho Server biết (Nếu đang kết nối)
             if (IsConnected)
             {
-                string quitCommand = $"{ProtocolCommands.QUIT}\n";
-                byte[] buffer = Encoding.UTF8.GetBytes(quitCommand);
-                await _stream.WriteAsync(buffer, 0, buffer.Length);
+                await _writer.WriteLineAsync(ProtocolCommands.QUIT);
             }
         }
         catch
@@ -165,19 +165,47 @@ public class FileTransferClient
         }
 
     }
-
+    public void SetAuthToken(string token)
+    {
+        this.jwtToken = token;
+        // Cập nhật luôn cho HttpClient để dùng cho các API sau này
+        apiClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+    }   
     #endregion
 
     #region API File Metadata (Quản lý thông tin file)
 
     public async Task<string> GetFileList(string path)
     {
+        // 1. Kiểm tra token
+        if (string.IsNullOrEmpty(jwtToken))
+            return "[]";
 
-         apiClient.DefaultRequestHeaders.Authorization = 
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
-         var response = await apiClient.GetAsync($"api/files?path={path}");
-         return await response.Content.ReadAsStringAsync();
-        return "[]"; // Trả về JSON string rỗng
+        try
+        {
+            // 2. Đảm bảo Header luôn mới nhất 
+            apiClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            // 3. Gọi API
+            string encodedPath = System.Net.WebUtility.UrlEncode(path);
+            var response = await apiClient.GetAsync($"api/files?path={encodedPath}");
+
+            // 4. Kiểm tra lỗi HTTP (200 OK)
+            if (!response.IsSuccessStatusCode)
+            {
+                // Có thể log lỗi hoặc throw exception tùy bạn
+                return "[]";
+            }
+
+            // 5. Trả về kết quả JSON
+            return await response.Content.ReadAsStringAsync();
+        }
+        catch
+        {
+            return "[]";
+        }
     }
 
     //Code chức năng Rename
