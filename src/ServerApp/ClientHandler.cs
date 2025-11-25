@@ -34,6 +34,37 @@ public class ClientHandler
     {
         try
         {
+            Console.WriteLine("[TCP] Client ket noi. Dang cho Token...");
+
+            // Đọc dòng đầu tiên Client gửi (Client đang gửi Token ngay lập tức)
+            string token = await _reader.ReadLineAsync();
+
+            if (string.IsNullOrEmpty(token))
+            {
+                Console.WriteLine("[TCP] Token rong -> Ngat ket noi.");
+                return;
+            }
+
+            // Gọi hàm verify (Lưu ý: Bạn cần chắc chắn _authService trả về FirebaseToken hợp lệ)
+            // Nếu bạn dùng thư viện FirebaseAdmin thì kết quả trả về là FirebaseToken
+            FirebaseToken decodedToken = await _authService.VerifyIdTokenAsync(token);
+
+            if (decodedToken != null)
+            {
+                _isAuthenticated = true;
+                _authenticatedUid = decodedToken.Uid;
+                Console.WriteLine($"[TCP] Login OK: {_authenticatedUid}");
+
+                // QUAN TRỌNG: Gửi tín hiệu OK về cho Client để Client biết mà chạy tiếp
+                // Client của bạn đang chờ dòng chữ "AUTH_OK" (theo code Client bạn gửi lúc trước)
+                await _writer.WriteLineAsync("AUTH_OK");
+            }
+            else
+            {
+                Console.WriteLine("[TCP] Token sai -> Tu choi.");
+                await _writer.WriteLineAsync("AUTH_FAIL");
+                return; // Ngắt kết nối luôn
+            }
             // VÒNG LẶP LỆNH 
             string command;
             while ((command = await _reader.ReadLineAsync()) != null)
@@ -41,9 +72,7 @@ public class ClientHandler
                 // Phân luồng lệnh
                 switch (command.ToUpper())
                 {
-                    case ProtocolCommands.LOGIN_ATTEMPT:
-                        await HandleLoginAsync();
-                        break;
+                    
                     case ProtocolCommands.QUIT:
                         return; 
                     case ProtocolCommands.PING:
@@ -94,38 +123,6 @@ public class ClientHandler
             return false;
         }
         catch { return false; }
-    }
-    // Xử lý yêu cầu đăng nhập (Trần Chính)
-    private async Task HandleLoginAsync()
-    {
-        try
-        {
-            // Đọc token mà Client gửi lên
-            string token = await _reader.ReadLineAsync();
-            if (string.IsNullOrEmpty(token))
-            {
-                await _writer.WriteLineAsync(ProtocolCommands.LOGIN_FAIL);
-                return;
-            }
-
-            // Dùng service để xác thực
-            FirebaseToken decodedToken = await _authService.VerifyIdTokenAsync(token);
-            if (decodedToken != null)
-            {
-                // LƯU LẠI TRẠNG THÁI
-                _isAuthenticated = true;
-                _authenticatedUid = decodedToken.Uid;
-                await _writer.WriteLineAsync(ProtocolCommands.LOGIN_SUCCESS);
-            }
-            else
-            {
-                await _writer.WriteLineAsync(ProtocolCommands.LOGIN_FAIL);
-            }
-        }
-        catch
-        {
-            await _writer.WriteLineAsync(ProtocolCommands.LOGIN_FAIL);
-        }
     }
     // Các hàm nghiệp vụ 
     // Lấy danh sách file
