@@ -37,11 +37,15 @@ namespace ClientApp
                 // 2. Gọi Service File để ngắt kết nối TCP
                 await _fileClient.DisconnectAsync();
 
-                // 3. Reset giao diện về màn hình đăng nhập (tự làm)
+                // 3. Reset giao diện về màn hình đăng nhập
                 // Hiện giao diện đăng nhập     
                 // Xóa trắng các ô nhập liệu cũ
-
+                
+                
                 MessageBox.Show("Đăng xuất thành công!");
+                FileApp f = new FileApp();
+                f.ShowDialog();
+                this.Close();
             }
             catch (Exception ex)
             {
