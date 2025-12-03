@@ -49,24 +49,27 @@
             button6 = new Button();
             panel4 = new Panel();
             sidebar = new FlowLayoutPanel();
-            panel2 = new Panel();
+            changefile = new FlowLayoutPanel();
+            btn_filetype = new Button();
+            imageList1 = new ImageList(components);
+            btn_pdf = new Button();
+            btn_word = new Button();
+            btn_excel = new Button();
             btn_Logout = new Button();
             sideBarTransition = new System.Windows.Forms.Timer(components);
-            flowLayoutPanel1 = new FlowLayoutPanel();
-            panel5 = new Panel();
-            button8 = new Button();
+            fileTransition = new System.Windows.Forms.Timer(components);
+            panel2 = new Panel();
             panel1.SuspendLayout();
             roundedPanel1.SuspendLayout();
             panel3.SuspendLayout();
             panel4.SuspendLayout();
             sidebar.SuspendLayout();
-            panel2.SuspendLayout();
-            flowLayoutPanel1.SuspendLayout();
+            changefile.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
             // 
-            panel1.BackColor = Color.FromArgb(128, 128, 255);
+            panel1.BackColor = Color.Aqua;
             panel1.Controls.Add(label2);
             panel1.Controls.Add(button1);
             panel1.Controls.Add(button2);
@@ -79,6 +82,7 @@
             panel1.Controls.Add(label3);
             panel1.Dock = DockStyle.Bottom;
             panel1.Location = new Point(0, 1185);
+            panel1.Margin = new Padding(0);
             panel1.Name = "panel1";
             panel1.Size = new Size(1258, 109);
             panel1.TabIndex = 1;
@@ -91,7 +95,7 @@
             label2.Name = "label2";
             label2.Size = new Size(101, 37);
             label2.TabIndex = 1;
-            label2.Text = "Cài đặt";
+            label2.Text = "Setting";
             // 
             // button1
             // 
@@ -100,7 +104,7 @@
             button1.BackgroundImageLayout = ImageLayout.Zoom;
             button1.FlatAppearance.BorderSize = 0;
             button1.FlatStyle = FlatStyle.Flat;
-            button1.Location = new Point(65, 0);
+            button1.Location = new Point(102, 2);
             button1.Name = "button1";
             button1.Size = new Size(71, 74);
             button1.TabIndex = 2;
@@ -124,20 +128,20 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(865, 63);
+            label5.Location = new Point(892, 62);
             label5.Name = "label5";
-            label5.Size = new Size(134, 37);
+            label5.Size = new Size(78, 37);
             label5.TabIndex = 1;
-            label5.Text = "Thùng rác";
+            label5.Text = "Trash";
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(42, 63);
+            label1.Location = new Point(93, 62);
             label1.Name = "label1";
-            label1.Size = new Size(139, 37);
+            label1.Size = new Size(89, 37);
             label1.TabIndex = 2;
-            label1.Text = "Trang chủ ";
+            label1.Text = "Home";
             label1.Click += label1_Click;
             // 
             // button4
@@ -146,7 +150,7 @@
             button4.BackgroundImageLayout = ImageLayout.Zoom;
             button4.FlatAppearance.BorderSize = 0;
             button4.FlatStyle = FlatStyle.Flat;
-            button4.Location = new Point(353, 8);
+            button4.Location = new Point(352, 6);
             button4.Name = "button4";
             button4.Size = new Size(116, 66);
             button4.TabIndex = 1;
@@ -170,11 +174,11 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(364, 64);
+            label4.Location = new Point(363, 62);
             label4.Name = "label4";
-            label4.Size = new Size(117, 37);
+            label4.Size = new Size(98, 37);
             label4.TabIndex = 1;
-            label4.Text = "Riêng tư";
+            label4.Text = "Private";
             // 
             // button3
             // 
@@ -183,7 +187,7 @@
             button3.BackgroundImageLayout = ImageLayout.Zoom;
             button3.FlatAppearance.BorderSize = 0;
             button3.FlatStyle = FlatStyle.Flat;
-            button3.Location = new Point(645, -1);
+            button3.Location = new Point(641, -1);
             button3.Name = "button3";
             button3.Size = new Size(113, 71);
             button3.TabIndex = 1;
@@ -193,41 +197,43 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(654, 62);
+            label3.Location = new Point(593, 62);
             label3.Name = "label3";
-            label3.Size = new Size(92, 37);
+            label3.Size = new Size(213, 37);
             label3.TabIndex = 1;
-            label3.Text = "Đã Tải";
+            label3.Text = "Downloaded file";
             // 
             // roundedPanel1
             // 
-            roundedPanel1.BackColor = Color.IndianRed;
+            roundedPanel1.Anchor = AnchorStyles.None;
+            roundedPanel1.BackColor = Color.White;
             roundedPanel1.BorderColor = Color.Transparent;
             roundedPanel1.BorderRadius = 30;
             roundedPanel1.Controls.Add(txtSearch);
-            roundedPanel1.Location = new Point(6, 19);
+            roundedPanel1.Location = new Point(9, 6);
             roundedPanel1.Name = "roundedPanel1";
-            roundedPanel1.Size = new Size(778, 75);
+            roundedPanel1.Size = new Size(749, 71);
             roundedPanel1.TabIndex = 1;
             // 
             // txtSearch
             // 
-            txtSearch.BackColor = Color.IndianRed;
+            txtSearch.BackColor = Color.White;
             txtSearch.BorderStyle = BorderStyle.None;
-            txtSearch.Location = new Point(29, 3);
+            txtSearch.Location = new Point(19, 13);
             txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(727, 36);
+            txtSearch.Size = new Size(711, 36);
             txtSearch.TabIndex = 1;
             txtSearch.TextChanged += textBox1_TextChanged;
             // 
             // panel3
             // 
-            panel3.BackColor = Color.FromArgb(0, 0, 192);
+            panel3.BackColor = Color.Blue;
             panel3.Controls.Add(label6);
             panel3.Controls.Add(button7);
             panel3.Controls.Add(button6);
             panel3.Dock = DockStyle.Top;
             panel3.Location = new Point(0, 0);
+            panel3.Margin = new Padding(0);
             panel3.Name = "panel3";
             panel3.Size = new Size(1258, 62);
             panel3.TabIndex = 3;
@@ -278,85 +284,171 @@
             // 
             // panel4
             // 
+            panel4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panel4.BackColor = SystemColors.Control;
             panel4.Controls.Add(roundedPanel1);
-            panel4.Dock = DockStyle.Top;
-            panel4.Location = new Point(488, 62);
+            panel4.Location = new Point(491, 62);
             panel4.Name = "panel4";
-            panel4.Size = new Size(770, 100);
+            panel4.Size = new Size(761, 100);
             panel4.TabIndex = 4;
             // 
             // sidebar
             // 
-            sidebar.BackColor = Color.Black;
-            sidebar.Controls.Add(panel2);
+            sidebar.BackColor = Color.Blue;
+            sidebar.Controls.Add(changefile);
+            sidebar.Controls.Add(btn_Logout);
             sidebar.Dock = DockStyle.Left;
             sidebar.Location = new Point(0, 62);
+            sidebar.Margin = new Padding(0);
             sidebar.Name = "sidebar";
             sidebar.Size = new Size(488, 1123);
             sidebar.TabIndex = 0;
             // 
-            // panel2
+            // changefile
             // 
-            panel2.Controls.Add(btn_Logout);
-            panel2.Location = new Point(3, 3);
-            panel2.Name = "panel2";
-            panel2.Size = new Size(488, 146);
-            panel2.TabIndex = 2;
+            changefile.Controls.Add(btn_filetype);
+            changefile.Controls.Add(btn_pdf);
+            changefile.Controls.Add(btn_word);
+            changefile.Controls.Add(btn_excel);
+            changefile.ForeColor = Color.Blue;
+            changefile.Location = new Point(3, 3);
+            changefile.Name = "changefile";
+            changefile.Size = new Size(487, 128);
+            changefile.TabIndex = 3;
+            changefile.UseWaitCursor = true;
+            // 
+            // btn_filetype
+            // 
+            btn_filetype.BackColor = Color.FromArgb(0, 0, 192);
+            btn_filetype.FlatAppearance.BorderSize = 0;
+            btn_filetype.FlatStyle = FlatStyle.Flat;
+            btn_filetype.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btn_filetype.ForeColor = Color.Cyan;
+            btn_filetype.ImageAlign = ContentAlignment.MiddleLeft;
+            btn_filetype.ImageKey = "Selling Strategy Document.png";
+            btn_filetype.ImageList = imageList1;
+            btn_filetype.Location = new Point(0, 0);
+            btn_filetype.Margin = new Padding(0);
+            btn_filetype.Name = "btn_filetype";
+            btn_filetype.Size = new Size(486, 128);
+            btn_filetype.TabIndex = 0;
+            btn_filetype.Text = "File type";
+            btn_filetype.UseVisualStyleBackColor = false;
+            btn_filetype.UseWaitCursor = true;
+            btn_filetype.Click += btn_changefile_Click;
+            // 
+            // imageList1
+            // 
+            imageList1.ColorDepth = ColorDepth.Depth32Bit;
+            imageList1.ImageStream = (ImageListStreamer)resources.GetObject("imageList1.ImageStream");
+            imageList1.TransparentColor = Color.Transparent;
+            imageList1.Images.SetKeyName(0, "logout.png");
+            imageList1.Images.SetKeyName(1, "chuyển  đổi.png");
+            imageList1.Images.SetKeyName(2, "word file.png");
+            imageList1.Images.SetKeyName(3, "PDF.png");
+            imageList1.Images.SetKeyName(4, "Selling Strategy Document.png");
+            imageList1.Images.SetKeyName(5, "Microsoft Excel 2019.png");
+            // 
+            // btn_pdf
+            // 
+            btn_pdf.BackColor = Color.Blue;
+            btn_pdf.FlatAppearance.BorderSize = 0;
+            btn_pdf.FlatStyle = FlatStyle.Flat;
+            btn_pdf.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btn_pdf.ForeColor = Color.Cyan;
+            btn_pdf.ImageAlign = ContentAlignment.MiddleLeft;
+            btn_pdf.ImageKey = "PDF.png";
+            btn_pdf.ImageList = imageList1;
+            btn_pdf.Location = new Point(0, 128);
+            btn_pdf.Margin = new Padding(0);
+            btn_pdf.Name = "btn_pdf";
+            btn_pdf.Size = new Size(485, 128);
+            btn_pdf.TabIndex = 2;
+            btn_pdf.Text = "PDF";
+            btn_pdf.UseVisualStyleBackColor = false;
+            btn_pdf.UseWaitCursor = true;
+            // 
+            // btn_word
+            // 
+            btn_word.BackColor = Color.Blue;
+            btn_word.FlatAppearance.BorderSize = 0;
+            btn_word.FlatStyle = FlatStyle.Flat;
+            btn_word.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btn_word.ForeColor = Color.Cyan;
+            btn_word.ImageAlign = ContentAlignment.MiddleLeft;
+            btn_word.ImageKey = "word file.png";
+            btn_word.ImageList = imageList1;
+            btn_word.Location = new Point(0, 256);
+            btn_word.Margin = new Padding(0);
+            btn_word.Name = "btn_word";
+            btn_word.Size = new Size(485, 128);
+            btn_word.TabIndex = 3;
+            btn_word.Text = "Word";
+            btn_word.UseVisualStyleBackColor = false;
+            btn_word.UseWaitCursor = true;
+            // 
+            // btn_excel
+            // 
+            btn_excel.BackColor = Color.Blue;
+            btn_excel.FlatAppearance.BorderSize = 0;
+            btn_excel.FlatStyle = FlatStyle.Flat;
+            btn_excel.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btn_excel.ForeColor = Color.Cyan;
+            btn_excel.ImageAlign = ContentAlignment.MiddleLeft;
+            btn_excel.ImageKey = "Microsoft Excel 2019.png";
+            btn_excel.ImageList = imageList1;
+            btn_excel.Location = new Point(0, 384);
+            btn_excel.Margin = new Padding(0);
+            btn_excel.Name = "btn_excel";
+            btn_excel.Size = new Size(485, 128);
+            btn_excel.TabIndex = 4;
+            btn_excel.Text = "Excel";
+            btn_excel.UseVisualStyleBackColor = false;
+            btn_excel.UseWaitCursor = true;
             // 
             // btn_Logout
             // 
-            btn_Logout.BackColor = Color.Transparent;
-            btn_Logout.BackgroundImage = (Image)resources.GetObject("btn_Logout.BackgroundImage");
+            btn_Logout.BackColor = Color.FromArgb(0, 0, 192);
             btn_Logout.BackgroundImageLayout = ImageLayout.Zoom;
             btn_Logout.FlatAppearance.BorderSize = 0;
             btn_Logout.FlatStyle = FlatStyle.Flat;
             btn_Logout.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btn_Logout.ForeColor = SystemColors.ButtonHighlight;
-            btn_Logout.Location = new Point(-274, -5);
+            btn_Logout.ForeColor = Color.Cyan;
+            btn_Logout.ImageAlign = ContentAlignment.MiddleLeft;
+            btn_Logout.ImageKey = "logout.png";
+            btn_Logout.ImageList = imageList1;
+            btn_Logout.Location = new Point(0, 134);
+            btn_Logout.Margin = new Padding(0);
             btn_Logout.Name = "btn_Logout";
-            btn_Logout.Size = new Size(752, 151);
+            btn_Logout.Size = new Size(485, 138);
             btn_Logout.TabIndex = 1;
-            btn_Logout.Text = "           Đăng Xuất";
-            btn_Logout.TextAlign = ContentAlignment.MiddleRight;
+            btn_Logout.Text = "Log out";
             btn_Logout.UseVisualStyleBackColor = false;
+            btn_Logout.Click += btn_Logout_Click_1;
             // 
             // sideBarTransition
             // 
             sideBarTransition.Interval = 10;
             sideBarTransition.Tick += sideBarTransition_Tick;
             // 
-            // flowLayoutPanel1
+            // fileTransition
             // 
-            flowLayoutPanel1.Controls.Add(panel5);
-            flowLayoutPanel1.Controls.Add(button8);
-            flowLayoutPanel1.Location = new Point(494, 162);
-            flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(761, 1016);
-            flowLayoutPanel1.TabIndex = 5;
+            fileTransition.Interval = 10;
+            fileTransition.Tick += fileTransition_Tick;
             // 
-            // panel5
+            // panel2
             // 
-            panel5.Location = new Point(3, 3);
-            panel5.Name = "panel5";
-            panel5.Size = new Size(572, 150);
-            panel5.TabIndex = 2;
-            // 
-            // button8
-            // 
-            button8.Location = new Point(3, 159);
-            button8.Name = "button8";
-            button8.Size = new Size(698, 64);
-            button8.TabIndex = 0;
-            button8.Text = "button8";
-            button8.UseVisualStyleBackColor = true;
+            panel2.Location = new Point(491, 168);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(761, 1010);
+            panel2.TabIndex = 5;
             // 
             // MainMenu
             // 
             AutoScaleDimensions = new SizeF(15F, 37F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1258, 1294);
-            Controls.Add(flowLayoutPanel1);
+            Controls.Add(panel2);
             Controls.Add(panel4);
             Controls.Add(sidebar);
             Controls.Add(panel3);
@@ -376,8 +468,7 @@
             panel3.PerformLayout();
             panel4.ResumeLayout(false);
             sidebar.ResumeLayout(false);
-            panel2.ResumeLayout(false);
-            flowLayoutPanel1.ResumeLayout(false);
+            changefile.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -402,10 +493,14 @@
         private Label label6;
         private FlowLayoutPanel sidebar;
         private System.Windows.Forms.Timer sideBarTransition;
-        private FlowLayoutPanel flowLayoutPanel1;
-        private Button button8;
-        private Panel panel2;
+        private Button btn_filetype;
         private Button btn_Logout;
-        private Panel panel5;
+        private ImageList imageList1;
+        private Button btn_pdf;
+        private FlowLayoutPanel changefile;
+        private Button btn_word;
+        private System.Windows.Forms.Timer fileTransition;
+        private Button btn_excel;
+        private Panel panel2;
     }
 }

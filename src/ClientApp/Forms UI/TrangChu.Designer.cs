@@ -28,26 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
-            panel1 = new Panel();
+            flowLayoutPanel1 = new FlowLayoutPanel();
+            label1 = new Label();
             button1 = new Button();
-            panel1.SuspendLayout();
+            flowLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
-            // panel1
+            // flowLayoutPanel1
             // 
-            panel1.Controls.Add(button1);
-            panel1.Location = new Point(111, 58);
-            panel1.Name = "panel1";
-            panel1.Size = new Size(1154, 990);
-            panel1.TabIndex = 0;
-            panel1.Paint += panel1_Paint;
+            flowLayoutPanel1.Controls.Add(label1);
+            flowLayoutPanel1.Controls.Add(button1);
+            flowLayoutPanel1.Location = new Point(3, 3);
+            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            flowLayoutPanel1.Size = new Size(761, 1015);
+            flowLayoutPanel1.TabIndex = 0;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(3, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(90, 37);
+            label1.TabIndex = 0;
+            label1.Text = "label1";
             // 
             // button1
             // 
-            button1.Location = new Point(29, 132);
+            button1.Location = new Point(3, 40);
             button1.Name = "button1";
-            button1.Size = new Size(700, 286);
-            button1.TabIndex = 0;
+            button1.Size = new Size(689, 894);
+            button1.TabIndex = 1;
             button1.Text = "button1";
             button1.UseVisualStyleBackColor = true;
             // 
@@ -55,16 +65,18 @@
             // 
             AutoScaleDimensions = new SizeF(15F, 37F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(panel1);
+            Controls.Add(flowLayoutPanel1);
             Name = "TrangChu";
-            Size = new Size(1544, 1226);
-            panel1.ResumeLayout(false);
+            Size = new Size(761, 1010);
+            flowLayoutPanel1.ResumeLayout(false);
+            flowLayoutPanel1.PerformLayout();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private Panel panel1;
+        private FlowLayoutPanel flowLayoutPanel1;
+        private Label label1;
         private Button button1;
     }
 }

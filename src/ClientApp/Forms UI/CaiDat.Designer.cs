@@ -36,9 +36,9 @@
             // panel1
             // 
             panel1.Controls.Add(label1);
-            panel1.Location = new Point(228, 149);
+            panel1.Location = new Point(3, 7);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1263, 953);
+            panel1.Size = new Size(740, 970);
             panel1.TabIndex = 0;
             // 
             // label1
@@ -56,7 +56,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(panel1);
             Name = "CaiDat";
-            Size = new Size(1608, 1158);
+            Size = new Size(761, 1010);
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             ResumeLayout(false);

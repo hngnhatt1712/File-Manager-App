@@ -29,26 +29,26 @@
         private void InitializeComponent()
         {
             panel1 = new Panel();
-            label1 = new Label();
+            button1 = new Button();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
             // 
-            panel1.Controls.Add(label1);
-            panel1.Location = new Point(158, 48);
+            panel1.Controls.Add(button1);
+            panel1.Location = new Point(3, 3);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1263, 953);
+            panel1.Size = new Size(761, 1009);
             panel1.TabIndex = 0;
             // 
-            // label1
+            // button1
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(483, 268);
-            label1.Name = "label1";
-            label1.Size = new Size(134, 37);
-            label1.TabIndex = 0;
-            label1.Text = "Thung rác";
+            button1.Location = new Point(194, 131);
+            button1.Name = "button1";
+            button1.Size = new Size(269, 559);
+            button1.TabIndex = 0;
+            button1.Text = "button1";
+            button1.UseVisualStyleBackColor = true;
             // 
             // ThungRac
             // 
@@ -56,15 +56,14 @@
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(panel1);
             Name = "ThungRac";
-            Size = new Size(1511, 1095);
+            Size = new Size(761, 1010);
             panel1.ResumeLayout(false);
-            panel1.PerformLayout();
             ResumeLayout(false);
         }
 
         #endregion
 
         private Panel panel1;
-        private Label label1;
+        private Button button1;
     }
 }

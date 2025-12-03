@@ -36,15 +36,15 @@
             // panel1
             // 
             panel1.Controls.Add(label1);
-            panel1.Location = new Point(86, 90);
+            panel1.Location = new Point(46, 20);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1263, 953);
+            panel1.Size = new Size(664, 944);
             panel1.TabIndex = 0;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(649, 145);
+            label1.Location = new Point(438, 345);
             label1.Name = "label1";
             label1.Size = new Size(125, 37);
             label1.TabIndex = 0;
@@ -56,7 +56,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(panel1);
             Name = "RiengTu";
-            Size = new Size(1517, 1123);
+            Size = new Size(761, 1010);
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             ResumeLayout(false);

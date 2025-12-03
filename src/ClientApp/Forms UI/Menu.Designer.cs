@@ -28,27 +28,25 @@
         /// </summary>
         private void InitializeComponent()
         {
-            panel5 = new Panel();
+            flowLayoutPanel1 = new FlowLayoutPanel();
             button1 = new Button();
-            panel5.SuspendLayout();
+            flowLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
-            // panel5
+            // flowLayoutPanel1
             // 
-            panel5.BackColor = Color.MediumBlue;
-            panel5.Controls.Add(button1);
-            panel5.Location = new Point(0, 0);
-            panel5.Name = "panel5";
-            panel5.Size = new Size(203, 991);
-            panel5.TabIndex = 2;
-            panel5.Paint += panel5_Paint;
+            flowLayoutPanel1.Controls.Add(button1);
+            flowLayoutPanel1.Location = new Point(3, 3);
+            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            flowLayoutPanel1.Size = new Size(758, 992);
+            flowLayoutPanel1.TabIndex = 0;
             // 
             // button1
             // 
-            button1.Location = new Point(15, 250);
+            button1.Location = new Point(3, 3);
             button1.Name = "button1";
-            button1.Size = new Size(205, 299);
-            button1.TabIndex = 3;
+            button1.Size = new Size(737, 755);
+            button1.TabIndex = 0;
             button1.Text = "button1";
             button1.UseVisualStyleBackColor = true;
             // 
@@ -56,17 +54,17 @@
             // 
             AutoScaleDimensions = new SizeF(15F, 37F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(panel5);
+            Controls.Add(flowLayoutPanel1);
             Name = "Menu";
-            Size = new Size(936, 1318);
+            Size = new Size(761, 1010);
             Load += Menu_Load;
-            panel5.ResumeLayout(false);
+            flowLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
 
-        private Panel panel5;
+        private FlowLayoutPanel flowLayoutPanel1;
         private Button button1;
     }
 }
