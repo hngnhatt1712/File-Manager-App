@@ -38,17 +38,7 @@ namespace ClientApp
                 throw new Exception($"Kết nối TCP thất bại: {ex.Message}");
             }
         }
-        private void btn_signup_Click(object sender, EventArgs e)
-        {
-            var signup = new SignUp(_authService);
-            signup.ShowDialog();
-        }
 
-        private void llb_forgotPass_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            ForgotPass forgotPass = new ForgotPass(_authService);
-            forgotPass.ShowDialog();
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -106,7 +96,7 @@ namespace ClientApp
 
         private void button4_Click(object sender, EventArgs e)
         {
-            if(tb_pass.PasswordChar == '\0')
+            if (tb_pass.PasswordChar == '\0')
             {
                 button3.BringToFront();
                 tb_pass.PasswordChar = '*';
@@ -115,11 +105,23 @@ namespace ClientApp
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if( tb_pass.PasswordChar == '*')
+            if (tb_pass.PasswordChar == '*')
             {
                 button4.BringToFront();
                 tb_pass.PasswordChar = '\0';
             }
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            ForgotPass forgotPass = new ForgotPass(_authService);
+            forgotPass.ShowDialog();
+        }
+
+        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var signup = new SignUp(_authService);
+            signup.ShowDialog();
         }
     }
 }

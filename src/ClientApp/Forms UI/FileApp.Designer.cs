@@ -61,7 +61,7 @@
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1009, 37);
+            panel1.Size = new Size(979, 42);
             panel1.TabIndex = 0;
             panel1.MouseDown += panel1_MouseDown;
             // 
@@ -72,9 +72,9 @@
             button1.Dock = DockStyle.Right;
             button1.FlatAppearance.BorderSize = 0;
             button1.FlatStyle = FlatStyle.Flat;
-            button1.Location = new Point(958, 0);
+            button1.Location = new Point(928, 0);
             button1.Name = "button1";
-            button1.Size = new Size(51, 37);
+            button1.Size = new Size(51, 42);
             button1.TabIndex = 0;
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
@@ -199,6 +199,7 @@
             linkLabel2.TabIndex = 9;
             linkLabel2.TabStop = true;
             linkLabel2.Text = "Create New Account";
+            linkLabel2.LinkClicked += linkLabel2_LinkClicked;
             // 
             // label4
             // 
@@ -231,6 +232,7 @@
             linkLabel1.TabIndex = 6;
             linkLabel1.TabStop = true;
             linkLabel1.Text = "Forgot Password";
+            linkLabel1.LinkClicked += linkLabel1_LinkClicked;
             // 
             // label3
             // 
@@ -249,7 +251,7 @@
             pictureBox3.Image = (Image)resources.GetObject("pictureBox3.Image");
             pictureBox3.Location = new Point(0, 0);
             pictureBox3.Name = "pictureBox3";
-            pictureBox3.Size = new Size(1009, 607);
+            pictureBox3.Size = new Size(979, 588);
             pictureBox3.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox3.TabIndex = 6;
             pictureBox3.TabStop = false;
@@ -259,7 +261,7 @@
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Window;
-            ClientSize = new Size(1009, 607);
+            ClientSize = new Size(979, 588);
             Controls.Add(panel2);
             Controls.Add(panel1);
             Controls.Add(pictureBox3);
