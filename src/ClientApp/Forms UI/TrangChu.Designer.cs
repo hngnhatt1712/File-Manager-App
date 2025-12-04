@@ -40,7 +40,7 @@
             flowLayoutPanel1.Controls.Add(button1);
             flowLayoutPanel1.Location = new Point(3, 3);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(761, 1015);
+            flowLayoutPanel1.Size = new Size(663, 962);
             flowLayoutPanel1.TabIndex = 0;
             // 
             // label1
@@ -54,9 +54,9 @@
             // 
             // button1
             // 
-            button1.Location = new Point(3, 40);
+            button1.Location = new Point(99, 3);
             button1.Name = "button1";
-            button1.Size = new Size(689, 894);
+            button1.Size = new Size(325, 63);
             button1.TabIndex = 1;
             button1.Text = "button1";
             button1.UseVisualStyleBackColor = true;
@@ -67,7 +67,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(flowLayoutPanel1);
             Name = "TrangChu";
-            Size = new Size(761, 1010);
+            Size = new Size(1103, 1010);
+            Load += TrangChu_Load;
             flowLayoutPanel1.ResumeLayout(false);
             flowLayoutPanel1.PerformLayout();
             ResumeLayout(false);

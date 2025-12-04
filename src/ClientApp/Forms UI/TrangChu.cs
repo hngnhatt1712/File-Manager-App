@@ -15,7 +15,7 @@ namespace ClientApp.Forms_UI
         public TrangChu()
         {
             InitializeComponent();
-           
+
         }
 
         private void txtSearch_TextChanged(object sender, EventArgs e)
@@ -24,6 +24,11 @@ namespace ClientApp.Forms_UI
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void TrangChu_Load(object sender, EventArgs e)
         {
 
         }

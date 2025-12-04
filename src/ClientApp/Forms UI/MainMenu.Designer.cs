@@ -52,9 +52,11 @@
             changefile = new FlowLayoutPanel();
             btn_filetype = new Button();
             imageList1 = new ImageList(components);
-            btn_pdf = new Button();
             btn_word = new Button();
             btn_excel = new Button();
+            btn_pdf = new Button();
+            btn_txt = new Button();
+            btn_star = new Button();
             btn_Logout = new Button();
             sideBarTransition = new System.Windows.Forms.Timer(components);
             fileTransition = new System.Windows.Forms.Timer(components);
@@ -84,14 +86,14 @@
             panel1.Location = new Point(0, 1185);
             panel1.Margin = new Padding(0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1258, 109);
+            panel1.Size = new Size(1600, 109);
             panel1.TabIndex = 1;
             panel1.Paint += panel1_Paint;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(1091, 63);
+            label2.Location = new Point(1284, 63);
             label2.Name = "label2";
             label2.Size = new Size(101, 37);
             label2.TabIndex = 1;
@@ -104,7 +106,7 @@
             button1.BackgroundImageLayout = ImageLayout.Zoom;
             button1.FlatAppearance.BorderSize = 0;
             button1.FlatStyle = FlatStyle.Flat;
-            button1.Location = new Point(102, 2);
+            button1.Location = new Point(135, 2);
             button1.Name = "button1";
             button1.Size = new Size(71, 74);
             button1.TabIndex = 2;
@@ -118,7 +120,7 @@
             button2.BackgroundImageLayout = ImageLayout.Zoom;
             button2.FlatAppearance.BorderSize = 0;
             button2.FlatStyle = FlatStyle.Flat;
-            button2.Location = new Point(1091, 6);
+            button2.Location = new Point(1284, 6);
             button2.Name = "button2";
             button2.Size = new Size(101, 57);
             button2.TabIndex = 1;
@@ -128,7 +130,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(892, 62);
+            label5.Location = new Point(1029, 62);
             label5.Name = "label5";
             label5.Size = new Size(78, 37);
             label5.TabIndex = 1;
@@ -137,7 +139,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(93, 62);
+            label1.Location = new Point(126, 62);
             label1.Name = "label1";
             label1.Size = new Size(89, 37);
             label1.TabIndex = 2;
@@ -150,7 +152,7 @@
             button4.BackgroundImageLayout = ImageLayout.Zoom;
             button4.FlatAppearance.BorderSize = 0;
             button4.FlatStyle = FlatStyle.Flat;
-            button4.Location = new Point(352, 6);
+            button4.Location = new Point(412, 6);
             button4.Name = "button4";
             button4.Size = new Size(116, 66);
             button4.TabIndex = 1;
@@ -164,7 +166,7 @@
             button5.BackgroundImageLayout = ImageLayout.Zoom;
             button5.FlatAppearance.BorderSize = 0;
             button5.FlatStyle = FlatStyle.Flat;
-            button5.Location = new Point(855, 4);
+            button5.Location = new Point(997, 1);
             button5.Name = "button5";
             button5.Size = new Size(144, 66);
             button5.TabIndex = 1;
@@ -174,11 +176,11 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(363, 62);
+            label4.Location = new Point(423, 62);
             label4.Name = "label4";
-            label4.Size = new Size(98, 37);
+            label4.Size = new Size(97, 37);
             label4.TabIndex = 1;
-            label4.Text = "Private";
+            label4.Text = "My file";
             // 
             // button3
             // 
@@ -187,9 +189,9 @@
             button3.BackgroundImageLayout = ImageLayout.Zoom;
             button3.FlatAppearance.BorderSize = 0;
             button3.FlatStyle = FlatStyle.Flat;
-            button3.Location = new Point(641, -1);
+            button3.Location = new Point(717, 6);
             button3.Name = "button3";
-            button3.Size = new Size(113, 71);
+            button3.Size = new Size(113, 66);
             button3.TabIndex = 1;
             button3.UseVisualStyleBackColor = false;
             button3.Click += button3_Click;
@@ -197,11 +199,11 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(593, 62);
+            label3.Location = new Point(725, 62);
             label3.Name = "label3";
-            label3.Size = new Size(213, 37);
+            label3.Size = new Size(105, 37);
             label3.TabIndex = 1;
-            label3.Text = "Downloaded file";
+            label3.Text = "Upload";
             // 
             // roundedPanel1
             // 
@@ -210,9 +212,9 @@
             roundedPanel1.BorderColor = Color.Transparent;
             roundedPanel1.BorderRadius = 30;
             roundedPanel1.Controls.Add(txtSearch);
-            roundedPanel1.Location = new Point(9, 6);
+            roundedPanel1.Location = new Point(95, 13);
             roundedPanel1.Name = "roundedPanel1";
-            roundedPanel1.Size = new Size(749, 71);
+            roundedPanel1.Size = new Size(939, 71);
             roundedPanel1.TabIndex = 1;
             // 
             // txtSearch
@@ -235,7 +237,7 @@
             panel3.Location = new Point(0, 0);
             panel3.Margin = new Padding(0);
             panel3.Name = "panel3";
-            panel3.Size = new Size(1258, 62);
+            panel3.Size = new Size(1600, 62);
             panel3.TabIndex = 3;
             panel3.Paint += panel3_Paint;
             panel3.MouseDown += panel3_MouseDown;
@@ -275,7 +277,7 @@
             button6.FlatStyle = FlatStyle.Flat;
             button6.Font = new Font("Segoe UI", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
             button6.Image = (Image)resources.GetObject("button6.Image");
-            button6.Location = new Point(1178, 0);
+            button6.Location = new Point(1520, 0);
             button6.Name = "button6";
             button6.Size = new Size(80, 62);
             button6.TabIndex = 0;
@@ -289,13 +291,14 @@
             panel4.Controls.Add(roundedPanel1);
             panel4.Location = new Point(491, 62);
             panel4.Name = "panel4";
-            panel4.Size = new Size(761, 100);
+            panel4.Size = new Size(1103, 100);
             panel4.TabIndex = 4;
             // 
             // sidebar
             // 
             sidebar.BackColor = Color.Blue;
             sidebar.Controls.Add(changefile);
+            sidebar.Controls.Add(btn_star);
             sidebar.Controls.Add(btn_Logout);
             sidebar.Dock = DockStyle.Left;
             sidebar.Location = new Point(0, 62);
@@ -307,13 +310,15 @@
             // changefile
             // 
             changefile.Controls.Add(btn_filetype);
-            changefile.Controls.Add(btn_pdf);
             changefile.Controls.Add(btn_word);
             changefile.Controls.Add(btn_excel);
+            changefile.Controls.Add(btn_pdf);
+            changefile.Controls.Add(btn_txt);
             changefile.ForeColor = Color.Blue;
-            changefile.Location = new Point(3, 3);
+            changefile.Location = new Point(0, 0);
+            changefile.Margin = new Padding(0);
             changefile.Name = "changefile";
-            changefile.Size = new Size(487, 128);
+            changefile.Size = new Size(482, 128);
             changefile.TabIndex = 3;
             changefile.UseWaitCursor = true;
             // 
@@ -330,7 +335,7 @@
             btn_filetype.Location = new Point(0, 0);
             btn_filetype.Margin = new Padding(0);
             btn_filetype.Name = "btn_filetype";
-            btn_filetype.Size = new Size(486, 128);
+            btn_filetype.Size = new Size(485, 138);
             btn_filetype.TabIndex = 0;
             btn_filetype.Text = "File type";
             btn_filetype.UseVisualStyleBackColor = false;
@@ -348,25 +353,9 @@
             imageList1.Images.SetKeyName(3, "PDF.png");
             imageList1.Images.SetKeyName(4, "Selling Strategy Document.png");
             imageList1.Images.SetKeyName(5, "Microsoft Excel 2019.png");
-            // 
-            // btn_pdf
-            // 
-            btn_pdf.BackColor = Color.Blue;
-            btn_pdf.FlatAppearance.BorderSize = 0;
-            btn_pdf.FlatStyle = FlatStyle.Flat;
-            btn_pdf.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btn_pdf.ForeColor = Color.Cyan;
-            btn_pdf.ImageAlign = ContentAlignment.MiddleLeft;
-            btn_pdf.ImageKey = "PDF.png";
-            btn_pdf.ImageList = imageList1;
-            btn_pdf.Location = new Point(0, 128);
-            btn_pdf.Margin = new Padding(0);
-            btn_pdf.Name = "btn_pdf";
-            btn_pdf.Size = new Size(485, 128);
-            btn_pdf.TabIndex = 2;
-            btn_pdf.Text = "PDF";
-            btn_pdf.UseVisualStyleBackColor = false;
-            btn_pdf.UseWaitCursor = true;
+            imageList1.Images.SetKeyName(6, "TXT.png");
+            imageList1.Images.SetKeyName(7, "Upload Document.png");
+            imageList1.Images.SetKeyName(8, "Star.png");
             // 
             // btn_word
             // 
@@ -378,7 +367,7 @@
             btn_word.ImageAlign = ContentAlignment.MiddleLeft;
             btn_word.ImageKey = "word file.png";
             btn_word.ImageList = imageList1;
-            btn_word.Location = new Point(0, 256);
+            btn_word.Location = new Point(0, 138);
             btn_word.Margin = new Padding(0);
             btn_word.Name = "btn_word";
             btn_word.Size = new Size(485, 128);
@@ -386,6 +375,7 @@
             btn_word.Text = "Word";
             btn_word.UseVisualStyleBackColor = false;
             btn_word.UseWaitCursor = true;
+            btn_word.Click += btn_word_Click;
             // 
             // btn_excel
             // 
@@ -397,7 +387,7 @@
             btn_excel.ImageAlign = ContentAlignment.MiddleLeft;
             btn_excel.ImageKey = "Microsoft Excel 2019.png";
             btn_excel.ImageList = imageList1;
-            btn_excel.Location = new Point(0, 384);
+            btn_excel.Location = new Point(0, 266);
             btn_excel.Margin = new Padding(0);
             btn_excel.Name = "btn_excel";
             btn_excel.Size = new Size(485, 128);
@@ -405,6 +395,67 @@
             btn_excel.Text = "Excel";
             btn_excel.UseVisualStyleBackColor = false;
             btn_excel.UseWaitCursor = true;
+            btn_excel.Click += btn_excel_Click;
+            // 
+            // btn_pdf
+            // 
+            btn_pdf.BackColor = Color.Blue;
+            btn_pdf.FlatAppearance.BorderSize = 0;
+            btn_pdf.FlatStyle = FlatStyle.Flat;
+            btn_pdf.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btn_pdf.ForeColor = Color.Cyan;
+            btn_pdf.ImageAlign = ContentAlignment.MiddleLeft;
+            btn_pdf.ImageKey = "PDF.png";
+            btn_pdf.ImageList = imageList1;
+            btn_pdf.Location = new Point(0, 394);
+            btn_pdf.Margin = new Padding(0);
+            btn_pdf.Name = "btn_pdf";
+            btn_pdf.Size = new Size(485, 128);
+            btn_pdf.TabIndex = 2;
+            btn_pdf.Text = "PDF";
+            btn_pdf.UseVisualStyleBackColor = false;
+            btn_pdf.UseWaitCursor = true;
+            btn_pdf.Click += btn_pdf_Click;
+            // 
+            // btn_txt
+            // 
+            btn_txt.BackColor = Color.Blue;
+            btn_txt.FlatAppearance.BorderSize = 0;
+            btn_txt.FlatStyle = FlatStyle.Flat;
+            btn_txt.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btn_txt.ForeColor = Color.Cyan;
+            btn_txt.ImageAlign = ContentAlignment.MiddleLeft;
+            btn_txt.ImageKey = "TXT.png";
+            btn_txt.ImageList = imageList1;
+            btn_txt.Location = new Point(0, 522);
+            btn_txt.Margin = new Padding(0);
+            btn_txt.Name = "btn_txt";
+            btn_txt.Size = new Size(485, 128);
+            btn_txt.TabIndex = 5;
+            btn_txt.Text = "TXT";
+            btn_txt.UseVisualStyleBackColor = false;
+            btn_txt.UseWaitCursor = true;
+            btn_txt.Click += btn_txt_Click;
+            // 
+            // btn_star
+            // 
+            btn_star.BackColor = Color.FromArgb(0, 0, 192);
+            btn_star.BackgroundImageLayout = ImageLayout.Zoom;
+            btn_star.FlatAppearance.BorderSize = 0;
+            btn_star.FlatStyle = FlatStyle.Flat;
+            btn_star.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btn_star.ForeColor = Color.Cyan;
+            btn_star.ImageAlign = ContentAlignment.MiddleLeft;
+            btn_star.ImageKey = "Star.png";
+            btn_star.ImageList = imageList1;
+            btn_star.Location = new Point(0, 128);
+            btn_star.Margin = new Padding(0);
+            btn_star.Name = "btn_star";
+            btn_star.Size = new Size(485, 138);
+            btn_star.TabIndex = 4;
+            btn_star.Text = "Starred file";
+            btn_star.UseVisualStyleBackColor = false;
+            btn_star.Click += button8_Click;
             // 
             // btn_Logout
             // 
@@ -417,7 +468,7 @@
             btn_Logout.ImageAlign = ContentAlignment.MiddleLeft;
             btn_Logout.ImageKey = "logout.png";
             btn_Logout.ImageList = imageList1;
-            btn_Logout.Location = new Point(0, 134);
+            btn_Logout.Location = new Point(0, 266);
             btn_Logout.Margin = new Padding(0);
             btn_Logout.Name = "btn_Logout";
             btn_Logout.Size = new Size(485, 138);
@@ -428,26 +479,26 @@
             // 
             // sideBarTransition
             // 
-            sideBarTransition.Interval = 10;
+            sideBarTransition.Interval = 9;
             sideBarTransition.Tick += sideBarTransition_Tick;
             // 
             // fileTransition
             // 
-            fileTransition.Interval = 10;
+            fileTransition.Interval = 9;
             fileTransition.Tick += fileTransition_Tick;
             // 
             // panel2
             // 
             panel2.Location = new Point(491, 168);
             panel2.Name = "panel2";
-            panel2.Size = new Size(761, 1010);
+            panel2.Size = new Size(1103, 1010);
             panel2.TabIndex = 5;
             // 
             // MainMenu
             // 
             AutoScaleDimensions = new SizeF(15F, 37F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1258, 1294);
+            ClientSize = new Size(1600, 1294);
             Controls.Add(panel2);
             Controls.Add(panel4);
             Controls.Add(sidebar);
@@ -502,5 +553,7 @@
         private System.Windows.Forms.Timer fileTransition;
         private Button btn_excel;
         private Panel panel2;
+        private Button btn_txt;
+        private Button btn_star;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace ClientApp.Forms_UI
 {
-    partial class CaiDat
+    partial class PDF
     {
         /// <summary> 
         /// Required designer variable.
@@ -28,43 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
-            panel1 = new Panel();
-            label1 = new Label();
-            panel1.SuspendLayout();
+            button1 = new Button();
             SuspendLayout();
             // 
-            // panel1
+            // button1
             // 
-            panel1.Controls.Add(label1);
-            panel1.Location = new Point(3, 7);
-            panel1.Name = "panel1";
-            panel1.Size = new Size(740, 970);
-            panel1.TabIndex = 0;
+            button1.Location = new Point(607, 334);
+            button1.Name = "button1";
+            button1.Size = new Size(202, 264);
+            button1.TabIndex = 0;
+            button1.Text = "pdf";
+            button1.UseVisualStyleBackColor = true;
             // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(521, 339);
-            label1.Name = "label1";
-            label1.Size = new Size(101, 37);
-            label1.TabIndex = 0;
-            label1.Text = "Cai dat";
-            // 
-            // CaiDat
+            // PDF
             // 
             AutoScaleDimensions = new SizeF(15F, 37F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(panel1);
-            Name = "CaiDat";
+            Controls.Add(button1);
+            Name = "PDF";
             Size = new Size(1103, 1010);
-            panel1.ResumeLayout(false);
-            panel1.PerformLayout();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private Panel panel1;
-        private Label label1;
+        private Button button1;
     }
 }

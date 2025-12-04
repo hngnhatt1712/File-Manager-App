@@ -56,7 +56,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(panel1);
             Name = "DaTai";
-            Size = new Size(1604, 1153);
+            Size = new Size(1103, 1010);
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             ResumeLayout(false);

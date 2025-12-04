@@ -38,7 +38,7 @@
             flowLayoutPanel1.Controls.Add(button1);
             flowLayoutPanel1.Location = new Point(3, 3);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(758, 992);
+            flowLayoutPanel1.Size = new Size(789, 992);
             flowLayoutPanel1.TabIndex = 0;
             // 
             // button1
@@ -56,7 +56,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(flowLayoutPanel1);
             Name = "Menu";
-            Size = new Size(761, 1010);
+            Size = new Size(1103, 1010);
             Load += Menu_Load;
             flowLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);

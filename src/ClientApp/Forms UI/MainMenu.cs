@@ -29,6 +29,7 @@ namespace ClientApp
         public MainMenu(FileTransferClient fileClient, UserAuth authService)
         {
             InitializeComponent();
+
             _fileClient = fileClient;
             _authService = authService;
             // Đặt sự kiện cho ô tìm kiếm (giả sử tên là txtSearch)
@@ -48,7 +49,7 @@ namespace ClientApp
             {
                 if (string.IsNullOrWhiteSpace(txtSearch.Text))
                 {
-                    txtSearch.Text = "🔍 Tìm trong Drive";
+                    txtSearch.Text = "🔍 Tìm kiếm File";
                     txtSearch.ForeColor = Color.Gray;
                 }
             };
@@ -170,7 +171,7 @@ namespace ClientApp
             if (sidebarExpand)
             {
                 // Đang MỞ (488) -> Thu về NHỎ (91)
-                sidebar.Width -= 20; // Tăng tốc độ lên 20 cho dứt khoát
+                sidebar.Width -= 80; // Tăng tốc độ lên 20 cho dứt khoát
                 if (sidebar.Width <= 91)
                 {
                     sidebarExpand = false;
@@ -185,7 +186,7 @@ namespace ClientApp
             else
             {
                 // Đang NHỎ (91) -> Mở ra TO (488)
-                sidebar.Width += 20;
+                sidebar.Width += 80;
                 if (sidebar.Width >= 488)
                 {
                     sidebarExpand = true;
@@ -193,12 +194,11 @@ namespace ClientApp
                     sidebar.Width = 488; // Chốt số
 
                     // Hiện chữ
-                    btn_Logout.Text = "      Log out";
+                    btn_Logout.Text = "     Log out";
                     btn_filetype.Text = "      File type";
                 }
             }
             DieuChinhKichThuoc();
-
         }
 
         private void DieuChinhKichThuoc()
@@ -308,8 +308,8 @@ namespace ClientApp
         {
             if (fileExpand == false)
             {
-                changefile.Height += 10;
-                if (changefile.Height >= 504)
+                changefile.Height += 60;
+                if (changefile.Height >= 642)
                 {
                     fileTransition.Stop();
                     fileExpand = true;
@@ -317,7 +317,7 @@ namespace ClientApp
             }
             else
             {
-                changefile.Height -= 10;
+                changefile.Height -= 60;
                 if (changefile.Height <= 128)
                 {
                     fileTransition.Stop();
@@ -329,6 +329,56 @@ namespace ClientApp
         private void btn_changefile_Click(object sender, EventArgs e)
         {
             fileTransition.Start();
+        }
+
+        private void btn_pdf_Click(object sender, EventArgs e)
+        {
+            panel2.Controls.Clear();
+
+            PDF pdf = new PDF();
+            pdf.Dock = DockStyle.Fill;
+            panel2.Controls.Add(pdf);
+
+            pdf.BringToFront();
+        }
+
+        private void btn_word_Click(object sender, EventArgs e)
+        {
+            panel2.Controls.Clear();
+
+            Word word = new Word();
+            word.Dock = DockStyle.Fill;
+            panel2.Controls.Add(word);
+
+            word.BringToFront();
+        }
+
+        private void btn_excel_Click(object sender, EventArgs e)
+        {
+            panel2.Controls.Clear();
+
+            Excel ex = new Excel();
+            ex.Dock = DockStyle.Fill;
+            panel2.Controls.Add(ex);
+
+        }
+
+        private void btn_txt_Click(object sender, EventArgs e)
+        {
+            panel2.Controls.Clear();
+
+            TXT txt = new TXT();
+            txt.Dock = DockStyle.Fill;
+            panel2.Controls.Add(txt);
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            panel2.Controls.Clear();
+
+            Star s = new Star();
+            s.Dock = DockStyle.Fill;
+            panel2.Controls.Add(s);
         }
     }
 }

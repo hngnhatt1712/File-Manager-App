@@ -56,7 +56,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(panel1);
             Name = "ThungRac";
-            Size = new Size(761, 1010);
+            Size = new Size(1103, 1010);
             panel1.ResumeLayout(false);
             ResumeLayout(false);
         }
