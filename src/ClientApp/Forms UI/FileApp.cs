@@ -1,6 +1,7 @@
-﻿using System;
+﻿using ClientApp.Services;
+using SharedLibrary;
+using System;
 using System.Windows.Forms;
-using ClientApp.Services;
 
 namespace ClientApp
 {
@@ -69,6 +70,7 @@ namespace ClientApp
 
         private async void button2_Click(object sender, EventArgs e)
         {
+            button2.Enabled = false;
             string email = tb_email.Text;
             string password = tb_pass.Text;
 
@@ -83,24 +85,34 @@ namespace ClientApp
 
             try
             {
-                var result = await _authService.LoginAsync(email, password);
+                AuthResult result = await _authService.LoginAsync(email, password);
 
-                // BƯỚC 2: Truyền Token vào FileTransferClient
-                _fileClient.SetAuthToken(result.Token);
-                // 1. Đảm bảo đã kết nối đến Server TCP
-                await EnsureConnectedAsync();
-                MessageBox.Show("Đăng nhập và xác thực thành công!",
-                                "Thông báo",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
+                // Truyền Token vào FileTransferClient
+                // Kết nối đến Server TCP 
+                if (!_fileClient.IsConnected)
+                {
+                    await _fileClient.ConnectAsync();
+                }
+
+                // Gọi hàm đồng bộ mới
+                await _fileClient.SyncUserAsync(result.Token, result.Email, "");
+                MessageBox.Show("Đăng nhập và kết nối Server thành công!", "Thông báo",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Hide();
+
+                // Truyền UID sang Form chính để sau này dùng tải danh sách file
                 MainMenu main = new MainMenu(_fileClient, _authService);
                 main.ShowDialog();
+
                 this.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                button2.Enabled = true;
             }
         }
 

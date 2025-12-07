@@ -68,7 +68,7 @@ namespace ClientApp
             }
 
         }
-        // Hàm kiểm tra định dạng (có thể thêm vào hoặc tự làm)
+        // Hàm kiểm tra định dạng 
         // Xử lý Email lỗi
         public bool ValidateUsingEmailAddressAttribute(string emailAddress)
         {

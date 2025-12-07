@@ -1,31 +1,21 @@
 ﻿using SharedLibrary;
 using System;
 using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Sockets;
-using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 public class FileTransferClient
 {
-    private HttpClient apiClient; // Dùng để gọi Web API
-    private string jwtToken;
-    private TcpClient tcpClient;  // Dùng để truyền file
+    private TcpClient _tcpClient;
     private NetworkStream _stream;
     private StreamReader _reader;
     private StreamWriter _writer;
-    private readonly string _host = "127.0.0.1"; 
-    private readonly int _port = 8888;
 
     public FileTransferClient()
     {
-        apiClient = new HttpClient();
-        apiClient.BaseAddress = new Uri("http://localhost:5000/");
-        tcpClient = new TcpClient();
-        // Địa chỉ server API của bạn
     }
     public class UserServerPayload
     {
@@ -35,177 +25,86 @@ public class FileTransferClient
     }
     public bool IsConnected
     {
-        get { return tcpClient != null && tcpClient.Connected; }
+        get { return _tcpClient != null && _tcpClient.Connected; }
     }
-    public async Task EnsureConnectedAsync()
+    public async Task ConnectAsync()
     {
-        if (IsConnected)
-        {
-            return;
-        }
-        // 2. Kiểm tra token (không thể kết nối TCP nếu chưa đăng nhập)
-        if (string.IsNullOrEmpty(jwtToken))
-        {
-            throw new InvalidOperationException("Chưa đăng nhập! Không thể kết nối đến TCP Server");
-        }
+        if (IsConnected) return;
 
         try
         {
-            // Nếu tcpClient cũ đã bị đóng hoặc null, phải tạo mới
-            if (tcpClient == null || !tcpClient.Connected)
-            {
-                tcpClient = new TcpClient();
-            }
+            _tcpClient = new TcpClient();
 
-            // 3. Kết nối đến TCP Server 
-            tcpClient = new TcpClient();
-            await tcpClient.ConnectAsync(_host, _port);
-            _stream = tcpClient.GetStream();
+            // SỬA: Dùng ServerConfig thay vì hardcode chuỗi
+            await _tcpClient.ConnectAsync(ServerConfig.SERVER_IP, ServerConfig.PORT);
 
-            // Cấu hình bộ đọc/ghi để khớp với Server
+            _stream = _tcpClient.GetStream();
             _reader = new StreamReader(_stream, Encoding.UTF8);
             _writer = new StreamWriter(_stream, Encoding.UTF8) { AutoFlush = true };
-            // 4. Gửi token cho Server để xác thực (Handshake)
-            await _writer.WriteLineAsync(jwtToken);
 
-            // 5.Chờ Server phản hồi "OK"
-            // Đây là thiết kế tốt để đảm bảo Server chấp nhận token
-            string response = await _reader.ReadLineAsync();
-
-            if (response != "AUTH_OK") 
-            {
-                tcpClient.Close(); // Đóng kết nối nếu xác thực thất bại
-                throw new Exception($"TCP Server từ chối xác thực: {response}");
-            }
-            // Nếu thành công, BẮT ĐẦU CHẠY THREAD LISTENER
-            _ = StartListeningAsync(); 
+            Console.WriteLine("Đã kết nối đến Server TCP");
         }
         catch (Exception ex)
         {
-            if (tcpClient.Connected)
-            {
-                tcpClient.Close();
-            }
-            throw new Exception($"Không thể kết nối với TCP Server: {ex.Message}");
+            throw new Exception($"Không thể kết nối Server: {ex.Message}");
         }
     }
 
-    // Hàm này sẽ chạy ngầm để nghe các lệnh từ Server
-    private async Task StartListeningAsync()
+    public async Task EnsureConnectedAsync()
     {
-        try
-        {
-            string serverMessage;
-            while (IsConnected && (serverMessage = await _reader.ReadLineAsync()) != null)
-            {
-                // TODO: Xử lý các lệnh từ server (ví dụ: "UPLOAD_SUCCESS", "FILE_DELETED"...)
-            }
-
-        }
-        catch
-        {
-            // Lỗi (vd: mất kết nối)
-        }
-        finally
-        {
-            tcpClient.Close();
-        }
+        if (!IsConnected) await ConnectAsync();
     }
 
     public async Task DisconnectAsync()
     {
+        if (!IsConnected) return;
         try
         {
-            // 1. Xóa token
-            jwtToken = null;
-            apiClient.DefaultRequestHeaders.Authorization = null;
-
-            // 2. Gửi lệnh QUIT báo cho Server biết (Nếu đang kết nối)
-            if (IsConnected)
-            {
-                await _writer.WriteLineAsync(ProtocolCommands.QUIT);
-            }
+            await _writer.WriteLineAsync(ProtocolCommands.QUIT);
         }
-        catch
-        {
-            // Bỏ qua lỗi nếu server đã ngắt trước
-        }
+        catch { }
         finally
         {
-            // 3. Đóng kết nối vật lý
-            if (tcpClient != null)
-            {
-                tcpClient.Close();
-                // _tcpClient = new TcpClient(); // (Tùy chọn: tạo mới để sẵn sàng cho lần sau)
-            }
+            _tcpClient?.Close();
+            _tcpClient = null;
         }
     }
 
 
     //  Xây dựng API (Phần gọi từ Client)
-            #region API Authentication (Xác thực người dùng)
-            // Đăng ký user lên Server
-    public async Task RegisterUserOnServerAsync(string uid, string email, string phone, string jwtToken)
+    #region API Authentication (Xác thực người dùng)
+    // Đăng ký user lên Server
+    public async Task<bool> SyncUserAsync(string token, string email, string phone)
     {
-        // Sử
-        var payload = new UserServerPayload { Uid = uid, Email = email, Phone = phone };
-        string jsonBody = JsonSerializer.Serialize(payload);
-        var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+        await EnsureConnectedAsync();
 
-        var request = new HttpRequestMessage(HttpMethod.Post, "api/users/register");
-        request.Content = content;
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+        string command = $"SYNC_USER|{token}|{email}|{phone}";
+        await _writer.WriteLineAsync(command);
+        await _writer.FlushAsync();
 
-        var response = await apiClient.SendAsync(request);
+        string response = await _reader.ReadLineAsync();
 
-        if (!response.IsSuccessStatusCode)
-        {
-            string error = await response.Content.ReadAsStringAsync();
-            throw new Exception($"Lỗi API Server: {error}");
-        }
+        if (response != null && response.StartsWith("SYNC_OK")) return true;
 
+        throw new Exception($"Lỗi đồng bộ Server: {response}");
     }
-    public void SetAuthToken(string token)
-    {
-        this.jwtToken = token;
-        // Cập nhật luôn cho HttpClient để dùng cho các API sau này
-        apiClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", token);
-    }   
     #endregion
 
     #region API File Metadata (Quản lý thông tin file)
 
-    public async Task<string> GetFileList(string path)
+    public async Task<string> GetFileListAsync(string uid, string path = "/")
     {
-        // 1. Kiểm tra token
-        if (string.IsNullOrEmpty(jwtToken))
-            return "[]";
+        await EnsureConnectedAsync();
 
-        try
-        {
-            // 2. Đảm bảo Header luôn mới nhất 
-            apiClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
+        await _writer.WriteLineAsync($"{ProtocolCommands.LIST_FILES}|{uid}|{path}");
 
-            // 3. Gọi API
-            string encodedPath = System.Net.WebUtility.UrlEncode(path);
-            var response = await apiClient.GetAsync($"api/files?path={encodedPath}");
+        string response = await _reader.ReadLineAsync();
+        if (string.IsNullOrEmpty(response)) return "[]";
 
-            // 4. Kiểm tra lỗi HTTP (200 OK)
-            if (!response.IsSuccessStatusCode)
-            {
-                // Có thể log lỗi hoặc throw exception tùy bạn
-                return "[]";
-            }
+        string[] parts = response.Split('|');
+        if (parts[0] == "LIST_FILES_OK" && parts.Length > 1) return parts[1];
 
-            // 5. Trả về kết quả JSON
-            return await response.Content.ReadAsStringAsync();
-        }
-        catch
-        {
-            return "[]";
-        }
+        return "[]";
     }
 
     //Code chức năng Rename
@@ -232,15 +131,37 @@ public class FileTransferClient
 
     // Code chức năng Upload File
     // sẽ tạo nhánh 'feature/chuc-nang-upload'
-    public void UploadFile(string localFilePath, string remotePath)
+    public async Task UploadFileAsync(string localFilePath)
     {
-        Console.WriteLine($"Dang upload {localFilePath} len {remotePath}");
-        // TODO: 
-        // 1. Kết nối đến TCP Server (nếu chưa)
-        // 2. Gửi lệnh "UPLOAD"
-        // 3. Gửi thông tin file (tên, kích thước, token...)
-        // 4. Đọc file từ đĩa và gửi từng gói tin (chunk)
-        // 5. Chờ xác nhận từ Server
+        await EnsureConnectedAsync();
+
+        FileInfo fi = new FileInfo(localFilePath);
+        if (!fi.Exists) throw new FileNotFoundException("File not found");
+
+        // B1: Gửi Request
+        await _writer.WriteLineAsync($"{ProtocolCommands.UPLOAD_REQ}|{fi.Name}|{fi.Length}");
+
+        // B2: Chờ READY
+        string response = await _reader.ReadLineAsync();
+        if (response != ProtocolCommands.READY_FOR_UPLOAD)
+            throw new Exception($"Server refused: {response}");
+
+        // B3: Gửi Stream
+        using (var fs = new FileStream(localFilePath, FileMode.Open, FileAccess.Read))
+        {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = await fs.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            {
+                await _stream.WriteAsync(buffer, 0, read);
+            }
+            await _stream.FlushAsync();
+        }
+
+        // B4: Chờ SUCCESS
+        string result = await _reader.ReadLineAsync();
+        if (result != ProtocolCommands.UPLOAD_SUCCESS)
+            throw new Exception("Upload failed on Server side.");
     }
 
     // Code chức năng Download File
