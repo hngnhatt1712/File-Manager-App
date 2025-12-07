@@ -206,41 +206,9 @@ public class ClientHandler
             await _writer.WriteLineAsync(ProtocolCommands.DELETE_FAIL);
         }
     }
-    private async Task HandleUploadAsync()
-    {
-        // BƯỚC 1: Kiểm tra xác thực
-        if (!_isAuthenticated)
-        {
-            await _writer.WriteLineAsync(ProtocolCommands.ACCESS_DENIED);
-            return;
-        }
-
-        try
-        {
-            // Đọc metadata (tên file, kích thước)
-            string fileName = await _reader.ReadLineAsync();
-            long fileSize = long.Parse(await _reader.ReadLineAsync());
-
-            // (Kiểm tra dung lượng, tên file hợp lệ...)
-
-            // Báo Client sẵn sàng
-            
-
-            // (Code nhận stream file và lưu vào đĩa...)
-
-            // (Code cập nhật metadata vào Firestore...)
-
-            // Báo thành công
-            await _writer.WriteLineAsync(ProtocolCommands.UPLOAD_SUCCESS);
-        }
-        catch (Exception ex)
-        {
-            await _writer.WriteLineAsync(ProtocolCommands.UPLOAD_FAIL);
-        }
-    }
 
     // Hàm nhận dữ liệu
-    private void ReceiveFileFromStream(string filePath, long totalBytes)
+    private async Task ReceiveFileFromStream(string filePath, long totalBytes)
     {
         // Tạo file mới để ghi
         using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
