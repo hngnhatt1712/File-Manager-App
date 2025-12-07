@@ -14,16 +14,13 @@ namespace ServerApp
     [FirestoreData]
     public class FileMetadata
     {
-        [FirestoreProperty]
-        public string FileName { get; set; }
-        [FirestoreProperty]
-        public string Path { get; set; }
-        [FirestoreProperty]
-        public long Size { get; set; }
-        [FirestoreProperty]
-        public string OwnerUid { get; set; }
-        [FirestoreProperty]
-        public System.DateTime UploadedDate { get; set; }
+        [FirestoreProperty] public string FileId { get; set; }
+        [FirestoreProperty] public string FileName { get; set; }
+        [FirestoreProperty] public long Size { get; set; }
+        [FirestoreProperty] public string OwnerUid { get; set; }
+        [FirestoreProperty] public string StoragePath { get; set; }
+        [FirestoreProperty] public string Path { get; set; }
+        [FirestoreProperty] public string UploadedDate { get; set; }
     }
     public class FirebaseAdminService
     {
@@ -45,11 +42,7 @@ namespace ServerApp
 
             if (FirebaseApp.DefaultInstance == null)
             {
-                // Nếu CHƯA có thì mới tạo mới
-                FirebaseApp.Create(new AppOptions()
-                {
-                    Credential = credential
-                });
+                FirebaseApp.Create(new AppOptions() { Credential = credential });
             }
 
             // Lấy project_id từ file key JSON
@@ -78,7 +71,15 @@ namespace ServerApp
 
         public async Task<FirebaseToken> VerifyTokenAsync(string token)
         {
-            return await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
+            try
+            {
+                // Gọi Auth của Admin SDK
+                return await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
+            }
+            catch
+            {
+                return null; // Token lỗi hoặc hết hạn
+            }
         }
 
         // ================= FIRESTORE METHODS =================
@@ -92,12 +93,13 @@ namespace ServerApp
 
                 if (!snapshot.Exists)
                 {
-                    var newUser = new
+                    var newUser = new Dictionary<string, object>
                     {
-                        Email = email,
-                        PhoneNumber = phone, 
-                        StorageUsed = 0,
-                        CreatedAt = Timestamp.FromDateTime(DateTime.UtcNow)
+                        { "email", email },
+                        { "phoneNumber", phone },
+                        { "storageUsed", 0 },
+                        { "storageCap", 1073741824 }, // 1GB
+                        { "createdAt", DateTime.UtcNow }
                     };
 
                     await docRef.SetAsync(newUser);
@@ -140,24 +142,58 @@ namespace ServerApp
             }
         }
 
+        // ================= FILE MANAGEMENT =================
+
+        // 1. [UPLOAD] Hàm lưu metadata file sau khi Server nhận xong file vật lý
+        public async Task AddFileMetadataAsync(FileMetadata fileData)
+        {
+            try
+            {
+                CollectionReference col = _firestoreDb.Collection("files");
+
+                var data = new Dictionary<string, object>
+            {
+                { "fileName", fileData.FileName },
+                { "size", fileData.Size },
+                { "ownerUid", fileData.OwnerUid },
+                { "storagePath", fileData.StoragePath }, 
+                { "path", fileData.Path ?? "/" },
+                { "uploadedDate", DateTime.UtcNow.ToString("o") }
+            };
+
+                await col.AddAsync(data);
+                Console.WriteLine($"[Firestore] Saved metadata for {fileData.FileName}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Error] AddFileMetadataAsync: {ex.Message}");
+                throw;
+            }
+        }
+
+        // 2. [DOWNLOAD] Hàm lấy thông tin file theo ID (để biết đường dẫn StoragePath)
+
+        // 3. [LIST] Hàm lấy danh sách file 
         public async Task<List<FileMetadata>> GetFileListAsync(string uid, string path)
         {
             try
             {
-                var fileList = new List<FileMetadata>();
-
-                // Lưu ý: Query này có thể cần tạo Index trong Firebase Console
-                // (Files collection -> OwnerUid Ascending + Path Ascending)
+                // Query theo cả UID và Path
                 Query query = _firestoreDb.Collection("files")
-                    .WhereEqualTo("OwnerUid", uid)
-                    .WhereEqualTo("Path", path);
+                    .WhereEqualTo("ownerUid", uid)
+                    .WhereEqualTo("path", path); // Lọc file trong thư mục cụ thể
 
                 QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
 
+                var fileList = new List<FileMetadata>();
                 foreach (DocumentSnapshot doc in querySnapshot.Documents)
                 {
-                    var fileData = doc.ConvertTo<FileMetadata>();
-                    fileList.Add(fileData);
+                    if (doc.Exists)
+                    {
+                        var fileData = doc.ConvertTo<FileMetadata>();
+                        fileData.FileId = doc.Id;
+                        fileList.Add(fileData);
+                    }
                 }
                 return fileList;
             }
@@ -166,6 +202,12 @@ namespace ServerApp
                 Console.WriteLine($"[Firestore Error] GetFileList: {ex.Message}");
                 return new List<FileMetadata>();
             }
+        }
+        public class UserServerPayload
+        {
+            public string Uid { get; set; }
+            public string Email { get; set; }
+            public string Phone { get; set; }
         }
     }
 }

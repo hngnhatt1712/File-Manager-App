@@ -12,7 +12,7 @@
 
         // ============ FILE UPLOAD ============
         // Client → Server:
-        public const string UPLOAD = "UPLOAD";
+        public const string UPLOAD_REQ = "UPLOAD_REQ";
 
         // Server → Client:
         public const string READY_FOR_UPLOAD = "READY_FOR_UPLOAD"; 

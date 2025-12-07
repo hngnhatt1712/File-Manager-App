@@ -1,6 +1,7 @@
 ﻿using ClientApp;
 using Firebase.Auth;
 using Firebase.Auth.Providers;
+using Newtonsoft.Json.Linq;
 using SharedLibrary;
 using System;
 using System.Threading.Tasks;
@@ -38,22 +39,28 @@ namespace ClientApp.Services
                 // 1. GỌI FIREBASE AUTH ĐỂ ĐĂNG NHẬP
                 var authResult = await _authClient.SignInWithEmailAndPasswordAsync(email, password);
 
-                // 2. LẤY TOKEN VÀ UID
-                string jwtToken = await authResult.User.GetIdTokenAsync();
+                // 2. LẤY UID
                 string uid = authResult.User.Uid;
+                string token = await authResult.User.GetIdTokenAsync();
 
                 // 3. TRẢ VỀ ĐỐI TƯỢNG AuthResult ĐƠN GIẢN
                 return new AuthResult
                 {
                     IsSuccess = true,
                     Message = "Đăng nhập thành công",
-                    Uid = uid,
-                    Token = jwtToken
+                    Token = token,
+                    Uid = authResult.User.Uid,
+                    Email = email,
+
                 };
             }
             catch (Exception ex)
             {
-                throw;
+                return new AuthResult
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                };
             }
         }
 
@@ -61,42 +68,55 @@ namespace ClientApp.Services
 
         public async Task<AuthResult> RegisterAsync(string email, string password, string phone)
         {
-            string uid = null;
-            string jwtToken = null;
+            string uid = string.Empty;
+            string jwtToken = string.Empty;
 
             // TẠO USER TRÊN FIREBASE AUTHENTICATION
             try
             {
-                // Gọi SDK của Firebase để tạo user
-                var authResult = await _authClient.CreateUserWithEmailAndPasswordAsync(email, password);
+                // Gọi SDK để tạo user
+                
+                var authLink = await _authClient.CreateUserWithEmailAndPasswordAsync(email, password);
 
-                // Lấy Token và UID (LocalId chính là UID)
-                jwtToken = await authResult.User.GetIdTokenAsync();
-                uid = authResult.User.Uid;
+                jwtToken = await authLink.User.GetIdTokenAsync();
+                uid = authLink.User.Uid;
             }
             catch (Exception authEx)
             {
-                throw new Exception($"Lỗi Firebase Auth: {authEx.Message}");
+                // Trả về object lỗi để UI hiển thị
+                return new AuthResult
+                {
+                    IsSuccess = false,
+                    Message = $"Lỗi Firebase Auth: {authEx.Message}"
+                };
             }
-
-            //BÁO CHO SERVER BIẾT ĐỂ LƯU VÀO FIRESTORE 
             try
             {
-                // Hàm này sẽ dùng HttpClient để gọi API Server của bạn
-                await _fileClient.RegisterUserOnServerAsync(uid, email, phone, jwtToken);
+                // Đảm bảo kết nối
+                if (!_fileClient.IsConnected) await _fileClient.ConnectAsync();
+
+                // Gửi lệnh đồng bộ qua TCP Socket
+                await _fileClient.SyncUserAsync(jwtToken, email, phone);
             }
-            catch (Exception apiEx)
+            catch (Exception tcpEx)
             {
-                throw new Exception($"Tạo Auth thành công, nhưng lưu vào DB thất bại: {apiEx.Message}");
+                return new AuthResult
+                {
+                    IsSuccess = true,
+                    Message = $"Đăng ký thành công (Cảnh báo: Lỗi lưu SĐT lên Server: {tcpEx.Message})",
+                    Uid = uid,
+                    Token = jwtToken,
+                    Email = email
+                };
             }
             return new AuthResult
             {
                 IsSuccess = true,
-                Message = $"Đăng ký thành công cho: {email}",
+                Message = "Đăng ký thành công!",
                 Uid = uid,
-                Token = jwtToken
+                Token = jwtToken,
+                Email = email
             };
-
         }
 
         // =================== RESET PASSWORD ===================

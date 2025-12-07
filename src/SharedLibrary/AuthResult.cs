@@ -12,5 +12,6 @@ namespace SharedLibrary
         public string Message { get; set; }
         public string Uid { get; set; } 
         public string Token { get; set; }
+        public string Email { get; set; }
     }
 }
