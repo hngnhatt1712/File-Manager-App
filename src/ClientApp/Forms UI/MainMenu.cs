@@ -42,7 +42,7 @@ namespace ClientApp
                 {
                     txtSearch.Text = "";
                     txtSearch.ForeColor = Color.Black;
-                }
+        }
             };
 
             txtSearch.Leave += (s, e) =>
@@ -291,8 +291,8 @@ namespace ClientApp
                 // 3. Reset giao diện về màn hình đăng nhập
                 // Hiện giao diện đăng nhập     
                 // Xóa trắng các ô nhập liệu cũ
-
-
+                
+                
                 MessageBox.Show("Đăng xuất thành công!");
                 FileApp f = new FileApp();
                 f.ShowDialog();

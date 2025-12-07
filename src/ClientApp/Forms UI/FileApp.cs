@@ -9,6 +9,15 @@ namespace ClientApp
     {
         private readonly UserAuth _authService;
         private readonly FileTransferClient _fileClient;
+        private const int WM_NCLBUTTONDOWN = 0xA1;
+        private const int HT_CAPTION = 0x2;
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool ReleaseCapture();
+
 
         public FileApp()
         {
@@ -16,8 +25,39 @@ namespace ClientApp
             _fileClient = new FileTransferClient();
             _authService = new UserAuth(_fileClient);
         }
-        // Trần Chính 
-        private async void btn_login_Click(object sender, EventArgs e)
+
+        private async Task EnsureConnectedAsync()
+        {
+            if (_fileClient.IsConnected) return;
+            try
+            {
+                await _fileClient.EnsureConnectedAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Kết nối TCP thất bại: {ex.Message}");
+            }
+        }
+
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void panel1_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                if (e.Clicks == 1 && e.Y <= this.Height && e.Y >= 0)
+                {
+                    ReleaseCapture();
+                    SendMessage(this.Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
+                }
+            }
+        }
+
+        private async void button2_Click(object sender, EventArgs e)
         {
             string email = tb_email.Text;
             string password = tb_pass.Text;
@@ -39,7 +79,10 @@ namespace ClientApp
                 _fileClient.SetAuthToken(result.Token);
                 // 1. Đảm bảo đã kết nối đến Server TCP
                 await EnsureConnectedAsync();
-                MessageBox.Show("Đăng nhập và xác thực thành công!");
+                MessageBox.Show("Đăng nhập và xác thực thành công!",
+                                "Thông báo",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
                 this.Hide();
                 MainMenu main = new MainMenu(_fileClient, _authService);
                 main.ShowDialog();
@@ -50,28 +93,35 @@ namespace ClientApp
                 MessageBox.Show(ex.Message);
             }
         }
-        private async Task EnsureConnectedAsync()
+
+        private void button4_Click(object sender, EventArgs e)
         {
-            if (_fileClient.IsConnected) return;
-            try
+            if (tb_pass.PasswordChar == '\0')
             {
-                await _fileClient.EnsureConnectedAsync(); 
+                button3.BringToFront();
+                tb_pass.PasswordChar = '*';
             }
-            catch (Exception ex)
-            {
-                throw new Exception($"Kết nối TCP thất bại: {ex.Message}");
-            }
-        }
-        private void btn_signup_Click(object sender, EventArgs e)
-        {
-            var signup = new SignUp(_authService);
-            signup.ShowDialog();
         }
 
-        private void llb_forgotPass_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (tb_pass.PasswordChar == '*')
+            {
+                button4.BringToFront();
+                tb_pass.PasswordChar = '\0';
+            }
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             ForgotPass forgotPass = new ForgotPass(_authService);
             forgotPass.ShowDialog();
+        }
+
+        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var signup = new SignUp(_authService);
+            signup.ShowDialog();
         }
     }
 }
