@@ -48,6 +48,7 @@
             label6 = new Label();
             button6 = new Button();
             panel4 = new Panel();
+            btn_offNotification = new Button();
             btn_Notification = new Button();
             panel2 = new Panel();
             sidebar = new FlowLayoutPanel();
@@ -63,12 +64,14 @@
             btn_Logout = new Button();
             sideBarTransition = new System.Windows.Forms.Timer(components);
             fileTransition = new System.Windows.Forms.Timer(components);
+            panel5 = new Panel();
             panel1.SuspendLayout();
             roundedPanel1.SuspendLayout();
             panel3.SuspendLayout();
             panel4.SuspendLayout();
             sidebar.SuspendLayout();
             changefile.SuspendLayout();
+            panel5.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
@@ -85,10 +88,10 @@
             panel1.Controls.Add(button3);
             panel1.Controls.Add(label3);
             panel1.Dock = DockStyle.Bottom;
-            panel1.Location = new Point(0, 574);
+            panel1.Location = new Point(0, 1062);
             panel1.Margin = new Padding(0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1156, 59);
+            panel1.Size = new Size(2168, 109);
             panel1.TabIndex = 1;
             panel1.Paint += panel1_Paint;
             // 
@@ -96,10 +99,10 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 11F);
-            label2.Location = new Point(1039, 37);
-            label2.Margin = new Padding(2, 0, 2, 0);
+            label2.Location = new Point(1948, 68);
+            label2.Margin = new Padding(4, 0, 4, 0);
             label2.Name = "label2";
-            label2.Size = new Size(71, 25);
+            label2.Size = new Size(123, 45);
             label2.TabIndex = 1;
             label2.Text = "Setting";
             // 
@@ -111,10 +114,10 @@
             button1.FlatAppearance.BorderSize = 0;
             button1.FlatStyle = FlatStyle.Flat;
             button1.Font = new Font("Segoe UI", 11F);
-            button1.Location = new Point(43, 0);
-            button1.Margin = new Padding(2);
+            button1.Location = new Point(81, 0);
+            button1.Margin = new Padding(4);
             button1.Name = "button1";
-            button1.Size = new Size(38, 40);
+            button1.Size = new Size(71, 74);
             button1.TabIndex = 2;
             button1.UseVisualStyleBackColor = false;
             button1.Click += button1_Click;
@@ -127,10 +130,10 @@
             button2.FlatAppearance.BorderSize = 0;
             button2.FlatStyle = FlatStyle.Flat;
             button2.Font = new Font("Segoe UI", 11F);
-            button2.Location = new Point(1047, 4);
-            button2.Margin = new Padding(2);
+            button2.Location = new Point(1963, 7);
+            button2.Margin = new Padding(4);
             button2.Name = "button2";
-            button2.Size = new Size(54, 31);
+            button2.Size = new Size(101, 57);
             button2.TabIndex = 1;
             button2.UseVisualStyleBackColor = false;
             button2.Click += button2_Click;
@@ -139,10 +142,10 @@
             // 
             label5.AutoSize = true;
             label5.Font = new Font("Segoe UI", 11F);
-            label5.Location = new Point(814, 36);
-            label5.Margin = new Padding(2, 0, 2, 0);
+            label5.Location = new Point(1526, 67);
+            label5.Margin = new Padding(4, 0, 4, 0);
             label5.Name = "label5";
-            label5.Size = new Size(56, 25);
+            label5.Size = new Size(95, 45);
             label5.TabIndex = 1;
             label5.Text = "Trash";
             // 
@@ -150,10 +153,10 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 11F);
-            label1.Location = new Point(38, 33);
-            label1.Margin = new Padding(2, 0, 2, 0);
+            label1.Location = new Point(71, 61);
+            label1.Margin = new Padding(4, 0, 4, 0);
             label1.Name = "label1";
-            label1.Size = new Size(62, 25);
+            label1.Size = new Size(107, 45);
             label1.TabIndex = 2;
             label1.Text = "Home";
             label1.Click += label1_Click;
@@ -165,10 +168,10 @@
             button4.FlatAppearance.BorderSize = 0;
             button4.FlatStyle = FlatStyle.Flat;
             button4.Font = new Font("Segoe UI", 11F);
-            button4.Location = new Point(278, 2);
-            button4.Margin = new Padding(2);
+            button4.Location = new Point(521, 4);
+            button4.Margin = new Padding(4);
             button4.Name = "button4";
-            button4.Size = new Size(62, 36);
+            button4.Size = new Size(116, 67);
             button4.TabIndex = 1;
             button4.UseVisualStyleBackColor = true;
             button4.Click += button4_Click;
@@ -181,10 +184,10 @@
             button5.FlatAppearance.BorderSize = 0;
             button5.FlatStyle = FlatStyle.Flat;
             button5.Font = new Font("Segoe UI", 11F);
-            button5.Location = new Point(802, 4);
-            button5.Margin = new Padding(2);
+            button5.Location = new Point(1504, 7);
+            button5.Margin = new Padding(4);
             button5.Name = "button5";
-            button5.Size = new Size(77, 36);
+            button5.Size = new Size(144, 67);
             button5.TabIndex = 1;
             button5.UseVisualStyleBackColor = false;
             button5.Click += button5_Click;
@@ -193,10 +196,10 @@
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 11F);
-            label4.Location = new Point(278, 33);
-            label4.Margin = new Padding(2, 0, 2, 0);
+            label4.Location = new Point(521, 61);
+            label4.Margin = new Padding(4, 0, 4, 0);
             label4.Name = "label4";
-            label4.Size = new Size(69, 25);
+            label4.Size = new Size(118, 45);
             label4.TabIndex = 1;
             label4.Text = "My file";
             // 
@@ -208,10 +211,10 @@
             button3.FlatAppearance.BorderSize = 0;
             button3.FlatStyle = FlatStyle.Flat;
             button3.Font = new Font("Segoe UI", 11F);
-            button3.Location = new Point(533, 4);
-            button3.Margin = new Padding(2);
+            button3.Location = new Point(999, 7);
+            button3.Margin = new Padding(4);
             button3.Name = "button3";
-            button3.Size = new Size(60, 36);
+            button3.Size = new Size(112, 67);
             button3.TabIndex = 1;
             button3.UseVisualStyleBackColor = false;
             button3.Click += button3_Click;
@@ -220,10 +223,10 @@
             // 
             label3.AutoSize = true;
             label3.Font = new Font("Segoe UI", 11F);
-            label3.Location = new Point(533, 37);
-            label3.Margin = new Padding(2, 0, 2, 0);
+            label3.Location = new Point(999, 68);
+            label3.Margin = new Padding(4, 0, 4, 0);
             label3.Name = "label3";
-            label3.Size = new Size(73, 25);
+            label3.Size = new Size(125, 45);
             label3.TabIndex = 1;
             label3.Text = "Upload";
             // 
@@ -234,20 +237,20 @@
             roundedPanel1.BorderColor = Color.Transparent;
             roundedPanel1.BorderRadius = 30;
             roundedPanel1.Controls.Add(txtSearch);
-            roundedPanel1.Location = new Point(26, 22);
-            roundedPanel1.Margin = new Padding(2);
+            roundedPanel1.Location = new Point(30, 40);
+            roundedPanel1.Margin = new Padding(4);
             roundedPanel1.Name = "roundedPanel1";
-            roundedPanel1.Size = new Size(785, 53);
+            roundedPanel1.Size = new Size(1472, 98);
             roundedPanel1.TabIndex = 1;
             // 
             // txtSearch
             // 
             txtSearch.BackColor = Color.White;
             txtSearch.BorderStyle = BorderStyle.None;
-            txtSearch.Location = new Point(21, 20);
-            txtSearch.Margin = new Padding(2);
+            txtSearch.Location = new Point(39, 37);
+            txtSearch.Margin = new Padding(4);
             txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(741, 20);
+            txtSearch.Size = new Size(1389, 36);
             txtSearch.TabIndex = 1;
             txtSearch.TextChanged += textBox1_TextChanged;
             // 
@@ -261,7 +264,7 @@
             panel3.Location = new Point(0, 0);
             panel3.Margin = new Padding(0);
             panel3.Name = "panel3";
-            panel3.Size = new Size(1156, 57);
+            panel3.Size = new Size(2168, 105);
             panel3.TabIndex = 3;
             panel3.Paint += panel3_Paint;
             panel3.MouseDown += panel3_MouseDown;
@@ -273,10 +276,10 @@
             button7.BackgroundImageLayout = ImageLayout.Zoom;
             button7.FlatAppearance.BorderSize = 0;
             button7.FlatStyle = FlatStyle.Flat;
-            button7.Location = new Point(2, 0);
-            button7.Margin = new Padding(2);
+            button7.Location = new Point(4, 0);
+            button7.Margin = new Padding(4);
             button7.Name = "button7";
-            button7.Size = new Size(61, 42);
+            button7.Size = new Size(114, 78);
             button7.TabIndex = 1;
             button7.UseVisualStyleBackColor = false;
             button7.Click += button7_Click;
@@ -287,10 +290,10 @@
             label6.BackColor = Color.Transparent;
             label6.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label6.ForeColor = Color.Aqua;
-            label6.Location = new Point(67, 9);
-            label6.Margin = new Padding(2, 0, 2, 0);
+            label6.Location = new Point(126, 17);
+            label6.Margin = new Padding(4, 0, 4, 0);
             label6.Name = "label6";
-            label6.Size = new Size(179, 28);
+            label6.Size = new Size(316, 48);
             label6.TabIndex = 0;
             label6.Text = "File App Manager";
             // 
@@ -303,10 +306,10 @@
             button6.FlatAppearance.BorderSize = 0;
             button6.FlatStyle = FlatStyle.Flat;
             button6.Font = new Font("Segoe UI", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            button6.Location = new Point(1105, 0);
-            button6.Margin = new Padding(2);
+            button6.Location = new Point(2072, 0);
+            button6.Margin = new Padding(4);
             button6.Name = "button6";
-            button6.Size = new Size(51, 57);
+            button6.Size = new Size(96, 105);
             button6.TabIndex = 0;
             button6.UseVisualStyleBackColor = false;
             button6.Click += button6_Click;
@@ -314,34 +317,50 @@
             // panel4
             // 
             panel4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            panel4.BackColor = SystemColors.Control;
-            panel4.Controls.Add(btn_Notification);
+            panel4.BackColor = SystemColors.ControlLight;
+            panel4.Controls.Add(panel5);
             panel4.Controls.Add(roundedPanel1);
-            panel4.Location = new Point(262, 60);
-            panel4.Margin = new Padding(2);
+            panel4.Location = new Point(491, 111);
+            panel4.Margin = new Padding(4);
             panel4.Name = "panel4";
-            panel4.Size = new Size(891, 91);
+            panel4.Size = new Size(1671, 168);
             panel4.TabIndex = 4;
+            // 
+            // btn_offNotification
+            // 
+            btn_offNotification.BackgroundImage = (Image)resources.GetObject("btn_offNotification.BackgroundImage");
+            btn_offNotification.BackgroundImageLayout = ImageLayout.Zoom;
+            btn_offNotification.FlatAppearance.BorderSize = 0;
+            btn_offNotification.FlatStyle = FlatStyle.Flat;
+            btn_offNotification.Location = new Point(6, 8);
+            btn_offNotification.Margin = new Padding(6);
+            btn_offNotification.Name = "btn_offNotification";
+            btn_offNotification.Size = new Size(141, 168);
+            btn_offNotification.TabIndex = 3;
+            btn_offNotification.UseVisualStyleBackColor = true;
+            btn_offNotification.Visible = false;
+            btn_offNotification.Click += btn_offNotification_Click;
             // 
             // btn_Notification
             // 
             btn_Notification.BackgroundImage = (Image)resources.GetObject("btn_Notification.BackgroundImage");
             btn_Notification.BackgroundImageLayout = ImageLayout.Zoom;
-            btn_Notification.Dock = DockStyle.Right;
             btn_Notification.FlatAppearance.BorderSize = 0;
             btn_Notification.FlatStyle = FlatStyle.Flat;
-            btn_Notification.Location = new Point(816, 0);
+            btn_Notification.Location = new Point(6, 8);
+            btn_Notification.Margin = new Padding(6);
             btn_Notification.Name = "btn_Notification";
-            btn_Notification.Size = new Size(75, 91);
+            btn_Notification.Size = new Size(141, 168);
             btn_Notification.TabIndex = 2;
             btn_Notification.UseVisualStyleBackColor = true;
+            btn_Notification.Click += btn_Notification_Click;
             // 
             // panel2
             // 
-            panel2.Location = new Point(262, 155);
-            panel2.Margin = new Padding(2);
+            panel2.Location = new Point(491, 287);
+            panel2.Margin = new Padding(4);
             panel2.Name = "panel2";
-            panel2.Size = new Size(894, 419);
+            panel2.Size = new Size(1676, 775);
             panel2.TabIndex = 5;
             // 
             // sidebar
@@ -352,10 +371,10 @@
             sidebar.Controls.Add(btn_star);
             sidebar.Controls.Add(btn_Logout);
             sidebar.Dock = DockStyle.Left;
-            sidebar.Location = new Point(0, 57);
+            sidebar.Location = new Point(0, 105);
             sidebar.Margin = new Padding(0);
             sidebar.Name = "sidebar";
-            sidebar.Size = new Size(260, 517);
+            sidebar.Size = new Size(488, 957);
             sidebar.TabIndex = 0;
             // 
             // btn_ThongBao
@@ -371,7 +390,7 @@
             btn_ThongBao.Location = new Point(0, 0);
             btn_ThongBao.Margin = new Padding(0);
             btn_ThongBao.Name = "btn_ThongBao";
-            btn_ThongBao.Size = new Size(257, 69);
+            btn_ThongBao.Size = new Size(482, 128);
             btn_ThongBao.TabIndex = 0;
             btn_ThongBao.Text = " Notification";
             btn_ThongBao.UseVisualStyleBackColor = false;
@@ -401,10 +420,10 @@
             changefile.Controls.Add(btn_pdf);
             changefile.Controls.Add(btn_txt);
             changefile.ForeColor = Color.Blue;
-            changefile.Location = new Point(0, 69);
+            changefile.Location = new Point(0, 128);
             changefile.Margin = new Padding(0);
             changefile.Name = "changefile";
-            changefile.Size = new Size(257, 69);
+            changefile.Size = new Size(482, 128);
             changefile.TabIndex = 3;
             changefile.UseWaitCursor = true;
             // 
@@ -421,7 +440,7 @@
             btn_filetype.Location = new Point(0, 0);
             btn_filetype.Margin = new Padding(0);
             btn_filetype.Name = "btn_filetype";
-            btn_filetype.Size = new Size(257, 69);
+            btn_filetype.Size = new Size(482, 128);
             btn_filetype.TabIndex = 0;
             btn_filetype.Text = "File type";
             btn_filetype.UseVisualStyleBackColor = false;
@@ -438,10 +457,10 @@
             btn_word.ImageAlign = ContentAlignment.MiddleLeft;
             btn_word.ImageKey = "word file.png";
             btn_word.ImageList = imageList1;
-            btn_word.Location = new Point(0, 69);
+            btn_word.Location = new Point(0, 128);
             btn_word.Margin = new Padding(0);
             btn_word.Name = "btn_word";
-            btn_word.Size = new Size(257, 69);
+            btn_word.Size = new Size(482, 128);
             btn_word.TabIndex = 3;
             btn_word.Text = "Word";
             btn_word.UseVisualStyleBackColor = false;
@@ -458,10 +477,10 @@
             btn_excel.ImageAlign = ContentAlignment.MiddleLeft;
             btn_excel.ImageKey = "Microsoft Excel 2019.png";
             btn_excel.ImageList = imageList1;
-            btn_excel.Location = new Point(0, 138);
+            btn_excel.Location = new Point(0, 256);
             btn_excel.Margin = new Padding(0);
             btn_excel.Name = "btn_excel";
-            btn_excel.Size = new Size(257, 69);
+            btn_excel.Size = new Size(482, 128);
             btn_excel.TabIndex = 4;
             btn_excel.Text = "Excel";
             btn_excel.UseVisualStyleBackColor = false;
@@ -478,10 +497,10 @@
             btn_pdf.ImageAlign = ContentAlignment.MiddleLeft;
             btn_pdf.ImageKey = "PDF.png";
             btn_pdf.ImageList = imageList1;
-            btn_pdf.Location = new Point(0, 207);
+            btn_pdf.Location = new Point(0, 384);
             btn_pdf.Margin = new Padding(0);
             btn_pdf.Name = "btn_pdf";
-            btn_pdf.Size = new Size(257, 69);
+            btn_pdf.Size = new Size(482, 128);
             btn_pdf.TabIndex = 2;
             btn_pdf.Text = "PDF";
             btn_pdf.UseVisualStyleBackColor = false;
@@ -498,10 +517,10 @@
             btn_txt.ImageAlign = ContentAlignment.MiddleLeft;
             btn_txt.ImageKey = "TXT.png";
             btn_txt.ImageList = imageList1;
-            btn_txt.Location = new Point(0, 276);
+            btn_txt.Location = new Point(0, 512);
             btn_txt.Margin = new Padding(0);
             btn_txt.Name = "btn_txt";
-            btn_txt.Size = new Size(257, 69);
+            btn_txt.Size = new Size(482, 128);
             btn_txt.TabIndex = 5;
             btn_txt.Text = "TXT";
             btn_txt.UseVisualStyleBackColor = false;
@@ -519,10 +538,10 @@
             btn_star.ImageAlign = ContentAlignment.MiddleLeft;
             btn_star.ImageKey = "Star.png";
             btn_star.ImageList = imageList1;
-            btn_star.Location = new Point(0, 138);
+            btn_star.Location = new Point(0, 256);
             btn_star.Margin = new Padding(0);
             btn_star.Name = "btn_star";
-            btn_star.Size = new Size(257, 69);
+            btn_star.Size = new Size(482, 128);
             btn_star.TabIndex = 4;
             btn_star.Text = "Starred file";
             btn_star.UseVisualStyleBackColor = false;
@@ -539,10 +558,10 @@
             btn_Logout.ImageAlign = ContentAlignment.MiddleLeft;
             btn_Logout.ImageKey = "logout.png";
             btn_Logout.ImageList = imageList1;
-            btn_Logout.Location = new Point(0, 207);
+            btn_Logout.Location = new Point(0, 384);
             btn_Logout.Margin = new Padding(0);
             btn_Logout.Name = "btn_Logout";
-            btn_Logout.Size = new Size(257, 69);
+            btn_Logout.Size = new Size(482, 128);
             btn_Logout.TabIndex = 1;
             btn_Logout.Text = "Log out";
             btn_Logout.UseVisualStyleBackColor = false;
@@ -558,18 +577,28 @@
             fileTransition.Interval = 9;
             fileTransition.Tick += fileTransition_Tick;
             // 
+            // panel5
+            // 
+            panel5.Controls.Add(btn_Notification);
+            panel5.Controls.Add(btn_offNotification);
+            panel5.Dock = DockStyle.Right;
+            panel5.Location = new Point(1530, 0);
+            panel5.Name = "panel5";
+            panel5.Size = new Size(141, 168);
+            panel5.TabIndex = 4;
+            // 
             // MainMenu
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(15F, 37F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1156, 633);
+            ClientSize = new Size(2168, 1171);
             Controls.Add(panel2);
             Controls.Add(panel4);
             Controls.Add(sidebar);
             Controls.Add(panel3);
             Controls.Add(panel1);
             FormBorderStyle = FormBorderStyle.None;
-            Margin = new Padding(3, 4, 3, 4);
+            Margin = new Padding(6, 7, 6, 7);
             Name = "MainMenu";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "MainMenu";
@@ -584,6 +613,7 @@
             panel4.ResumeLayout(false);
             sidebar.ResumeLayout(false);
             changefile.ResumeLayout(false);
+            panel5.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -621,5 +651,7 @@
         private Button btn_star;
         private Button btn_Notification;
         private Button btn_ThongBao;
+        private Button btn_offNotification;
+        private Panel panel5;
     }
 }

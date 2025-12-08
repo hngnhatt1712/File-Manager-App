@@ -282,21 +282,14 @@ namespace ClientApp
         {
             try
             {
-                // 1. Gọi Service Auth để đăng xuất Firebase
                 _authService.Logout();
-
-                // 2. Gọi Service File để ngắt kết nối TCP
                 await _fileClient.DisconnectAsync();
 
-                // 3. Reset giao diện về màn hình đăng nhập
-                // Hiện giao diện đăng nhập     
-                // Xóa trắng các ô nhập liệu cũ
-
-
                 MessageBox.Show("Đăng xuất thành công!");
-                FileApp f = new FileApp();
-                f.ShowDialog();
-                this.Close();
+
+                // Lệnh này sẽ tắt hết và mở lại app từ đầu (về lại màn Login)
+                Application.Restart();
+                Environment.Exit(0); // Đảm bảo tắt hẳn process cũ
             }
             catch (Exception ex)
             {
@@ -390,6 +383,28 @@ namespace ClientApp
             panel2.Controls.Add(tc);
 
             tc.BringToFront();
+        }
+
+        private void btn_Notification_Click(object sender, EventArgs e)
+        {
+            btn_Notification.Visible = false;
+
+            // Hiện cái nút tắt lên
+            btn_offNotification.Visible = true;
+
+            // Hiện thông báo
+            MessageBox.Show("Bạn đã TẮT thông báo!", "Thông báo");
+        }
+
+        private void btn_offNotification_Click(object sender, EventArgs e)
+        {
+            btn_offNotification.Visible = false;
+
+            // Hiện lại cái nút bật
+            btn_Notification.Visible = true;
+
+            // Hiện thông báo
+            MessageBox.Show("Bạn đã BẬT thông báo!", "Thông báo");
         }
     }
 }
