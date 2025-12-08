@@ -1,6 +1,6 @@
 ﻿namespace ClientApp.Forms_UI
 {
-    partial class TrangChu
+    partial class trash
     {
         /// <summary> 
         /// Required designer variable.
@@ -28,56 +28,45 @@
         /// </summary>
         private void InitializeComponent()
         {
-            flowLayoutPanel1 = new FlowLayoutPanel();
-            label1 = new Label();
+            panel1 = new Panel();
             button1 = new Button();
-            flowLayoutPanel1.SuspendLayout();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
-            // flowLayoutPanel1
+            // panel1
             // 
-            flowLayoutPanel1.Controls.Add(label1);
-            flowLayoutPanel1.Controls.Add(button1);
-            flowLayoutPanel1.Location = new Point(3, 3);
-            flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(663, 962);
-            flowLayoutPanel1.TabIndex = 0;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(3, 0);
-            label1.Name = "label1";
-            label1.Size = new Size(90, 37);
-            label1.TabIndex = 0;
-            label1.Text = "label1";
+            panel1.Controls.Add(button1);
+            panel1.Location = new Point(2, 2);
+            panel1.Margin = new Padding(2, 2, 2, 2);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(406, 545);
+            panel1.TabIndex = 0;
             // 
             // button1
             // 
-            button1.Location = new Point(99, 3);
+            button1.Location = new Point(103, 71);
+            button1.Margin = new Padding(2, 2, 2, 2);
             button1.Name = "button1";
-            button1.Size = new Size(325, 63);
-            button1.TabIndex = 1;
+            button1.Size = new Size(143, 302);
+            button1.TabIndex = 0;
             button1.Text = "button1";
             button1.UseVisualStyleBackColor = true;
             // 
-            // TrangChu
+            // ThungRac
             // 
-            AutoScaleDimensions = new SizeF(15F, 37F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(flowLayoutPanel1);
-            Name = "TrangChu";
-            Size = new Size(1103, 1010);
-            Load += TrangChu_Load;
-            flowLayoutPanel1.ResumeLayout(false);
-            flowLayoutPanel1.PerformLayout();
+            Controls.Add(panel1);
+            Margin = new Padding(2, 2, 2, 2);
+            Name = "ThungRac";
+            Size = new Size(891, 435);
+            panel1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
 
-        private FlowLayoutPanel flowLayoutPanel1;
-        private Label label1;
+        private Panel panel1;
         private Button button1;
     }
 }

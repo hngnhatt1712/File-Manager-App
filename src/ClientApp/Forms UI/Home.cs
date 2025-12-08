@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace ClientApp.Forms_UI
 {
-    public partial class TrangChu : UserControl
+    public partial class Home : UserControl
     {
-        public TrangChu()
+        public Home()
         {
             InitializeComponent();
 

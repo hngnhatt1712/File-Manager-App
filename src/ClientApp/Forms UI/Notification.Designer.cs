@@ -1,6 +1,6 @@
 ﻿namespace ClientApp.Forms_UI
 {
-    partial class DaTai
+    partial class Notification
     {
         /// <summary> 
         /// Required designer variable.
@@ -28,43 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
-            panel1 = new Panel();
-            label1 = new Label();
-            panel1.SuspendLayout();
             SuspendLayout();
             // 
-            // panel1
+            // Notification
             // 
-            panel1.Controls.Add(label1);
-            panel1.Location = new Point(164, 76);
-            panel1.Name = "panel1";
-            panel1.Size = new Size(1263, 953);
-            panel1.TabIndex = 0;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(490, 213);
-            label1.Name = "label1";
-            label1.Size = new Size(165, 37);
-            label1.TabIndex = 0;
-            label1.Text = "da tai xuong";
-            // 
-            // DaTai
-            // 
-            AutoScaleDimensions = new SizeF(15F, 37F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(panel1);
-            Name = "DaTai";
-            Size = new Size(1103, 1010);
-            panel1.ResumeLayout(false);
-            panel1.PerformLayout();
+            Name = "Notification";
+            Size = new Size(894, 419);
+            Tag = "";
             ResumeLayout(false);
         }
 
         #endregion
-
-        private Panel panel1;
-        private Label label1;
     }
 }

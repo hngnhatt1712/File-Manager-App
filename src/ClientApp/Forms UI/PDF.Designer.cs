@@ -33,20 +33,22 @@
             // 
             // button1
             // 
-            button1.Location = new Point(607, 334);
+            button1.Location = new Point(324, 181);
+            button1.Margin = new Padding(2, 2, 2, 2);
             button1.Name = "button1";
-            button1.Size = new Size(202, 264);
+            button1.Size = new Size(108, 143);
             button1.TabIndex = 0;
             button1.Text = "pdf";
             button1.UseVisualStyleBackColor = true;
             // 
             // PDF
             // 
-            AutoScaleDimensions = new SizeF(15F, 37F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(button1);
+            Margin = new Padding(2, 2, 2, 2);
             Name = "PDF";
-            Size = new Size(1103, 1010);
+            Size = new Size(891, 435);
             ResumeLayout(false);
         }
 
