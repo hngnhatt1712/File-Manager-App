@@ -36,30 +36,30 @@
             // panel1
             // 
             panel1.Controls.Add(label1);
-            panel1.Location = new Point(25, 11);
-            panel1.Margin = new Padding(2, 2, 2, 2);
+            panel1.Location = new Point(22, 8);
+            panel1.Margin = new Padding(2);
             panel1.Name = "panel1";
-            panel1.Size = new Size(354, 510);
+            panel1.Size = new Size(310, 382);
             panel1.TabIndex = 0;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(234, 186);
+            label1.Location = new Point(205, 140);
             label1.Margin = new Padding(2, 0, 2, 0);
             label1.Name = "label1";
-            label1.Size = new Size(70, 20);
+            label1.Size = new Size(54, 15);
             label1.TabIndex = 0;
             label1.Text = "Riêng TƯ";
             // 
             // RiengTu
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(panel1);
-            Margin = new Padding(2, 2, 2, 2);
+            Margin = new Padding(2);
             Name = "RiengTu";
-            Size = new Size(891, 435);
+            Size = new Size(787, 381);
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             ResumeLayout(false);

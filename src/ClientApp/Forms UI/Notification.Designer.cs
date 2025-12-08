@@ -32,10 +32,11 @@
             // 
             // Notification
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Margin = new Padding(3, 2, 3, 2);
             Name = "Notification";
-            Size = new Size(894, 419);
+            Size = new Size(787, 381);
             Tag = "";
             ResumeLayout(false);
         }

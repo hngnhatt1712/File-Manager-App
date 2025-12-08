@@ -39,9 +39,9 @@
             flowLayoutPanel1.Controls.Add(label1);
             flowLayoutPanel1.Controls.Add(button1);
             flowLayoutPanel1.Location = new Point(2, 2);
-            flowLayoutPanel1.Margin = new Padding(2, 2, 2, 2);
+            flowLayoutPanel1.Margin = new Padding(2);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(354, 520);
+            flowLayoutPanel1.Size = new Size(310, 390);
             flowLayoutPanel1.TabIndex = 0;
             // 
             // label1
@@ -50,28 +50,28 @@
             label1.Location = new Point(2, 0);
             label1.Margin = new Padding(2, 0, 2, 0);
             label1.Name = "label1";
-            label1.Size = new Size(50, 20);
+            label1.Size = new Size(38, 15);
             label1.TabIndex = 0;
             label1.Text = "label1";
             // 
             // button1
             // 
-            button1.Location = new Point(56, 2);
-            button1.Margin = new Padding(2, 2, 2, 2);
+            button1.Location = new Point(44, 2);
+            button1.Margin = new Padding(2);
             button1.Name = "button1";
-            button1.Size = new Size(173, 34);
+            button1.Size = new Size(151, 26);
             button1.TabIndex = 1;
             button1.Text = "button1";
             button1.UseVisualStyleBackColor = true;
             // 
-            // TrangChu
+            // Home
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(flowLayoutPanel1);
-            Margin = new Padding(2, 2, 2, 2);
-            Name = "TrangChu";
-            Size = new Size(891, 435);
+            Margin = new Padding(2);
+            Name = "Home";
+            Size = new Size(787, 381);
             Load += TrangChu_Load;
             flowLayoutPanel1.ResumeLayout(false);
             flowLayoutPanel1.PerformLayout();

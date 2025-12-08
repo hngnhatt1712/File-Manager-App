@@ -172,11 +172,11 @@ namespace ClientApp
             {
                 // Đang MỞ (488) -> Thu về NHỎ (91)
                 sidebar.Width -= 50; // Tăng tốc độ lên 20 cho dứt khoát
-                if (sidebar.Width <= 64)
+                if (sidebar.Width <= 55)
                 {
                     sidebarExpand = false;
                     sideBarTransition.Stop();
-                    sidebar.Width = 64; // Chốt số
+                    sidebar.Width = 55; // Chốt số
 
                     // Ẩn chữ
                     btn_Logout.Text = "";
@@ -187,11 +187,11 @@ namespace ClientApp
             {
                 // Đang NHỎ (91) -> Mở ra TO (488)
                 sidebar.Width += 50;
-                if (sidebar.Width >= 260)
+                if (sidebar.Width >= 203)
                 {
                     sidebarExpand = true;
                     sideBarTransition.Stop();
-                    sidebar.Width = 260; // Chốt số
+                    sidebar.Width = 203; // Chốt số
 
                     // Hiện chữ
                     btn_Logout.Text = "     Log out";
@@ -203,60 +203,75 @@ namespace ClientApp
 
         private void DieuChinhKichThuoc()
         {
+            // --- 1. HEADER (PANEL 4) - Dính sát vào sidebar ---
             panel4.Left = sidebar.Width;
             panel4.Width = this.ClientSize.Width - sidebar.Width;
 
-            // --- 2. XỬ LÝ THANH TÌM KIẾM (Để nó không bị bé tí 161px) ---
+            // --- 2. XỬ LÝ THANH TÌM KIẾM (roundedPanel1) ---
             if (roundedPanel1 != null)
             {
-                // Đảm bảo nó nằm trong Header
+                // Đảm bảo cha là panel4
                 if (roundedPanel1.Parent != panel4) roundedPanel1.Parent = panel4;
 
-                // TÍNH TOÁN CHIỀU RỘNG:
-                // Lấy chiều rộng Header trừ đi lề 2 bên (ví dụ 50px).
-                // Nó sẽ tự động dài ra khoảng 600-700px thay vì 161px.
-                int widthMoi = Math.Max(200, panel4.Width - 50);
-                roundedPanel1.Width = widthMoi;
+                // --- CẤU HÌNH ĐỘ CO DÃN ---
+                // Tổng khoảng cách chừa ra 2 bên (cho Logo, Text, Nút chuông...)
+                // Số càng LỚN thì thanh tìm kiếm càng NGẮN lại.
+                int leHaiBen = 400;
 
-                // CĂN GIỮA
+                // Tính toán chiều rộng tự động
+                int widthMoi = panel4.Width - leHaiBen;
+
+                // Giới hạn an toàn: Không cho bé quá 250px
+                if (widthMoi < 250) widthMoi = 250;
+
+                roundedPanel1.Width = widthMoi;
+                roundedPanel1.Height = 45; // Chiều cao cố định
+
+                // CĂN GIỮA CHIỀU NGANG
                 roundedPanel1.Left = (panel4.Width - roundedPanel1.Width) / 2;
 
-                // Vẽ lại hình dáng
-                roundedPanel1.Refresh();
+                // CĂN GIỮA CHIỀU DỌC (Quan trọng)
+                roundedPanel1.Top = (panel4.Height - roundedPanel1.Height) / 2;
+
+                roundedPanel1.BringToFront();
+                roundedPanel1.Invalidate();
+
+                // --- CẬP NHẬT Ô NHẬP LIỆU BÊN TRONG (txtSearch) ---
+                if (txtSearch != null)
+                {
+                    if (txtSearch.Parent != roundedPanel1) txtSearch.Parent = roundedPanel1;
+
+                    txtSearch.Width = roundedPanel1.Width - 40;
+                    txtSearch.Left = (roundedPanel1.Width - txtSearch.Width) / 2;
+                    txtSearch.Top = (roundedPanel1.Height - txtSearch.Height) / 2;
+                    txtSearch.BringToFront();
+                }
             }
 
-            // Cập nhật ô nhập liệu bên trong
-            if (txtSearch != null)
-            {
-                txtSearch.Width = roundedPanel1.Width - 40;
-                txtSearch.Left = (roundedPanel1.Width - txtSearch.Width) / 2;
-                txtSearch.Top = (roundedPanel1.Height - txtSearch.Height) / 2;
-            }
-
-            // --- 3. XỬ LÝ BỤNG GIỮA (PANEL 2) ---
+            // --- 3. XỬ LÝ PHẦN THÂN (PANEL 2) ---
             if (panel2 != null)
             {
                 panel2.Dock = DockStyle.None;
                 panel2.Anchor = AnchorStyles.Top | AnchorStyles.Left;
 
+                // Dính sát vào sidebar giống Header
                 panel2.Left = sidebar.Width;
                 panel2.Width = this.ClientSize.Width - sidebar.Width;
-                panel2.Top = panel4.Bottom;
 
-                // --- SỬA ĐOẠN NÀY ---
-                // Thay vì tính toán phức tạp, bạn hãy trừ thẳng 200 đơn vị
-                // Con số 200 này chắc chắn đủ lớn để chừa chỗ cho menu đáy
-                int heightMoi = this.ClientSize.Height - panel2.Top - 110;
+                panel2.Top = panel4.Bottom; // Nằm ngay dưới Header
+
+                // Tính chiều cao (Trừ đi thanh menu đáy khoảng 80px)
+                int heightMoi = this.ClientSize.Height - panel2.Top - 80;
 
                 if (heightMoi > 0)
                 {
                     panel2.Height = heightMoi;
                 }
+
+                // Đưa các thành phần quan trọng lên trên
+                panel4.BringToFront();
+                sidebar.BringToFront();
             }
-
-            // Đưa sidebar lên trên cùng
-
-            sidebar.BringToFront();
         }
         private void MainMenu_MouseDown(object sender, MouseEventArgs e)
         {
@@ -302,7 +317,7 @@ namespace ClientApp
             if (fileExpand == false)
             {
                 changefile.Height += 60;
-                if (changefile.Height >= 345)
+                if (changefile.Height >= 260)
                 {
                     fileTransition.Stop();
                     fileExpand = true;
@@ -311,7 +326,7 @@ namespace ClientApp
             else
             {
                 changefile.Height -= 60;
-                if (changefile.Height <= 69)
+                if (changefile.Height <= 52)
                 {
                     fileTransition.Stop();
                     fileExpand = false;
@@ -405,6 +420,11 @@ namespace ClientApp
 
             // Hiện thông báo
             MessageBox.Show("Bạn đã BẬT thông báo!", "Thông báo");
+        }
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
 }
