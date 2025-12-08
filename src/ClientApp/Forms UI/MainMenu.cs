@@ -42,7 +42,7 @@ namespace ClientApp
                 {
                     txtSearch.Text = "";
                     txtSearch.ForeColor = Color.Black;
-        }
+                }
             };
 
             txtSearch.Leave += (s, e) =>
@@ -57,7 +57,7 @@ namespace ClientApp
             button1_Click(null, null);
 
 
-            sidebar.Width = 91;
+            sidebar.Width = 64;
 
             // 3. Ẩn chữ ngay lập tức
             btn_Logout.Text = "";
@@ -82,7 +82,7 @@ namespace ClientApp
         {
             panel2.Controls.Clear();
 
-            TrangChu tc = new TrangChu();
+            Home tc = new Home();
             tc.Dock = DockStyle.Fill;
             panel2.Controls.Add(tc);
 
@@ -98,7 +98,7 @@ namespace ClientApp
         {
             panel2.Controls.Clear();
 
-            DaTai dt = new DaTai();
+            Downloaded dt = new Downloaded();
             dt.Dock = DockStyle.Fill;
 
             panel2.Controls.Add(dt);
@@ -121,7 +121,7 @@ namespace ClientApp
         {
             panel2.Controls.Clear();
 
-            ThungRac tr = new ThungRac();
+            trash tr = new trash();
             tr.Dock = DockStyle.Fill;
             panel2.Controls.Add(tr);
 
@@ -132,7 +132,7 @@ namespace ClientApp
         {
             panel2.Controls.Clear();
 
-            CaiDat cd = new CaiDat();
+            Setting cd = new Setting();
             cd.Dock = DockStyle.Fill;
             panel2.Controls.Add(cd);
 
@@ -171,12 +171,12 @@ namespace ClientApp
             if (sidebarExpand)
             {
                 // Đang MỞ (488) -> Thu về NHỎ (91)
-                sidebar.Width -= 80; // Tăng tốc độ lên 20 cho dứt khoát
-                if (sidebar.Width <= 91)
+                sidebar.Width -= 50; // Tăng tốc độ lên 20 cho dứt khoát
+                if (sidebar.Width <= 64)
                 {
                     sidebarExpand = false;
                     sideBarTransition.Stop();
-                    sidebar.Width = 91; // Chốt số
+                    sidebar.Width = 64; // Chốt số
 
                     // Ẩn chữ
                     btn_Logout.Text = "";
@@ -186,12 +186,12 @@ namespace ClientApp
             else
             {
                 // Đang NHỎ (91) -> Mở ra TO (488)
-                sidebar.Width += 80;
-                if (sidebar.Width >= 488)
+                sidebar.Width += 50;
+                if (sidebar.Width >= 260)
                 {
                     sidebarExpand = true;
                     sideBarTransition.Stop();
-                    sidebar.Width = 488; // Chốt số
+                    sidebar.Width = 260; // Chốt số
 
                     // Hiện chữ
                     btn_Logout.Text = "     Log out";
@@ -291,8 +291,8 @@ namespace ClientApp
                 // 3. Reset giao diện về màn hình đăng nhập
                 // Hiện giao diện đăng nhập     
                 // Xóa trắng các ô nhập liệu cũ
-                
-                
+
+
                 MessageBox.Show("Đăng xuất thành công!");
                 FileApp f = new FileApp();
                 f.ShowDialog();
@@ -309,7 +309,7 @@ namespace ClientApp
             if (fileExpand == false)
             {
                 changefile.Height += 60;
-                if (changefile.Height >= 642)
+                if (changefile.Height >= 345)
                 {
                     fileTransition.Stop();
                     fileExpand = true;
@@ -318,7 +318,7 @@ namespace ClientApp
             else
             {
                 changefile.Height -= 60;
-                if (changefile.Height <= 128)
+                if (changefile.Height <= 69)
                 {
                     fileTransition.Stop();
                     fileExpand = false;
@@ -379,6 +379,17 @@ namespace ClientApp
             Star s = new Star();
             s.Dock = DockStyle.Fill;
             panel2.Controls.Add(s);
+        }
+
+        private void btn_ThongBao_Click(object sender, EventArgs e)
+        {
+            panel2.Controls.Clear();
+
+            Notification tc = new Notification();
+            tc.Dock = DockStyle.Fill;
+            panel2.Controls.Add(tc);
+
+            tc.BringToFront();
         }
     }
 }

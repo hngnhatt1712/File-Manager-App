@@ -33,20 +33,22 @@
             // 
             // button1
             // 
-            button1.Location = new Point(629, 204);
+            button1.Location = new Point(335, 110);
+            button1.Margin = new Padding(2, 2, 2, 2);
             button1.Name = "button1";
-            button1.Size = new Size(178, 659);
+            button1.Size = new Size(95, 356);
             button1.TabIndex = 0;
             button1.Text = "txt";
             button1.UseVisualStyleBackColor = true;
             // 
             // TXT
             // 
-            AutoScaleDimensions = new SizeF(15F, 37F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(button1);
+            Margin = new Padding(2, 2, 2, 2);
             Name = "TXT";
-            Size = new Size(953, 1010);
+            Size = new Size(891, 435);
             ResumeLayout(false);
         }
 

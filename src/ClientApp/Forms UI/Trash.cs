@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace ClientApp.Forms_UI
 {
-    public partial class ThungRac : UserControl
+    public partial class trash : UserControl
     {
-        public ThungRac()
+        public trash()
         {
             InitializeComponent();
         }

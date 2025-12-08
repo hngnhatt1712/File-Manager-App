@@ -1,6 +1,6 @@
 ﻿namespace ClientApp.Forms_UI
 {
-    partial class ThungRac
+    partial class Setting
     {
         /// <summary> 
         /// Required designer variable.
@@ -29,41 +29,45 @@
         private void InitializeComponent()
         {
             panel1 = new Panel();
-            button1 = new Button();
+            label1 = new Label();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
             // 
-            panel1.Controls.Add(button1);
-            panel1.Location = new Point(3, 3);
+            panel1.Controls.Add(label1);
+            panel1.Location = new Point(2, 4);
+            panel1.Margin = new Padding(2, 2, 2, 2);
             panel1.Name = "panel1";
-            panel1.Size = new Size(761, 1009);
+            panel1.Size = new Size(395, 524);
             panel1.TabIndex = 0;
             // 
-            // button1
+            // label1
             // 
-            button1.Location = new Point(194, 131);
-            button1.Name = "button1";
-            button1.Size = new Size(269, 559);
-            button1.TabIndex = 0;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
+            label1.AutoSize = true;
+            label1.Location = new Point(278, 183);
+            label1.Margin = new Padding(2, 0, 2, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(56, 20);
+            label1.TabIndex = 0;
+            label1.Text = "Cai dat";
             // 
-            // ThungRac
+            // Setting
             // 
-            AutoScaleDimensions = new SizeF(15F, 37F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(panel1);
-            Name = "ThungRac";
-            Size = new Size(1103, 1010);
+            Margin = new Padding(2, 2, 2, 2);
+            Name = "Setting";
+            Size = new Size(891, 435);
             panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
         }
 
         #endregion
 
         private Panel panel1;
-        private Button button1;
+        private Label label1;
     }
 }

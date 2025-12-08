@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace ClientApp.Forms_UI
 {
-    public partial class CaiDat : UserControl
+    public partial class Notification : UserControl
     {
-        public CaiDat()
+        public Notification()
         {
             InitializeComponent();
         }

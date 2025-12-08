@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace ClientApp.Forms_UI
 {
-    public partial class DaTai : UserControl
+    public partial class Setting : UserControl
     {
-        public DaTai()
+        public Setting()
         {
             InitializeComponent();
         }

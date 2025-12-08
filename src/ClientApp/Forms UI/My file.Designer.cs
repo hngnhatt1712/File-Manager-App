@@ -1,6 +1,6 @@
 ﻿namespace ClientApp.Forms_UI
 {
-    partial class CaiDat
+    partial class RiengTu
     {
         /// <summary> 
         /// Required designer variable.
@@ -36,27 +36,30 @@
             // panel1
             // 
             panel1.Controls.Add(label1);
-            panel1.Location = new Point(3, 7);
+            panel1.Location = new Point(25, 11);
+            panel1.Margin = new Padding(2, 2, 2, 2);
             panel1.Name = "panel1";
-            panel1.Size = new Size(740, 970);
+            panel1.Size = new Size(354, 510);
             panel1.TabIndex = 0;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(521, 339);
+            label1.Location = new Point(234, 186);
+            label1.Margin = new Padding(2, 0, 2, 0);
             label1.Name = "label1";
-            label1.Size = new Size(101, 37);
+            label1.Size = new Size(70, 20);
             label1.TabIndex = 0;
-            label1.Text = "Cai dat";
+            label1.Text = "Riêng TƯ";
             // 
-            // CaiDat
+            // RiengTu
             // 
-            AutoScaleDimensions = new SizeF(15F, 37F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(panel1);
-            Name = "CaiDat";
-            Size = new Size(1103, 1010);
+            Margin = new Padding(2, 2, 2, 2);
+            Name = "RiengTu";
+            Size = new Size(891, 435);
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             ResumeLayout(false);

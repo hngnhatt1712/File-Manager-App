@@ -36,27 +36,30 @@
             // flowLayoutPanel1
             // 
             flowLayoutPanel1.Controls.Add(button1);
-            flowLayoutPanel1.Location = new Point(3, 3);
+            flowLayoutPanel1.Location = new Point(2, 2);
+            flowLayoutPanel1.Margin = new Padding(2, 2, 2, 2);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(789, 992);
+            flowLayoutPanel1.Size = new Size(421, 536);
             flowLayoutPanel1.TabIndex = 0;
             // 
             // button1
             // 
-            button1.Location = new Point(3, 3);
+            button1.Location = new Point(2, 2);
+            button1.Margin = new Padding(2, 2, 2, 2);
             button1.Name = "button1";
-            button1.Size = new Size(737, 755);
+            button1.Size = new Size(393, 408);
             button1.TabIndex = 0;
             button1.Text = "button1";
             button1.UseVisualStyleBackColor = true;
             // 
             // Menu
             // 
-            AutoScaleDimensions = new SizeF(15F, 37F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(flowLayoutPanel1);
+            Margin = new Padding(2, 2, 2, 2);
             Name = "Menu";
-            Size = new Size(1103, 1010);
+            Size = new Size(891, 435);
             Load += Menu_Load;
             flowLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
