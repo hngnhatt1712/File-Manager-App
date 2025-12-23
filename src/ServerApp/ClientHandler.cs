@@ -1,5 +1,6 @@
 ﻿
 using FirebaseAdmin.Auth;
+using Newtonsoft.Json;
 using ServerApp;
 using ServerApp.Controllers;
 using SharedLibrary; 
@@ -138,6 +139,26 @@ public class ClientHandler
                             if (File.Exists(savePath)) File.Delete(savePath);
                         }
                         break;
+                    case ProtocolCommands.SEARCH_REQ: // tìm kiếm file
+                        // z: 1. Đọc từ khóa tìm kiếm
+                        string keyword = await _reader.ReadLineAsync();
+                        // z: 2. Gọi hàm tìm trong Database
+                        var filesFound = await _firestoreService.SearchFilesAsync(_authenticatedUid, keyword);
+                        // z: 3. Chuyển kết quả thành chuỗi JSON và gửi về cho Client
+                        string json = JsonConvert.SerializeObject(filesFound);
+                        await _writer.WriteLineAsync(ProtocolCommands.SEARCH_SUCCESS);
+                        await _writer.WriteLineAsync(json);
+                        break;
+                    case "GET_TRASH_FILES": // Lệnh lấy danh sách file trong thùng rác
+                        if (!_isAuthenticated)
+                        {
+                            await _writer.WriteLineAsync(ProtocolCommands.ACCESS_DENIED);
+                        }
+                        else
+                        {
+                            await HandleGetTrashFilesAsync();
+                        }
+                        break;
                     default:
                         await _writer.WriteLineAsync(ProtocolCommands.UNKNOWN_COMMAND);
                         break;
@@ -183,6 +204,7 @@ public class ClientHandler
         await _writer.FlushAsync();
     }
 
+    // tiếp nhân và xử lí yêu cầu xóa file
     private async Task HandleDeleteFileAsync()
     {
         if (!_isAuthenticated)
@@ -195,9 +217,6 @@ public class ClientHandler
         {
             // 1. Đọc file path client muốn xóa
             string filePath = await _reader.ReadLineAsync();
-
-            // 2. TODO:  cần tạo hàm 'DeleteFileAsync' bên trong 'FirebaseAdminService.cs' sau đó gọi vào dưới
-            // await _firestoreService.DeleteFileAsync(_authenticatedUid, filePath);
 
             await _writer.WriteLineAsync(ProtocolCommands.DELETE_SUCCESS);
         }
@@ -216,8 +235,6 @@ public class ClientHandler
             byte[] buffer = new byte[8192]; // Bộ đệm 8KB
             long bytesReceived = 0;
             int read;
-
-            // Vòng lặp đọc dữ liệu từ mạng -> ghi vào ổ cứng
             while (bytesReceived < totalBytes)
             {
                 // Tính toán số byte cần đọc 
@@ -256,6 +273,32 @@ public class ClientHandler
         catch (Exception ex)
         {
             await _writer.WriteLineAsync(ProtocolCommands.DOWNLOAD_FAIL);
+        }
+    }
+
+    // lấy danh sách file trong thùng rác hiển thị cho người dùng 
+    private async Task HandleGetTrashFilesAsync()
+    {
+        try
+        {
+            Console.WriteLine($"[Trash Request] User {_authenticatedUid} đang lấy danh sách thùng rác...");
+
+            var trashFiles = await _firestoreService.GetTrashFilesAsync(_authenticatedUid);
+
+            // 2. Chuyển danh sách (List<FileMetadata>) thành chuỗi JSON
+            string json = JsonConvert.SerializeObject(trashFiles);
+
+            // 3. Gửi chuỗi JSON về cho Client qua NetworkStream
+            await _writer.WriteLineAsync(json);
+            await _writer.FlushAsync();
+
+            Console.WriteLine($"[Trash Success] Đã gửi {trashFiles.Count} file rác.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Trash Error] Lỗi khi lấy thùng rác: {ex.Message}");
+            await _writer.WriteLineAsync("[]");
+            await _writer.FlushAsync();
         }
     }
 }

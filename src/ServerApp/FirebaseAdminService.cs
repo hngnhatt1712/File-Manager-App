@@ -209,5 +209,75 @@ namespace ServerApp
             public string Email { get; set; }
             public string Phone { get; set; }
         }
+
+
+        // hàm tìm file theo user
+        public async Task<List<FileMetadata>> SearchFilesAsync(string uid, string searchTerm)
+        {
+            try
+            {
+                // z: Lấy tất cả file thuộc sở hữu của User này
+                Query query = _firestoreDb.Collection("files").WhereEqualTo("ownerUid", uid);
+                QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+                var ketQua = new List<FileMetadata>();
+                foreach (DocumentSnapshot doc in snapshot.Documents)
+                {
+                    var file = doc.ConvertTo<FileMetadata>();
+                    file.FileId = doc.Id;
+                    // z: Lọc những file có tên chứa từ khóa (không phân biệt hoa thường)
+                    if (file.FileName.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        ketQua.Add(file);
+                    }
+                }
+                return ketQua;
+            }
+            catch { return new List<FileMetadata>(); }
+        }
+
+        // thay đổi trạng thái hiển thị
+        public async Task<bool> UpdateDeletedStatusAsync(string fileId, bool isDeleted)
+        {
+            try
+            {
+                DocumentReference docRef = _firestoreDb.Collection("files").Document(fileId);
+                Dictionary<string, object> updates = new Dictionary<string, object>
+        {
+            { "IsDeleted", isDeleted }
+        };
+                await docRef.UpdateAsync(updates);
+                return true;
+            }
+            catch { return false; }
+        }
+
+        // 2. Hàm lấy riêng danh sách trong Thùng rác
+        public async Task<List<FileMetadata>> GetTrashFilesAsync(string uid)
+        {
+            try
+            {
+                // 1. Chỉ lấy những file của User đó VÀ đã bị đánh dấu IsDeleted = true
+                Query query = _firestoreDb.Collection("files")
+                    .WhereEqualTo("ownerUid", uid)
+                    .WhereEqualTo("IsDeleted", true);
+
+                QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+                var ketQua = new List<FileMetadata>();
+                foreach (DocumentSnapshot doc in snapshot.Documents)
+                {
+                    var file = doc.ConvertTo<FileMetadata>();
+                    file.FileId = doc.Id;
+                    ketQua.Add(file);
+                }
+                return ketQua;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi lấy thùng rác: " + ex.Message);
+                return new List<FileMetadata>();
+            }
+        }
     }
 }

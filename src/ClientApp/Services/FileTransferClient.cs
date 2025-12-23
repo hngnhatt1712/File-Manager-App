@@ -1,4 +1,5 @@
-﻿using SharedLibrary;
+﻿using Newtonsoft.Json;
+using SharedLibrary;
 using System;
 using System.IO;
 using System.Net.Sockets;
@@ -6,6 +7,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using SharedLibrary;
+using System.Collections.Generic;
+using ServerApp; // z: QUAN TRỌNG - Phải có dòng này để dùng List<>
 
 public class FileTransferClient
 {
@@ -70,6 +74,85 @@ public class FileTransferClient
         }
     }
 
+    public async Task<List<FileMetadata>> GetTrashFilesAsync()
+    {
+        try
+        {
+            // 1. Gửi lệnh yêu cầu lấy file trong thùng rác
+            await _writer.WriteLineAsync("GET_TRASH_FILES");
+
+            // 2. Đợi Server gửi chuỗi JSON chứa danh sách file
+            string jsonResponse = await _reader.ReadLineAsync();
+
+            if (string.IsNullOrEmpty(jsonResponse)) return new List<FileMetadata>();
+
+            // 3. Chuyển chuỗi JSON thành List trong C#
+            return JsonConvert.DeserializeObject<List<FileMetadata>>(jsonResponse);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Lỗi] GetTrash: {ex.Message}");
+            return new List<FileMetadata>();
+        }
+    }
+
+    // gửi lênh để xóa file vĩnh viễn
+    public async Task<bool> DeletePermanentlyAsync(string fileId)
+    {
+        // Gửi lệnh "DELETE_PERMANENT" kèm fileId lên Server
+        string command = $"DELETE_PERMANENT|{fileId}";
+        return await SendCommandAsync(command);
+    }
+
+
+    // để gửi tên file lên Server
+    public async Task<List<FileMetadata>> SearchFilesAsync(string query)
+    {
+        await EnsureConnectedAsync();
+        await _writer.WriteLineAsync(ProtocolCommands.SEARCH_REQ);
+        await _writer.WriteLineAsync(query);
+
+        string response = await _reader.ReadLineAsync();
+        if (response == ProtocolCommands.SEARCH_SUCCESS)
+        {
+            string json = await _reader.ReadLineAsync();
+            return JsonConvert.DeserializeObject<List<FileMetadata>>(json);
+        }
+        return new List<FileMetadata>();
+    }
+
+    // gửi lệnh để chuyển file vào thùng rác
+    public async Task<bool> MoveToTrashAsync(string fileId)
+    {
+        string command = $"MOVE_TO_TRASH|{fileId}";
+        return await SendCommandAsync(command);
+    }
+
+    // gửi lệnh khôi phục file đã chuyển vào thùng rác
+    public async Task<bool> RestoreFileAsync(string fileId)
+    {
+        string command = $"RESTORE_FILE|{fileId}";
+        return await SendCommandAsync(command);
+    }
+
+    // vẫn chuyển lệnh từ client sang server 
+    private async Task<bool> SendCommandAsync(string command)
+    {
+        try
+        {
+            await _writer.WriteLineAsync(command);
+            await _writer.FlushAsync();
+
+            string response = await _reader.ReadLineAsync();
+
+            return response == "SUCCESS";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi gửi lệnh: {ex.Message}");
+            return false;
+        }
+    }
 
     //  Xây dựng API (Phần gọi từ Client)
     #region API Authentication (Xác thực người dùng)

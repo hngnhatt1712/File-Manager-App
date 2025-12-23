@@ -59,6 +59,10 @@
         public const string QUIT = "QUIT";
 
         public const string UNKNOWN_COMMAND = "UNKNOWN_COMMAND";
+
+        // tìm kiếm file
+        public const string SEARCH_REQ = "SEARCH_REQ";      // Client gửi yêu cầu
+        public const string SEARCH_SUCCESS = "SEARCH_SUCCESS"; // Server trả kết quả
     }
 
 }

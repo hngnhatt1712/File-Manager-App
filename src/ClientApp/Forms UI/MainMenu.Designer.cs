@@ -53,14 +53,14 @@
             btn_offNotification = new Button();
             panel2 = new Panel();
             sidebar = new FlowLayoutPanel();
-            btn_ThongBao = new Button();
-            imageList1 = new ImageList(components);
             changefile = new FlowLayoutPanel();
             btn_filetype = new Button();
+            imageList1 = new ImageList(components);
             btn_word = new Button();
             btn_excel = new Button();
             btn_pdf = new Button();
             btn_txt = new Button();
+            btn_ThongBao = new Button();
             btn_star = new Button();
             btn_Logout = new Button();
             sideBarTransition = new System.Windows.Forms.Timer(components);
@@ -253,6 +253,7 @@
             txtSearch.Size = new Size(648, 16);
             txtSearch.TabIndex = 1;
             txtSearch.TextChanged += textBox1_TextChanged;
+            txtSearch.KeyDown += txtSearch_KeyDown;
             // 
             // panel3
             // 
@@ -388,41 +389,6 @@
             sidebar.Size = new Size(203, 454);
             sidebar.TabIndex = 0;
             // 
-            // btn_ThongBao
-            // 
-            btn_ThongBao.BackColor = Color.FromArgb(0, 0, 192);
-            btn_ThongBao.FlatAppearance.BorderSize = 0;
-            btn_ThongBao.FlatStyle = FlatStyle.Flat;
-            btn_ThongBao.Font = new Font("Segoe UI", 11F);
-            btn_ThongBao.ForeColor = Color.Cyan;
-            btn_ThongBao.ImageAlign = ContentAlignment.MiddleLeft;
-            btn_ThongBao.ImageKey = "Notification.png";
-            btn_ThongBao.ImageList = imageList1;
-            btn_ThongBao.Location = new Point(0, 52);
-            btn_ThongBao.Margin = new Padding(0);
-            btn_ThongBao.Name = "btn_ThongBao";
-            btn_ThongBao.Size = new Size(225, 52);
-            btn_ThongBao.TabIndex = 0;
-            btn_ThongBao.Text = " Notification";
-            btn_ThongBao.UseVisualStyleBackColor = false;
-            btn_ThongBao.Click += btn_ThongBao_Click;
-            // 
-            // imageList1
-            // 
-            imageList1.ColorDepth = ColorDepth.Depth32Bit;
-            imageList1.ImageStream = (ImageListStreamer)resources.GetObject("imageList1.ImageStream");
-            imageList1.TransparentColor = Color.Transparent;
-            imageList1.Images.SetKeyName(0, "logout.png");
-            imageList1.Images.SetKeyName(1, "chuyển  đổi.png");
-            imageList1.Images.SetKeyName(2, "word file.png");
-            imageList1.Images.SetKeyName(3, "PDF.png");
-            imageList1.Images.SetKeyName(4, "Selling Strategy Document.png");
-            imageList1.Images.SetKeyName(5, "Microsoft Excel 2019.png");
-            imageList1.Images.SetKeyName(6, "TXT.png");
-            imageList1.Images.SetKeyName(7, "Upload Document.png");
-            imageList1.Images.SetKeyName(8, "Star.png");
-            imageList1.Images.SetKeyName(9, "Notification.png");
-            // 
             // changefile
             // 
             changefile.Controls.Add(btn_filetype);
@@ -457,6 +423,22 @@
             btn_filetype.UseVisualStyleBackColor = false;
             btn_filetype.UseWaitCursor = true;
             btn_filetype.Click += btn_changefile_Click;
+            // 
+            // imageList1
+            // 
+            imageList1.ColorDepth = ColorDepth.Depth32Bit;
+            imageList1.ImageStream = (ImageListStreamer)resources.GetObject("imageList1.ImageStream");
+            imageList1.TransparentColor = Color.Transparent;
+            imageList1.Images.SetKeyName(0, "logout.png");
+            imageList1.Images.SetKeyName(1, "chuyển  đổi.png");
+            imageList1.Images.SetKeyName(2, "word file.png");
+            imageList1.Images.SetKeyName(3, "PDF.png");
+            imageList1.Images.SetKeyName(4, "Selling Strategy Document.png");
+            imageList1.Images.SetKeyName(5, "Microsoft Excel 2019.png");
+            imageList1.Images.SetKeyName(6, "TXT.png");
+            imageList1.Images.SetKeyName(7, "Upload Document.png");
+            imageList1.Images.SetKeyName(8, "Star.png");
+            imageList1.Images.SetKeyName(9, "Notification.png");
             // 
             // btn_word
             // 
@@ -537,6 +519,25 @@
             btn_txt.UseVisualStyleBackColor = false;
             btn_txt.UseWaitCursor = true;
             btn_txt.Click += btn_txt_Click;
+            // 
+            // btn_ThongBao
+            // 
+            btn_ThongBao.BackColor = Color.FromArgb(0, 0, 192);
+            btn_ThongBao.FlatAppearance.BorderSize = 0;
+            btn_ThongBao.FlatStyle = FlatStyle.Flat;
+            btn_ThongBao.Font = new Font("Segoe UI", 11F);
+            btn_ThongBao.ForeColor = Color.Cyan;
+            btn_ThongBao.ImageAlign = ContentAlignment.MiddleLeft;
+            btn_ThongBao.ImageKey = "Notification.png";
+            btn_ThongBao.ImageList = imageList1;
+            btn_ThongBao.Location = new Point(0, 52);
+            btn_ThongBao.Margin = new Padding(0);
+            btn_ThongBao.Name = "btn_ThongBao";
+            btn_ThongBao.Size = new Size(225, 52);
+            btn_ThongBao.TabIndex = 0;
+            btn_ThongBao.Text = " Notification";
+            btn_ThongBao.UseVisualStyleBackColor = false;
+            btn_ThongBao.Click += btn_ThongBao_Click;
             // 
             // btn_star
             // 
