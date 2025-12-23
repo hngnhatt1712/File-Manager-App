@@ -69,7 +69,22 @@ namespace ClientApp
             DieuChinhKichThuoc();
             sidebar.BringToFront();
         }
+        private void ShowPage(UserControl page)
+        {
+            _isTrashMode = false; // Mặc định tắt trash mode khi chuyển trang
 
+            // 1. Dọn dẹp
+            flowLayoutPanel1.Controls.Clear();
+
+            // 2. Thiết lập kích thước cho trang con
+            // Vì FlowLayoutPanel không hỗ trợ Dock.Fill tốt, ta ép kích thước bằng tay
+            page.Width = flowLayoutPanel1.Width - 10; // Trừ hao khoảng cách thanh cuộn
+            page.Height = flowLayoutPanel1.Height - 10;
+
+            // 3. Thêm vào khung hiển thị
+            flowLayoutPanel1.Controls.Add(page);
+            page.BringToFront();
+        }
         private void MainMenu_Load(object sender, EventArgs e)
         {
 
@@ -82,13 +97,9 @@ namespace ClientApp
 
         private void button1_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear();
             _isTrashMode = false; // QUAN TRỌNG: Tắt chế độ thùng rác
-            Home tc = new Home();
-            tc.Dock = DockStyle.Fill;
-            panel2.Controls.Add(tc);
-
-            tc.BringToFront();
+            ShowPage(new Home());
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -98,30 +109,20 @@ namespace ClientApp
 
         private void button3_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear();
 
-            Downloaded dt = new Downloaded();
-            dt.Dock = DockStyle.Fill;
-
-            panel2.Controls.Add(dt);
-
-            dt.BringToFront();
+            ShowPage(new Downloaded());
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Clear();
-
-            RiengTu rt = new RiengTu();
-            rt.Dock = DockStyle.Fill;
-            panel2.Controls.Add(rt);
-
-            rt.BringToFront();
+            flowLayoutPanel1.Controls.Clear();
+            ShowPage(new RiengTu());
         }
 
         private async void button5_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear();
             _isTrashMode = true; // Đánh dấu đang xem Thùng rác
 
             var danhSachFileRac = await _fileClient.GetTrashFilesAsync();
@@ -132,13 +133,9 @@ namespace ClientApp
 
         private void button2_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear();
 
-            Setting cd = new Setting();
-            cd.Dock = DockStyle.Fill;
-            panel2.Controls.Add(cd);
-
-            cd.BringToFront();
+            ShowPage(new Setting());
         }
 
         private void panel3_Paint(object sender, PaintEventArgs e)
@@ -251,23 +248,23 @@ namespace ClientApp
             }
 
             // --- 3. XỬ LÝ PHẦN THÂN (PANEL 2) ---
-            if (panel2 != null)
+            if (flowLayoutPanel1 != null)
             {
-                panel2.Dock = DockStyle.None;
-                panel2.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+                flowLayoutPanel1.Dock = DockStyle.None;
+                flowLayoutPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Left;
 
                 // Dính sát vào sidebar giống Header
-                panel2.Left = sidebar.Width;
-                panel2.Width = this.ClientSize.Width - sidebar.Width;
+                flowLayoutPanel1.Left = sidebar.Width;
+                flowLayoutPanel1.Width = this.ClientSize.Width - sidebar.Width;
 
-                panel2.Top = panel4.Bottom; // Nằm ngay dưới Header
+                flowLayoutPanel1.Top = panel4.Bottom; // Nằm ngay dưới Header
 
                 // Tính chiều cao (Trừ đi thanh menu đáy khoảng 80px)
-                int heightMoi = this.ClientSize.Height - panel2.Top - 80;
+                int heightMoi = this.ClientSize.Height - flowLayoutPanel1.Top - 80;
 
                 if (heightMoi > 0)
                 {
-                    panel2.Height = heightMoi;
+                    flowLayoutPanel1.Height = heightMoi;
                 }
 
                 // Đưa các thành phần quan trọng lên trên
@@ -343,63 +340,45 @@ namespace ClientApp
 
         private void btn_pdf_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear();
 
-            PDF pdf = new PDF();
-            pdf.Dock = DockStyle.Fill;
-            panel2.Controls.Add(pdf);
-
-            pdf.BringToFront();
+            ShowPage(new PDF());
         }
 
         private void btn_word_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear();
 
-            Word word = new Word();
-            word.Dock = DockStyle.Fill;
-            panel2.Controls.Add(word);
-
-            word.BringToFront();
+            ShowPage(new Word());
         }
 
         private void btn_excel_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear();
 
-            Excel ex = new Excel();
-            ex.Dock = DockStyle.Fill;
-            panel2.Controls.Add(ex);
+            ShowPage(new Excel());
 
         }
 
         private void btn_txt_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear();
 
-            TXT txt = new TXT();
-            txt.Dock = DockStyle.Fill;
-            panel2.Controls.Add(txt);
+            ShowPage(new TXT());
         }
 
         private void button8_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear();
 
-            Star s = new Star();
-            s.Dock = DockStyle.Fill;
-            panel2.Controls.Add(s);
+            ShowPage(new Star());
         }
 
         private void btn_ThongBao_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear();
 
-            Notification tc = new Notification();
-            tc.Dock = DockStyle.Fill;
-            panel2.Controls.Add(tc);
-
-            tc.BringToFront();
+            ShowPage(new Notification());
         }
 
         private void btn_Notification_Click(object sender, EventArgs e)
@@ -451,7 +430,7 @@ namespace ClientApp
         // z: Hàm này dùng để vẽ các file tìm được lên màn hình
         private void HienThiKetQua(List<FileMetadata> danhSachFile)
         {
-            panel2.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear();
             if (danhSachFile == null || danhSachFile.Count == 0)
             {
                 Label lblEmpty = new Label();
@@ -459,7 +438,7 @@ namespace ClientApp
                 lblEmpty.AutoSize = true;
                 lblEmpty.ForeColor = Color.Red;
                 lblEmpty.Font = new Font("Segoe UI", 12, FontStyle.Italic);
-                panel2.Controls.Add(lblEmpty);
+                flowLayoutPanel1.Controls.Add(lblEmpty);
                 return;
             }
             foreach (var file in danhSachFile)
@@ -520,7 +499,7 @@ namespace ClientApp
                 pnlCard.Controls.Add(lblName);
                 pnlCard.Controls.Add(picIcon);
 
-                panel2.Controls.Add(pnlCard);
+                flowLayoutPanel1.Controls.Add(pnlCard);
             }
         }
         // thực hiện chonn file 
@@ -528,7 +507,7 @@ namespace ClientApp
         {
             // 1. Lưu thông tin file vừa chọn
             _selectedFile = file;
-            foreach (Control ctr in panel2.Controls)
+            foreach (Control ctr in flowLayoutPanel1.Controls)
             {
                 if (ctr is Panel pnl)
                 {
