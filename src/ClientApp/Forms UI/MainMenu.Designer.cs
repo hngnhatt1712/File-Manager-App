@@ -51,7 +51,6 @@
             panel5 = new Panel();
             btn_Notification = new Button();
             btn_offNotification = new Button();
-            panel2 = new Panel();
             sidebar = new FlowLayoutPanel();
             changefile = new FlowLayoutPanel();
             btn_filetype = new Button();
@@ -65,6 +64,7 @@
             btn_Logout = new Button();
             sideBarTransition = new System.Windows.Forms.Timer(components);
             fileTransition = new System.Windows.Forms.Timer(components);
+            flowLayoutPanel1 = new FlowLayoutPanel();
             panel1.SuspendLayout();
             roundedPanel1.SuspendLayout();
             panel3.SuspendLayout();
@@ -366,15 +366,6 @@
             btn_offNotification.Visible = false;
             btn_offNotification.Click += btn_offNotification_Click;
             // 
-            // panel2
-            // 
-            panel2.Location = new Point(230, 114);
-            panel2.Margin = new Padding(2);
-            panel2.Name = "panel2";
-            panel2.Size = new Size(787, 381);
-            panel2.TabIndex = 5;
-            panel2.Paint += panel2_Paint;
-            // 
             // sidebar
             // 
             sidebar.BackColor = Color.Blue;
@@ -589,13 +580,20 @@
             fileTransition.Interval = 9;
             fileTransition.Tick += fileTransition_Tick;
             // 
+            // flowLayoutPanel1
+            // 
+            flowLayoutPanel1.Location = new Point(230, 114);
+            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            flowLayoutPanel1.Size = new Size(787, 381);
+            flowLayoutPanel1.TabIndex = 5;
+            // 
             // MainMenu
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1017, 541);
+            Controls.Add(flowLayoutPanel1);
             Controls.Add(roundedPanel1);
-            Controls.Add(panel2);
             Controls.Add(panel4);
             Controls.Add(sidebar);
             Controls.Add(panel3);
@@ -648,12 +646,12 @@
         private Button btn_word;
         private System.Windows.Forms.Timer fileTransition;
         private Button btn_excel;
-        private Panel panel2;
         private Button btn_txt;
         private Button btn_star;
         private Button btn_Notification;
         private Button btn_ThongBao;
         private Button btn_offNotification;
         private Panel panel5;
+        private FlowLayoutPanel flowLayoutPanel1;
     }
 }
