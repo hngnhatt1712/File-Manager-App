@@ -254,25 +254,67 @@ public class ClientHandler
         if (!_isAuthenticated)
         {
             await _writer.WriteLineAsync(ProtocolCommands.ACCESS_DENIED);
+            await _writer.FlushAsync();
             return;
         }
 
         try
         {
-            // Đọc file client muốn tải
-            string filePath = await _reader.ReadLineAsync();
+            // BƯỚC 2: Đọc tên file client muốn tải
+            // (Client sẽ gửi lệnh DOWNLOAD)
+            string fileNameReq = await _reader.ReadLineAsync();
 
-            // (Kiểm tra file tồn tại và quyền sở hữu (dùng _authenticatedUid)...)
+            if (string.IsNullOrEmpty(fileNameReq)) return;
 
-            // Báo Client bắt đầu tải
-            
+            Console.WriteLine($"[Download Req] User {_authenticatedUid} muon tai: {fileNameReq}");
 
-            // (Code gửi kích thước file...)
-            // (Code gửi stream file...)
+            // BƯỚC 3: Tìm đường dẫn vật lý của file trên Server
+            // Logic: ServerStorage / UserID / FileName
+            string userFolder = Path.Combine(_storagePath, _authenticatedUid);
+            string fullPath = Path.Combine(userFolder, fileNameReq);
+
+            // BƯỚC 4: Kiểm tra file có tồn tại không
+            if (!File.Exists(fullPath))
+            {
+                Console.WriteLine($"[Download Error] Khong tim thay file: {fullPath}");
+                await _writer.WriteLineAsync(ProtocolCommands.FILE_NOT_FOUND);
+                await _writer.FlushAsync();
+                return;
+            }
+
+            // BƯỚC 5: Chuẩn bị gửi
+            long fileSize = new FileInfo(fullPath).Length;
+
+            // Gửi lệnh: DOWNLOADING|Kích_thước (Dùng dấu | ngăn cách cho dễ tách)
+            // Ví dụ gửi: "DOWNLOADING|5242880"
+            await _writer.WriteLineAsync($"{ProtocolCommands.DOWNLOADING}|{fileSize}");
+            await _writer.FlushAsync();
+
+            // BƯỚC 6: Bơm dữ liệu file qua NetworkStream
+            using (FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+            {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+
+                // Đọc từ ổ cứng Server -> Đẩy ra Client
+                while ((bytesRead = await fs.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                {
+                    await _client.GetStream().WriteAsync(buffer, 0, bytesRead);
+                }
+            }
+            await _client.GetStream().FlushAsync();
+            Console.WriteLine($"[Download Success] Da gui xong file {fileNameReq}");
         }
         catch (Exception ex)
         {
-            await _writer.WriteLineAsync(ProtocolCommands.DOWNLOAD_FAIL);
+            Console.WriteLine($"[Download Exception] {ex.Message}");
+            // Chỉ gửi lỗi nếu kết nối còn sống
+            try
+            {
+                await _writer.WriteLineAsync(ProtocolCommands.DOWNLOAD_FAIL);
+                await _writer.FlushAsync();
+            }
+            catch { }
         }
     }
 
