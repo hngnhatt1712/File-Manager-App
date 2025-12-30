@@ -36,8 +36,8 @@
             // panel1
             // 
             panel1.Controls.Add(label1);
-            panel1.Location = new Point(87, 41);
-            panel1.Margin = new Padding(2, 2, 2, 2);
+            panel1.Location = new Point(41, 20);
+            panel1.Margin = new Padding(2);
             panel1.Name = "panel1";
             panel1.Size = new Size(891, 435);
             panel1.TabIndex = 0;
@@ -57,7 +57,7 @@
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(panel1);
-            Margin = new Padding(2, 2, 2, 2);
+            Margin = new Padding(2);
             Name = "Downloaded";
             Size = new Size(891, 435);
             panel1.ResumeLayout(false);
