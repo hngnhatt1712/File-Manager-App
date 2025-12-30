@@ -48,9 +48,6 @@
             label6 = new Label();
             button6 = new Button();
             panel4 = new Panel();
-            panel5 = new Panel();
-            btn_Notification = new Button();
-            btn_offNotification = new Button();
             sidebar = new FlowLayoutPanel();
             changefile = new FlowLayoutPanel();
             btn_filetype = new Button();
@@ -68,8 +65,6 @@
             panel1.SuspendLayout();
             roundedPanel1.SuspendLayout();
             panel3.SuspendLayout();
-            panel4.SuspendLayout();
-            panel5.SuspendLayout();
             sidebar.SuspendLayout();
             changefile.SuspendLayout();
             SuspendLayout();
@@ -240,7 +235,7 @@
             roundedPanel1.Location = new Point(252, 65);
             roundedPanel1.Margin = new Padding(2);
             roundedPanel1.Name = "roundedPanel1";
-            roundedPanel1.Size = new Size(687, 30);
+            roundedPanel1.Size = new Size(733, 30);
             roundedPanel1.TabIndex = 1;
             // 
             // txtSearch
@@ -319,52 +314,11 @@
             // 
             panel4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panel4.BackColor = SystemColors.ControlLight;
-            panel4.Controls.Add(panel5);
             panel4.Location = new Point(230, 47);
             panel4.Margin = new Padding(2);
             panel4.Name = "panel4";
             panel4.Size = new Size(787, 63);
             panel4.TabIndex = 4;
-            // 
-            // panel5
-            // 
-            panel5.Controls.Add(btn_Notification);
-            panel5.Controls.Add(btn_offNotification);
-            panel5.Dock = DockStyle.Right;
-            panel5.Location = new Point(721, 0);
-            panel5.Margin = new Padding(1);
-            panel5.Name = "panel5";
-            panel5.Size = new Size(66, 63);
-            panel5.TabIndex = 4;
-            // 
-            // btn_Notification
-            // 
-            btn_Notification.BackgroundImage = (Image)resources.GetObject("btn_Notification.BackgroundImage");
-            btn_Notification.BackgroundImageLayout = ImageLayout.Zoom;
-            btn_Notification.FlatAppearance.BorderSize = 0;
-            btn_Notification.FlatStyle = FlatStyle.Flat;
-            btn_Notification.Location = new Point(3, 3);
-            btn_Notification.Margin = new Padding(3, 2, 3, 2);
-            btn_Notification.Name = "btn_Notification";
-            btn_Notification.Size = new Size(66, 68);
-            btn_Notification.TabIndex = 2;
-            btn_Notification.UseVisualStyleBackColor = true;
-            btn_Notification.Click += btn_Notification_Click;
-            // 
-            // btn_offNotification
-            // 
-            btn_offNotification.BackgroundImage = (Image)resources.GetObject("btn_offNotification.BackgroundImage");
-            btn_offNotification.BackgroundImageLayout = ImageLayout.Zoom;
-            btn_offNotification.FlatAppearance.BorderSize = 0;
-            btn_offNotification.FlatStyle = FlatStyle.Flat;
-            btn_offNotification.Location = new Point(3, 3);
-            btn_offNotification.Margin = new Padding(3, 2, 3, 2);
-            btn_offNotification.Name = "btn_offNotification";
-            btn_offNotification.Size = new Size(66, 68);
-            btn_offNotification.TabIndex = 3;
-            btn_offNotification.UseVisualStyleBackColor = true;
-            btn_offNotification.Visible = false;
-            btn_offNotification.Click += btn_offNotification_Click;
             // 
             // sidebar
             // 
@@ -610,8 +564,6 @@
             roundedPanel1.PerformLayout();
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
-            panel4.ResumeLayout(false);
-            panel5.ResumeLayout(false);
             sidebar.ResumeLayout(false);
             changefile.ResumeLayout(false);
             ResumeLayout(false);
@@ -648,10 +600,7 @@
         private Button btn_excel;
         private Button btn_txt;
         private Button btn_star;
-        private Button btn_Notification;
         private Button btn_ThongBao;
-        private Button btn_offNotification;
-        private Panel panel5;
         private FlowLayoutPanel flowLayoutPanel1;
     }
 }

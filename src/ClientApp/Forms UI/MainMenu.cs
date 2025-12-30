@@ -383,24 +383,12 @@ namespace ClientApp
 
         private void btn_Notification_Click(object sender, EventArgs e)
         {
-            btn_Notification.Visible = false;
-
-            // Hiện cái nút tắt lên
-            btn_offNotification.Visible = true;
-
-            // Hiện thông báo
-            MessageBox.Show("Bạn đã TẮT thông báo!", "Thông báo");
+            
         }
 
         private void btn_offNotification_Click(object sender, EventArgs e)
         {
-            btn_offNotification.Visible = false;
-
-            // Hiện lại cái nút bật
-            btn_Notification.Visible = true;
-
-            // Hiện thông báo
-            MessageBox.Show("Bạn đã BẬT thông báo!", "Thông báo");
+        
         }
 
         private void panel2_Paint(object sender, PaintEventArgs e)
