@@ -38,7 +38,6 @@ namespace ClientApp.Forms_UI
             homeFileList.SetClient(_client);
             // Logic riêng của Home: Lấy file rồi lọc ra 10 cái mới nhất
             string json = await _client.GetFileListAsync("/");
-            MessageBox.Show("JSON Server gửi về là:\n" + json);
             var allFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
 
             var top10Files = allFiles.Take(10).ToList();

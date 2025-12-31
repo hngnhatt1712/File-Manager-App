@@ -31,16 +31,13 @@ namespace ClientApp.Forms_UI
         // 2. Hàm Tải dữ liệu từ Server (Dùng cho My File)
         public async Task LoadFilesFromServer(string path = "/")
         {
-            MessageBox.Show("1. Đã vào hàm LoadFilesFromServer");
             if (_fileClient == null) return;
             _currentPath = path;
 
             try
             {
-                MessageBox.Show("2. Bắt đầu gửi lệnh lấy file...");
                 // Gọi Client lấy JSON
                 string json = await _fileClient.GetFileListAsync(path);
-                MessageBox.Show("JSON Server gửi về:\n" + json);
                 if (string.IsNullOrEmpty(json) || json == "[]")
                 {
                     RenderFileList(new List<FileMetadata>());
