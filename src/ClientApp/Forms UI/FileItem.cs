@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SharedLibrary;
 
 namespace ClientApp
 {
@@ -67,11 +68,16 @@ namespace ClientApp
         }
         private Image GetIcon(string fileName)
         {
-            string ext = System.IO.Path.GetExtension(fileName).ToLower();
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return Properties.Resources.icon_default;
+            }
+            string ext = System.IO.Path.GetExtension(fileName)?.ToLower() ?? "";
             if (ext == ".doc" || ext == ".docx") return Properties.Resources.icon_word;
             if (ext == ".xls" || ext == ".xlsx") return Properties.Resources.icon_excel;
             if (ext == ".pdf") return Properties.Resources.icon_pdf;
             if (ext == ".txt") return Properties.Resources.icon_txt;
+            if (ext == ".png" || ext == ".jpg" || ext == ".jpeg") return Properties.Resources.icon_image;
             return Properties.Resources.icon_default;
         }
     }

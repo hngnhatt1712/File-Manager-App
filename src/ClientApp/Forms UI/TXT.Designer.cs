@@ -28,32 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
-            button1 = new Button();
+            fileList1 = new FileList();
             SuspendLayout();
             // 
-            // button1
+            // fileList1
             // 
-            button1.Location = new Point(335, 110);
-            button1.Margin = new Padding(2, 2, 2, 2);
-            button1.Name = "button1";
-            button1.Size = new Size(95, 356);
-            button1.TabIndex = 0;
-            button1.Text = "txt";
-            button1.UseVisualStyleBackColor = true;
+            fileList1.Location = new Point(0, 0);
+            fileList1.Name = "fileList1";
+            fileList1.Size = new Size(787, 381);
+            fileList1.TabIndex = 0;
             // 
             // TXT
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(button1);
-            Margin = new Padding(2, 2, 2, 2);
+            Controls.Add(fileList1);
+            Margin = new Padding(2);
             Name = "TXT";
-            Size = new Size(891, 435);
+            Size = new Size(787, 381);
+            Load += TXT_Load;
             ResumeLayout(false);
         }
 
         #endregion
 
-        private Button button1;
+        private FileList fileList1;
     }
 }

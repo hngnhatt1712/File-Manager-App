@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SharedLibrary;
 
 namespace ClientApp
 {
@@ -99,7 +100,7 @@ namespace ClientApp
         {
             flowLayoutPanel1.Controls.Clear();
             _isTrashMode = false; // QUAN TRỌNG: Tắt chế độ thùng rác
-            ShowPage(new Home());
+            ShowPage(new Home(_fileClient));
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -111,13 +112,13 @@ namespace ClientApp
         {
             flowLayoutPanel1.Controls.Clear();
 
-            ShowPage(new Downloaded());
+            ShowPage(new Downloaded(_fileClient));
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
             flowLayoutPanel1.Controls.Clear();
-            ShowPage(new RiengTu());
+            ShowPage(new RiengTu(_fileClient));
         }
 
         private async void button5_Click(object sender, EventArgs e)
@@ -128,7 +129,7 @@ namespace ClientApp
             var danhSachFileRac = await _fileClient.GetTrashFilesAsync();
 
             // Tận dụng hàm vẽ Card file đã có ở Ảnh 1
-            HienThiKetQua(danhSachFileRac);
+            RenderFileList(danhSachFileRac);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -342,21 +343,21 @@ namespace ClientApp
         {
             flowLayoutPanel1.Controls.Clear();
 
-            ShowPage(new PDF());
+            ShowPage(new PDF(_fileClient));
         }
 
         private void btn_word_Click(object sender, EventArgs e)
         {
             flowLayoutPanel1.Controls.Clear();
 
-            ShowPage(new Word());
+            ShowPage(new Word(_fileClient));
         }
 
         private void btn_excel_Click(object sender, EventArgs e)
         {
             flowLayoutPanel1.Controls.Clear();
 
-            ShowPage(new Excel());
+            ShowPage(new Excel(_fileClient));
 
         }
 
@@ -364,14 +365,14 @@ namespace ClientApp
         {
             flowLayoutPanel1.Controls.Clear();
 
-            ShowPage(new TXT());
+            ShowPage(new TXT(_fileClient));
         }
 
         private void button8_Click(object sender, EventArgs e)
         {
             flowLayoutPanel1.Controls.Clear();
 
-            ShowPage(new Star());
+            ShowPage(new Star(_fileClient));
         }
 
         private void btn_ThongBao_Click(object sender, EventArgs e)
@@ -408,133 +409,128 @@ namespace ClientApp
                 if (string.IsNullOrEmpty(query)) return;
                 var ketQua = await _fileClient.SearchFilesAsync(query);
 
-                // Hiển thị kết quả (Bạn cần viết hàm vẽ các Control file ra panel2)
-                HienThiKetQua(ketQua);
+                // Hiển thị kết quả 
+                RenderFileList(ketQua);
 
                 e.SuppressKeyPress = true; 
             }
         }
 
         // z: Hàm này dùng để vẽ các file tìm được lên màn hình
-        private void HienThiKetQua(List<FileMetadata> danhSachFile)
+        private FileItem _currentSelectedItem = null;
+        private void RenderFileList(List<FileMetadata> danhSachFile)
         {
+            // 1. Đảm bảo chạy trên luồng giao diện (tránh lỗi Cross-thread)
+            if (flowLayoutPanel1.InvokeRequired)
+            {
+                flowLayoutPanel1.Invoke(new Action(() => RenderFileList(danhSachFile)));
+                return;
+            }
+
+            // 2. Xóa danh sách cũ
             flowLayoutPanel1.Controls.Clear();
+
+            // 3. Xử lý trường hợp danh sách rỗng
             if (danhSachFile == null || danhSachFile.Count == 0)
             {
                 Label lblEmpty = new Label();
-                lblEmpty.Text = "❌ Không tìm thấy file nào khớp với từ khóa!";
-                lblEmpty.AutoSize = true;
-                lblEmpty.ForeColor = Color.Red;
+                lblEmpty.Text = "📂 Thư mục trống";
+                lblEmpty.AutoSize = false;
+                lblEmpty.Width = flowLayoutPanel1.Width - 10;
+                lblEmpty.TextAlign = ContentAlignment.MiddleCenter;
                 lblEmpty.Font = new Font("Segoe UI", 12, FontStyle.Italic);
+                lblEmpty.ForeColor = Color.Gray;
+                lblEmpty.Padding = new Padding(0, 20, 0, 0); 
                 flowLayoutPanel1.Controls.Add(lblEmpty);
                 return;
             }
+
+            // 4. Tạo UserControl cho từng file
             foreach (var file in danhSachFile)
             {
-                Panel pnlCard = new Panel();
-                pnlCard.Size = new Size(120, 150); 
-                pnlCard.Margin = new Padding(15);
-                pnlCard.BackColor = Color.White;
-                pnlCard.Cursor = Cursors.Hand;
+                // Khởi tạo FileItem với dữ liệu file
+                FileItem item = new FileItem(file);
 
-            
-                // 2. TẠO PICTUREBOX ĐỂ HIỆN LOGO ẢNH
-                PictureBox picIcon = new PictureBox();
-                picIcon.Dock = DockStyle.Top;
-                picIcon.Height = 90; 
-                picIcon.SizeMode = PictureBoxSizeMode.Zoom;
-                picIcon.BackColor = Color.Transparent; 
-                picIcon.Padding = new Padding(10);
-            
-                string extension = Path.GetExtension(file.FileName).ToLower();
+                // --- CẤU HÌNH GIAO DIỆN ---
+                item.Width = flowLayoutPanel1.Width - 25;
+                item.Margin = new Padding(0, 0, 0, 2);
 
-          
-                if (extension == ".docx" || extension == ".doc")
-                    picIcon.Image = Properties.Resources.icon_word ?? Properties.Resources.icon_default;
-                else if (extension == ".xlsx" || extension == ".xls")
-                    picIcon.Image = Properties.Resources.icon_excel ?? Properties.Resources.icon_default;
-                else if (extension == ".pdf")
-                    picIcon.Image = Properties.Resources.icon_pdf ?? Properties.Resources.icon_default;
-                else if (extension == ".txt")
-                    picIcon.Image = Properties.Resources.icon_txt ?? Properties.Resources.icon_default;
-                else if (extension == ".jpg" || extension == ".png" || extension == ".jpeg")
-                    picIcon.Image = Properties.Resources.icon_image ?? Properties.Resources.icon_default;
-                else
-                    picIcon.Image = Properties.Resources.icon_default;
+                // --- BẮT SỰ KIỆN TỪ CÁC NÚT BẤM (GỌI THẲNG HÀM LOGIC) ---
+                item.OnDeleteClicked += (s, f) => XoaFile(f);      // Nút Xóa
+                item.OnDownloadClicked += (s, f) => TaiFile(f);    // Nút Tải
 
+                item.OnRenameClicked += (s, f) => DoiTenFile(f);   // Nút Đổi tên
+                item.OnStarClicked += (s, f) => DanhDauSao(f);     // Nút Sao
 
-                Label lblName = new Label();
-                lblName.Text = file.FileName;
-                lblName.Dock = DockStyle.Fill; 
-                lblName.TextAlign = ContentAlignment.TopCenter;
-                lblName.AutoEllipsis = true;
-                lblName.Font = new Font("Segoe UI", 9, FontStyle.Regular);
-                lblName.Padding = new Padding(5, 5, 5, 0); // Đệm thêm chút cho đẹp
-
-                // 4. Hiệu ứng Click cho cả hộp
-                // Cập nhật danh sách control: thay lblIcon bằng picIcon
-                Control[] controls = { pnlCard, picIcon, lblName };
-                foreach (Control c in controls)
+                // --- BẮT SỰ KIỆN CLICK VÀO NỀN (HIGHLIGHT & MENU) ---
+                item.MouseClick += (s, e) =>
                 {
-                    c.MouseEnter += (s, e) => { pnlCard.BackColor = Color.FromArgb(232, 240, 254); };
-                    c.MouseLeave += (s, e) => { pnlCard.BackColor = Color.White; };
-                    c.Click += (s, e) => {
-                        ThucHienChonFile(file);
-                    };
-                }
+                    // Luôn Highlight item này dù bấm chuột trái hay phải
+                    HighlightItem(item);
 
-                // Thêm các control con vào thẻ Card
-                pnlCard.Controls.Add(lblName);
-                pnlCard.Controls.Add(picIcon);
+                    // Nếu là chuột phải -> Hiện Menu Context
+                    if (e.Button == MouseButtons.Right)
+                    {
+                        ShowContextMenu(item, Cursor.Position);
+                    }
+                };
 
-                flowLayoutPanel1.Controls.Add(pnlCard);
+                // QUAN TRỌNG: Thêm Item vào Panel 
+                flowLayoutPanel1.Controls.Add(item);
             }
+        }
+        // Xử lý khi bấm nút Tải xuống
+        private async void TaiFile(FileMetadata file)
+        {
+            
+        }
+        
+        // Xử lý khi bấm nút Đổi tên
+        private void DoiTenFile(FileMetadata file)
+        {
+            
+        }
+
+        // Xử lý khi bấm nút Sao (Yêu thích)
+        private void DanhDauSao(FileMetadata file)
+        {
+            
         }
         // thực hiện chonn file 
-        private void ThucHienChonFile(FileMetadata file)
+        private void HighlightItem(FileItem clickedItem)
         {
-            // 1. Lưu thông tin file vừa chọn
-            _selectedFile = file;
-            foreach (Control ctr in flowLayoutPanel1.Controls)
+            if (_currentSelectedItem != null)
             {
-                if (ctr is Panel pnl)
-                {
-                    if (pnl.Controls.OfType<Label>().Any(l => l.Text == file.FileName))
-                    {
-                        // Bỏ chọn ô cũ (nếu có)
-                        if (_lastSelectedPanel != null)
-                        {
-                            _lastSelectedPanel.BorderStyle = BorderStyle.None;
-                            _lastSelectedPanel.BackColor = Color.White;
-                        }
-
-                        // Tô đậm ô mới
-                        pnl.BorderStyle = BorderStyle.FixedSingle;
-                        pnl.BackColor = Color.FromArgb(232, 240, 254); // Màu xanh nhạt Google
-                        _lastSelectedPanel = pnl;
-                        break;
-                    }
-                }
+                _currentSelectedItem.BackColor = Color.White;
+                _currentSelectedItem.BorderStyle = BorderStyle.None;
             }
+
+            // 2. Chọn cái mới
+            clickedItem.BackColor = Color.FromArgb(232, 240, 254); 
+            clickedItem.BorderStyle = BorderStyle.FixedSingle;
+
+            // 3. Lưu vết
+            _currentSelectedItem = clickedItem;
+            _selectedFile = clickedItem.FileData; // Lưu Metadata để dùng cho việc khác
+        }
+        private void ShowContextMenu(FileItem item, Point screenPosition)
+        {
             ContextMenuStrip menu = new ContextMenuStrip();
 
-            if (_isTrashMode)
+            if (_isTrashMode) // Nếu đang ở chế độ xem thùng rác
             {
-                // MENU KHI ĐANG TRONG THÙNG RÁC
-                menu.Items.Add("⏪ Khôi phục file", null, (s, e) => KhoiPhucFile(file));
-                menu.Items.Add("🔥 Xóa vĩnh viễn", null, (s, e) => XoaVinhVien(file));
+                menu.Items.Add("⏪ Khôi phục file", null, (s, e) => KhoiPhucFile(item.FileData));
+                menu.Items.Add("🔥 Xóa vĩnh viễn", null, (s, e) => XoaVinhVien(item.FileData));
             }
-            else
+            else // Chế độ bình thường
             {
-                // MENU KHI Ở MÀN HÌNH CHÍNH
-                menu.Items.Add("👁 Xem nội dung", null, (s, e) => XemNoiDungFile(file));
-                menu.Items.Add("📥 Tải xuống", null, (s, e) => TaiFile(file));
-                menu.Items.Add("🗑 Đưa vào thùng rác", null, (s, e) => XoaFile(file));
+                menu.Items.Add("👁 Xem nội dung", null, (s, e) => XemNoiDungFile(item.FileData));
+                menu.Items.Add("📥 Tải xuống", null, (s, e) => TaiFile(item.FileData));
+                menu.Items.Add("🗑 Đưa vào thùng rác", null, (s, e) => XoaFile(item.FileData));
             }
 
-            menu.Show(Cursor.Position);
+            menu.Show(screenPosition);
         }
-
         private void XemNoiDungFile(FileMetadata file)
         {
             // Kiểm tra đuôi file, nếu là .txt thì mới cho xem
@@ -546,11 +542,6 @@ namespace ClientApp
             {
                 MessageBox.Show("Chức năng xem nhanh hiện chỉ hỗ trợ file .txt");
             }
-        }
-
-        private async void TaiFile(FileMetadata file)
-        {
-            MessageBox.Show($"Đang bắt đầu tải: {file.FileName}...");
         }
 
         private async void XoaFile(FileMetadata file)

@@ -39,6 +39,7 @@
             // 
             // pbIcon
             // 
+            pbIcon.Enabled = false;
             pbIcon.Location = new Point(3, 3);
             pbIcon.Name = "pbIcon";
             pbIcon.Size = new Size(32, 34);
@@ -53,7 +54,7 @@
             btnDownload.FlatStyle = FlatStyle.Flat;
             btnDownload.Font = new Font("Segoe UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnDownload.ForeColor = SystemColors.ActiveCaptionText;
-            btnDownload.Location = new Point(600, -3);
+            btnDownload.Location = new Point(607, -3);
             btnDownload.Name = "btnDownload";
             btnDownload.Size = new Size(43, 48);
             btnDownload.TabIndex = 1;
@@ -65,6 +66,7 @@
             lblFileName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             lblFileName.AutoEllipsis = true;
             lblFileName.AutoSize = true;
+            lblFileName.Enabled = false;
             lblFileName.Font = new Font("Segoe UI Semibold", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblFileName.Location = new Point(47, 9);
             lblFileName.Name = "lblFileName";
@@ -80,7 +82,7 @@
             btnDelete.FlatStyle = FlatStyle.Flat;
             btnDelete.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnDelete.ForeColor = Color.Lime;
-            btnDelete.Location = new Point(737, 0);
+            btnDelete.Location = new Point(744, 0);
             btnDelete.Name = "btnDelete";
             btnDelete.Size = new Size(43, 48);
             btnDelete.TabIndex = 3;
@@ -95,7 +97,7 @@
             btnStar.FlatStyle = FlatStyle.Flat;
             btnStar.Font = new Font("Segoe UI", 27.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnStar.ForeColor = Color.Yellow;
-            btnStar.Location = new Point(698, -9);
+            btnStar.Location = new Point(705, -9);
             btnStar.Name = "btnStar";
             btnStar.Size = new Size(43, 48);
             btnStar.TabIndex = 4;
@@ -110,14 +112,14 @@
             btnRename.FlatStyle = FlatStyle.Flat;
             btnRename.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnRename.ForeColor = Color.DarkGoldenrod;
-            btnRename.Location = new Point(649, -1);
+            btnRename.Location = new Point(656, -1);
             btnRename.Name = "btnRename";
             btnRename.Size = new Size(43, 48);
             btnRename.TabIndex = 5;
             btnRename.Text = "✏️";
             btnRename.UseVisualStyleBackColor = false;
             // 
-            // File
+            // FileItem
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -128,8 +130,8 @@
             Controls.Add(lblFileName);
             Controls.Add(btnDownload);
             Controls.Add(pbIcon);
-            Name = "File";
-            Size = new Size(780, 42);
+            Name = "FileItem";
+            Size = new Size(787, 42);
             ((System.ComponentModel.ISupportInitialize)pbIcon).EndInit();
             ResumeLayout(false);
             PerformLayout();
