@@ -19,6 +19,7 @@ namespace ServerApp
 
         private const string KeyFileName = "service-account-key.json";
 
+
         public FirebaseAdminService()
         {
             string keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, KeyFileName);
