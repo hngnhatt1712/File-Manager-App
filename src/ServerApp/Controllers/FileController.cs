@@ -1,39 +1,35 @@
-﻿using Newtonsoft.Json;
+﻿using Google.Cloud.Firestore;
+using Newtonsoft.Json;
+using SharedLibrary;
+
 namespace ServerApp.Controllers
 {
     public class FileController
     {
-        private readonly FirebaseAdminService _firebaseService;
+        // 1. Sửa lại biến thành FirestoreDb (Gọi trực tiếp Database)
+        private readonly FirestoreDb _firestoreDb;
 
-        public FileController(FirebaseAdminService firebaseService)
+        // Constructor nhận vào FirestoreDb (được tiêm từ Program.cs)
+        // Hoặc nếu bạn muốn giữ FirebaseAdminService thì xem lưu ý bên dưới
+        public FileController(FirestoreDb firestoreDb)
         {
-            _firebaseService = firebaseService;
+            _firestoreDb = firestoreDb;
         }
 
-        // --- LƯU METADATA SAU KHI UPLOAD XONG ---
-        public void SaveFileMetadata(string uid, string fileName, long fileSize, string savePath)
+        // --- LƯU METADATA ---
+        public async Task SaveFileMetadata(FileMetadata metadata)
         {
             try
             {
-                // 1. Tạo object dữ liệu
-                var metadata = new FileMetadata
-                {
-                    FileName = fileName,
-                    Size = fileSize,
-                    OwnerUid = uid,
-                    StoragePath = savePath,
-                    Path = "/", // Mặc định thư mục gốc
-                    UploadedDate = DateTime.UtcNow.ToString("o")
-                };
+                // 2. Sửa _firebaseService thành _firestoreDb
+                var docRef = _firestoreDb.Collection("Files").Document(metadata.FileId);
 
-                // 2. Gọi Service để đẩy lên Firestore
-                _firebaseService.AddFileMetadataAsync(metadata).Wait();
-
-                Console.WriteLine($"[Firestore] Đã lưu metadata cho file: {fileName}");
+                await docRef.SetAsync(metadata);
+                Console.WriteLine("Đã lưu metadata vào Firestore thành công.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Firestore Error] Không thể lưu metadata: {ex.Message}");
+                Console.WriteLine("Lỗi lưu Firestore: " + ex.Message);
                 throw;
             }
         }
@@ -43,22 +39,35 @@ namespace ServerApp.Controllers
         {
             try
             {
-                // 1. Lấy danh sách từ Firestore 
-                List<FileMetadata> files = await _firebaseService.GetFileListAsync(uid, path);
+                // 3. Logic lấy file từ Firestore
+                // Query: Lấy tất cả file trong Collection "Files" mà có OwnerUid == uid
+                Query query = _firestoreDb.Collection("Files").WhereEqualTo("OwnerUid", uid);
 
-                // 2. Chuyển sang JSON
+                // Nếu muốn lọc theo path (thư mục) nữa thì mở comment dòng này:
+                // if (!string.IsNullOrEmpty(path)) query = query.WhereEqualTo("path", path);
+
+                QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+                List<FileMetadata> files = new List<FileMetadata>();
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    if (document.Exists)
+                    {
+                        // Convert về Object FileMetadata
+                        FileMetadata file = document.ConvertTo<FileMetadata>();
+                        files.Add(file);
+                    }
+                }
+
+                // Chuyển sang JSON
                 string json = JsonConvert.SerializeObject(files);
-
-                // 3. Đóng gói theo protocol
                 return $"LIST_FILES_OK|{json}";
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Lỗi GetFileList: " + ex.Message);
                 return $"LIST_FILES_FAIL|{ex.Message}";
             }
         }
-
-        // --- LẤY THÔNG TIN ĐỂ DOWNLOAD ---
-        // Viết hàm trả về FileModel để ClientHandler biết đường dẫn file nằm ở đâu trên ổ cứng
     }
 }

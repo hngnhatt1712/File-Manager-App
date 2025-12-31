@@ -9,7 +9,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using SharedLibrary;
 using System.Collections.Generic;
-using ServerApp; // z: QUAN TRỌNG - Phải có dòng này để dùng List<>
 
 public class FileTransferClient
 {
@@ -198,14 +197,6 @@ public class FileTransferClient
         return false;
     }
 
-    //Code chức năng Delete File
-    // sẽ tạo nhánh 'feature/chuc-nang-delete'
-    public async Task<bool> DeleteFile(string path)
-    {
-        // TODO: Code logic gọi API xóa file
-        return false;
-    }
-
     #endregion
 
     // Upload/Download File (TCP Server)
@@ -214,22 +205,40 @@ public class FileTransferClient
 
     // Code chức năng Upload File
     // sẽ tạo nhánh 'feature/chuc-nang-upload'
-    public async Task UploadFileAsync(string localFilePath)
+    public async Task UploadFileAsync(string localFilePath, string currentDirectory = "/")
     {
         await EnsureConnectedAsync();
 
         FileInfo fi = new FileInfo(localFilePath);
         if (!fi.Exists) throw new FileNotFoundException("File not found");
 
-        // B1: Gửi Request
-        await _writer.WriteLineAsync($"{ProtocolCommands.UPLOAD_REQ}|{fi.Name}|{fi.Length}");
+        // --- BƯỚC 1: CHUẨN BỊ METADATA & GỬI JSON ---
 
-        // B2: Chờ READY
+        // 1. Tạo đối tượng Metadata đầy đủ 
+        var metadata = new FileMetadata
+        {
+            FileId = Guid.NewGuid().ToString(), // Tạo ID duy nhất cho file ngay tại Client
+            FileName = fi.Name,
+            Size = fi.Length,
+            Path = "/",
+            UploadedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            IsDeleted = false
+            // OwnerUid: Server sẽ tự điền dựa trên Token đăng nhập
+        };
+
+        // 2. Chuyển đối tượng thành chuỗi JSON
+        string jsonMeta = Newtonsoft.Json.JsonConvert.SerializeObject(metadata);
+
+        // 3. Gửi lệnh theo cấu trúc mới: UPLOAD_REQ | {JSON}
+        await _writer.WriteLineAsync($"{ProtocolCommands.UPLOAD_REQ}|{jsonMeta}");
+        await _writer.FlushAsync(); // Đẩy dữ liệu đi ngay
+
+        // B2: Chờ READY (Giữ nguyên)
         string response = await _reader.ReadLineAsync();
         if (response != ProtocolCommands.READY_FOR_UPLOAD)
             throw new Exception($"Server refused: {response}");
 
-        // B3: Gửi Stream
+        // B3: Gửi Stream (Giữ nguyên - Code này tốt rồi)
         using (var fs = new FileStream(localFilePath, FileMode.Open, FileAccess.Read))
         {
             byte[] buffer = new byte[8192];
@@ -241,10 +250,19 @@ public class FileTransferClient
             await _stream.FlushAsync();
         }
 
-        // B4: Chờ SUCCESS
+        // B4: Chờ SUCCESS (Giữ nguyên)
         string result = await _reader.ReadLineAsync();
-        if (result != ProtocolCommands.UPLOAD_SUCCESS)
-            throw new Exception("Upload failed on Server side.");
+
+        // Kiểm tra kỹ hơn: Server có thể trả về thông báo lỗi chi tiết
+        if (result == null || !result.StartsWith(ProtocolCommands.UPLOAD_SUCCESS))
+        {
+            // Nếu Server gửi UPLOAD_FAIL|Lý do -> Lấy lý do ra
+            string errorMsg = "Unknown error";
+            if (result != null && result.Contains("|"))
+                errorMsg = result.Split('|')[1];
+
+            throw new Exception($"Upload failed: {errorMsg}");
+        }
     }
 
     // Code chức năng Download File

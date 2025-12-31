@@ -1,6 +1,6 @@
 ﻿namespace ClientApp.Forms_UI
 {
-    partial class trash
+    partial class FileList
     {
         /// <summary> 
         /// Required designer variable.
@@ -28,30 +28,28 @@
         /// </summary>
         private void InitializeComponent()
         {
-            fileList1 = new FileList();
+            flowLayoutPanel1 = new FlowLayoutPanel();
             SuspendLayout();
             // 
-            // fileList1
+            // flowLayoutPanel1
             // 
-            fileList1.Location = new Point(18, 25);
-            fileList1.Name = "fileList1";
-            fileList1.Size = new Size(787, 381);
-            fileList1.TabIndex = 0;
+            flowLayoutPanel1.Location = new Point(0, 0);
+            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            flowLayoutPanel1.Size = new Size(787, 381);
+            flowLayoutPanel1.TabIndex = 0;
             // 
-            // trash
+            // FileList
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(fileList1);
-            Margin = new Padding(2);
-            Name = "trash";
+            Controls.Add(flowLayoutPanel1);
+            Name = "FileList";
             Size = new Size(787, 381);
-            Load += trash_Load;
             ResumeLayout(false);
         }
 
         #endregion
 
-        private FileList fileList1;
+        private FlowLayoutPanel flowLayoutPanel1;
     }
 }

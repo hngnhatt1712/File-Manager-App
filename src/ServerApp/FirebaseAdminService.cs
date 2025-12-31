@@ -8,20 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SharedLibrary;
 
 namespace ServerApp
 {
-    [FirestoreData]
-    public class FileMetadata
-    {
-        [FirestoreProperty] public string FileId { get; set; }
-        [FirestoreProperty] public string FileName { get; set; }
-        [FirestoreProperty] public long Size { get; set; }
-        [FirestoreProperty] public string OwnerUid { get; set; }
-        [FirestoreProperty] public string StoragePath { get; set; }
-        [FirestoreProperty] public string Path { get; set; }
-        [FirestoreProperty] public string UploadedDate { get; set; }
-    }
+    
     public class FirebaseAdminService
     {
         private readonly FirestoreDb _firestoreDb;

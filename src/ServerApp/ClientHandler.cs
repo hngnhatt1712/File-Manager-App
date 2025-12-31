@@ -1,5 +1,6 @@
-﻿
-using FirebaseAdmin.Auth;
+﻿using FirebaseAdmin.Auth;
+using Google.Cloud.Firestore;
+using Google.Cloud.Firestore.V1;
 using Newtonsoft.Json;
 using ServerApp;
 using ServerApp.Controllers;
@@ -10,6 +11,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 public class ClientHandler
 {
@@ -19,20 +21,22 @@ public class ClientHandler
     private readonly StreamWriter _writer; 
 
     private readonly FirebaseAdminService _firestoreService;
+    private FirestoreDb _firestoreDb;
     private readonly string _storagePath;
     private readonly FileController _fileController;
     private readonly UserController _userController;
     private bool _isAuthenticated = false;
     private string _authenticatedUid = null;
-    public ClientHandler(TcpClient client, string storagePath, FirebaseAdminService firestoreService)
+    public ClientHandler(TcpClient client, string storagePath, FirebaseAdminService firestoreService, FirestoreDb firestoreDb)
     {
         _client = client;
         _stream = _client.GetStream();
         _reader = new StreamReader(_stream, Encoding.UTF8);
         _writer = new StreamWriter(_stream, Encoding.UTF8) { AutoFlush = true };
         _firestoreService = firestoreService;
+        _firestoreDb = firestoreDb;
         _storagePath = storagePath;
-        _fileController = new FileController(firestoreService);
+        _fileController = new FileController(_firestoreDb);
         _userController = new UserController(firestoreService);
     }
 
@@ -103,40 +107,58 @@ public class ClientHandler
                          await HandleListFilesAsync(parts);
                         break;
                     case ProtocolCommands.UPLOAD_REQ:
-                        if (parts.Length < 3) return;
-
-                        string fileName = parts[1];
-                        long fileSize = long.Parse(parts[2]);
-
-                        // 1. Tạo đường dẫn lưu file (ServerStorage/UserId/FileName)
-                        string userFolder = Path.Combine(_storagePath, _authenticatedUid);
-                        Directory.CreateDirectory(userFolder);
-                        string savePath = Path.Combine(userFolder, fileName);
-                        // 2. Gửi tín hiệu READY cho Client
-                        _writer.WriteLine(ProtocolCommands.READY_FOR_UPLOAD);
-                        _writer.Flush();
-                        Console.WriteLine($"[Upload] Bắt đầu nhận file {fileName} ({fileSize} bytes)...");
-
                         try
                         {
-                            // 3. Gọi hàm nhận luồng dữ liệu 
-                            ReceiveFileFromStream(savePath, fileSize);
+                            // 1. Tách lấy phần JSON (Bỏ phần lệnh "UPLOAD_REQ|" ở đầu)
+                            // Client gửi: UPLOAD_REQ|{"fileId":"...", "fileName":"abc.txt", ...}
+                            string jsonReceived = command.Substring(command.IndexOf('|') + 1);
 
-                            // 4. Lưu Metadata vào Firebase (Sau khi nhận xong file vật lý)
-                            _fileController.SaveFileMetadata(_authenticatedUid, fileName, fileSize, savePath);
+                            Console.WriteLine($"[Upload] Nhận JSON Metadata: {jsonReceived}"); // Debug xem có tên file chưa
 
-                            // 5. Báo thành công
+                            // 2. Deserialize ra đối tượng FileMetadata 
+                            var metadata = JsonConvert.DeserializeObject<FileMetadata>(jsonReceived);
+
+                            // --- KIỂM TRA QUAN TRỌNG ---
+                            if (metadata == null || string.IsNullOrEmpty(metadata.FileName))
+                            {
+                                Console.WriteLine("[Error] Metadata thiếu tên file!");
+                                return;
+                            }
+
+                            // 3. Cập nhật các thông tin phía Server (mà Client không biết)
+                            string userFolder = Path.Combine(_storagePath, _authenticatedUid);
+                            Directory.CreateDirectory(userFolder);
+
+                            string savePath = Path.Combine(userFolder, metadata.FileName);
+
+                            // Cập nhật lại đường dẫn thực tế và người sở hữu vào object
+                            metadata.OwnerUid = _authenticatedUid;
+                            metadata.StoragePath = savePath;
+                            metadata.UploadedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+                            // 4. Gửi tín hiệu READY
+                            _writer.WriteLine(ProtocolCommands.READY_FOR_UPLOAD);
+                            _writer.Flush();
+                            Console.WriteLine($"[Upload] Sẵn sàng nhận file {metadata.FileName} ({metadata.Size} bytes)...");
+
+                            // 5. Nhận luồng file vật lý
+                            ReceiveFileFromStream(savePath, metadata.Size);
+
+                            // 6. Lưu Metadata vào Firestore 
+                            // LƯU Ý: Truyền nguyên cục 'metadata' đã đầy đủ thông tin vào hàm lưu
+                            // Bạn cần sửa hàm SaveFileMetadata để nhận đối tượng (Xem Bước 2 bên dưới)
+                            await _fileController.SaveFileMetadata(metadata);
+
+                            // 7. Báo thành công
                             _writer.WriteLine(ProtocolCommands.UPLOAD_SUCCESS);
                             _writer.Flush();
-                            Console.WriteLine("[Upload] Hoàn tất!");
+                            Console.WriteLine("[Upload] Hoàn tất và đã lưu DB!");
                         }
                         catch (Exception ex)
                         {
                             Console.WriteLine($"[Upload Error] {ex.Message}");
                             _writer.WriteLine(ProtocolCommands.UPLOAD_FAIL + "|" + ex.Message);
                             _writer.Flush();
-                            // Xóa file rác nếu lỗi
-                            if (File.Exists(savePath)) File.Delete(savePath);
                         }
                         break;
                     case ProtocolCommands.SEARCH_REQ: // tìm kiếm file

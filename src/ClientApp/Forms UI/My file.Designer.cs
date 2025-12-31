@@ -28,46 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
-            panel1 = new Panel();
-            label1 = new Label();
-            panel1.SuspendLayout();
+            fileList1 = new FileList();
             SuspendLayout();
             // 
-            // panel1
+            // fileList1
             // 
-            panel1.Controls.Add(label1);
-            panel1.Location = new Point(22, 8);
-            panel1.Margin = new Padding(2);
-            panel1.Name = "panel1";
-            panel1.Size = new Size(310, 382);
-            panel1.TabIndex = 0;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(205, 140);
-            label1.Margin = new Padding(2, 0, 2, 0);
-            label1.Name = "label1";
-            label1.Size = new Size(54, 15);
-            label1.TabIndex = 0;
-            label1.Text = "Riêng TƯ";
+            fileList1.Location = new Point(0, 0);
+            fileList1.Name = "fileList1";
+            fileList1.Size = new Size(787, 381);
+            fileList1.TabIndex = 0;
             // 
             // RiengTu
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(panel1);
+            Controls.Add(fileList1);
             Margin = new Padding(2);
             Name = "RiengTu";
             Size = new Size(787, 381);
-            panel1.ResumeLayout(false);
-            panel1.PerformLayout();
+            Load += RiengTu_Load;
             ResumeLayout(false);
         }
 
         #endregion
 
-        private Panel panel1;
-        private Label label1;
+        private FileList fileList1;
     }
 }
