@@ -384,6 +384,7 @@
             imageList1.Images.SetKeyName(7, "Upload Document.png");
             imageList1.Images.SetKeyName(8, "Star.png");
             imageList1.Images.SetKeyName(9, "Notification.png");
+            imageList1.Images.SetKeyName(10, "Sorting Arrows.png");
             // 
             // btn_word
             // 
@@ -473,14 +474,14 @@
             btn_ThongBao.Font = new Font("Segoe UI", 11F);
             btn_ThongBao.ForeColor = Color.Cyan;
             btn_ThongBao.ImageAlign = ContentAlignment.MiddleLeft;
-            btn_ThongBao.ImageKey = "Notification.png";
+            btn_ThongBao.ImageKey = "Sorting Arrows.png";
             btn_ThongBao.ImageList = imageList1;
             btn_ThongBao.Location = new Point(0, 52);
             btn_ThongBao.Margin = new Padding(0);
             btn_ThongBao.Name = "btn_ThongBao";
             btn_ThongBao.Size = new Size(225, 52);
             btn_ThongBao.TabIndex = 0;
-            btn_ThongBao.Text = " Notification";
+            btn_ThongBao.Text = "Sort";
             btn_ThongBao.UseVisualStyleBackColor = false;
             btn_ThongBao.Click += btn_ThongBao_Click;
             // 

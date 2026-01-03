@@ -19,6 +19,7 @@ namespace ClientApp.Forms_UI
         private string _currentPath = "/";
         private bool _isTrashMode = false;
         private FileMetadata _selectedFile = null;
+        private List<FileMetadata> _allFiles = new List<FileMetadata>();
         public FileList()
         {
             InitializeComponent();
@@ -116,6 +117,44 @@ namespace ClientApp.Forms_UI
             }
         }
         // Xử lý khi bấm nút Tải xuống
+
+        public void ApplySort(string option)
+        {
+            // 1. Kiểm tra nếu danh sách trống thì không làm gì cả
+            if (_allFiles == null || _allFiles.Count == 0) return;
+
+            IEnumerable<FileMetadata> query = _allFiles;
+
+            // 2. Phân loại logic sắp xếp
+            switch (option)
+            {
+                case "Tên (A -> Z)":
+                    query = query.OrderBy(f => f.FileName);
+                    break;
+
+                case "Tên (Z -> A)":
+                    query = query.OrderByDescending(f => f.FileName);
+                    break;
+
+                case "Ngày mới nhất":
+                    // Sắp xếp Giảm dần (Descending) -> Ngày lớn nhất (mới nhất) lên đầu
+                    query = query.OrderByDescending(f => DateTime.Parse(f.UploadedDate));
+                    break;
+
+                case "Ngày cũ nhất":
+                    // Sắp xếp Tăng dần (Ascending) -> Ngày nhỏ nhất (cũ nhất) lên đầu
+                    query = query.OrderBy(f => DateTime.Parse(f.UploadedDate));
+                    break;
+
+                default:
+                    // Nếu không khớp cái nào thì giữ nguyên
+                    break;
+            }
+
+            // 3. Gọi hàm vẽ lại giao diện với danh sách đã lọc
+            RenderFileList(query.ToList());
+        }
+
         private async void TaiFile(FileMetadata file)
         {
 

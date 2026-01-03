@@ -272,6 +272,24 @@ namespace ClientApp
                 panel4.BringToFront();
                 sidebar.BringToFront();
             }
+
+            Control ucSort = panel4.Controls.OfType<Sort>().FirstOrDefault();
+
+            if (ucSort != null)
+            {
+                // Ép kiểu nó về hình vuông chuẩn 45x45
+                ucSort.Width = 60;
+                ucSort.Height = 60;
+
+                // Vị trí X: Nằm bên phải thanh tìm kiếm 15px
+                ucSort.Left = roundedPanel1.Right + 20;
+
+                // Vị trí Y: Căn giữa theo chiều dọc của panel4 (63px)
+                // (63 - 45) / 2 = 9
+                ucSort.Top = (panel4.Height - ucSort.Height) / 2;
+
+                ucSort.BringToFront();
+            }
         }
         private void MainMenu_MouseDown(object sender, MouseEventArgs e)
         {
@@ -377,9 +395,21 @@ namespace ClientApp
 
         private void btn_ThongBao_Click(object sender, EventArgs e)
         {
-            flowLayoutPanel1.Controls.Clear();
+            Sort ucSort = panel4.Controls.OfType<Sort>().FirstOrDefault();
 
-            ShowPage(new Notification());
+            if (ucSort == null)
+            {
+                ucSort = new Sort();
+                ucSort.Parent = panel4; // Gắn vào panel4
+                panel4.Controls.Add(ucSort);
+
+                // Gọi hàm điều chỉnh kích thước để nó tự nhảy vào đúng vị trí bên phải
+                DieuChinhKichThuoc();
+            }
+            else
+            {
+                ucSort.Visible = !ucSort.Visible;
+            }
         }
 
         private void btn_Notification_Click(object sender, EventArgs e)
