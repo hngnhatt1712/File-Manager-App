@@ -34,12 +34,13 @@
             button1 = new Button();
             imageList1 = new ImageList(components);
             btnXoaTaiKhoan = new Button();
-            button3 = new Button();
             btn_logout = new Button();
             panel1 = new Panel();
-            panel2 = new Panel();
             label2 = new Label();
-            panel1.SuspendLayout();
+            label4 = new Label();
+            label5 = new Label();
+            button3 = new Button();
+            progressBar1 = new ProgressBar();
             SuspendLayout();
             // 
             // label1
@@ -95,22 +96,6 @@
             btnXoaTaiKhoan.UseVisualStyleBackColor = false;
             btnXoaTaiKhoan.Click += btnXoaTaiKhoan_Click;
             // 
-            // button3
-            // 
-            button3.BackColor = Color.DeepSkyBlue;
-            button3.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
-            button3.ForeColor = SystemColors.ControlLightLight;
-            button3.ImageAlign = ContentAlignment.MiddleLeft;
-            button3.ImageKey = "Lecturer.png";
-            button3.ImageList = imageList1;
-            button3.Location = new Point(324, 158);
-            button3.Name = "button3";
-            button3.Size = new Size(279, 45);
-            button3.TabIndex = 3;
-            button3.Text = "Giới thiệu chung";
-            button3.UseVisualStyleBackColor = false;
-            button3.Click += button3_Click;
-            // 
             // btn_logout
             // 
             btn_logout.BackColor = Color.DeepSkyBlue;
@@ -131,35 +116,73 @@
             // 
             panel1.BackColor = SystemColors.ButtonFace;
             panel1.BorderStyle = BorderStyle.FixedSingle;
-            panel1.Controls.Add(panel2);
             panel1.Dock = DockStyle.Bottom;
-            panel1.Location = new Point(0, 296);
+            panel1.Location = new Point(0, 326);
             panel1.Name = "panel1";
-            panel1.Size = new Size(780, 30);
+            panel1.Size = new Size(780, 0);
             panel1.TabIndex = 5;
-            // 
-            // panel2
-            // 
-            panel2.BackColor = Color.Lime;
-            panel2.Location = new Point(0, 0);
-            panel2.Name = "panel2";
-            panel2.Size = new Size(10, 30);
-            panel2.TabIndex = 6;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(3, 278);
+            label2.Font = new Font("Segoe UI Semibold", 12.25F, FontStyle.Bold);
+            label2.Location = new Point(3, 271);
             label2.Name = "label2";
-            label2.Size = new Size(100, 15);
+            label2.Size = new Size(148, 23);
             label2.TabIndex = 6;
-            label2.Text = "Thông tin bộ nhớ";
+            label2.Text = "Thông tin bộ nhớ:";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(347, 164);
+            label4.Name = "label4";
+            label4.Size = new Size(0, 15);
+            label4.TabIndex = 8;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Font = new Font("Segoe UI Semibold", 12.25F, FontStyle.Bold);
+            label5.Location = new Point(145, 270);
+            label5.Name = "label5";
+            label5.Size = new Size(27, 23);
+            label5.TabIndex = 9;
+            label5.Text = "số";
+            // 
+            // button3
+            // 
+            button3.BackColor = Color.DeepSkyBlue;
+            button3.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
+            button3.ForeColor = SystemColors.ControlLightLight;
+            button3.ImageAlign = ContentAlignment.MiddleLeft;
+            button3.ImageKey = "Lecturer.png";
+            button3.ImageList = imageList1;
+            button3.Location = new Point(324, 158);
+            button3.Name = "button3";
+            button3.Size = new Size(279, 45);
+            button3.TabIndex = 3;
+            button3.Text = "Giới thiệu chung";
+            button3.UseVisualStyleBackColor = false;
+            button3.Click += button3_Click;
+            // 
+            // progressBar1
+            // 
+            progressBar1.BackColor = SystemColors.ActiveBorder;
+            progressBar1.Dock = DockStyle.Bottom;
+            progressBar1.Location = new Point(0, 296);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(780, 30);
+            progressBar1.TabIndex = 10;
             // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.PowderBlue;
+            Controls.Add(progressBar1);
+            Controls.Add(label5);
+            Controls.Add(label4);
             Controls.Add(label2);
             Controls.Add(panel1);
             Controls.Add(btn_logout);
@@ -171,7 +194,6 @@
             Name = "Setting";
             Size = new Size(780, 326);
             Load += Setting_Load;
-            panel1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -181,11 +203,13 @@
         private Label label1;
         private Button button1;
         private Button btnXoaTaiKhoan;
-        private Button button3;
         private Button btn_logout;
         private ImageList imageList1;
         private Panel panel1;
-        private Panel panel2;
         private Label label2;
+        private Label label4;
+        private Label label5;
+        private Button button3;
+        private ProgressBar progressBar1;
     }
 }
