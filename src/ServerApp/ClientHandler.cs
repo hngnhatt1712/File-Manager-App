@@ -181,6 +181,23 @@ public class ClientHandler
                             await HandleGetTrashFilesAsync();
                         }
                         break;
+                    case "DELETE_ACCOUNT":
+                        await HandleDeleteAccountAsync();
+                        break;
+                    case "UPDATE_EMAIL":
+                        if (parts.Length >= 3)
+                        {
+                            string token = parts[1];
+                            string newEmail = parts[2];
+                            // Gọi hàm xử lý riêng để code gọn gàng hơn
+                            await HandleUpdateEmailRequestAsync(token, newEmail);
+                        }
+                        else
+                        {
+                            await _writer.WriteLineAsync("UPDATE_EMAIL_FAIL|Thiếu dữ liệu");
+                            await _writer.FlushAsync();
+                        }
+                        break;
                     default:
                         await _writer.WriteLineAsync(ProtocolCommands.UNKNOWN_COMMAND);
                         break;
@@ -195,6 +212,32 @@ public class ClientHandler
         {
             _client.Close();
         }
+    }
+    private async Task HandleDeleteAccountAsync()
+    {
+        try
+        {
+            // 1. Gọi FirebaseAdminService để xoá (Bước 5)
+            bool success = await _firestoreService.DeleteUserCompletelyAsync(_authenticatedUid);
+
+            if (success)
+            {
+                await _writer.WriteLineAsync("DELETE_SUCCESS");
+                _client.Close(); // Ngắt kết nối luôn sau khi xoá
+            }
+            else
+            {
+                await _writer.WriteLineAsync("DELETE_FAIL");
+            }
+        }
+        catch
+        {
+            await _writer.WriteLineAsync("DELETE_FAIL");
+        }
+    }
+    private async Task HandleUpdateEmailRequestAsync(string idToken, string newEmail)
+    {
+      
     }
 
     private async Task<bool> AuthenticateClientAsync()

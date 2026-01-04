@@ -33,9 +33,9 @@
             label1 = new Label();
             button1 = new Button();
             imageList1 = new ImageList(components);
-            button2 = new Button();
+            btnXoaTaiKhoan = new Button();
             button3 = new Button();
-            button4 = new Button();
+            btn_logout = new Button();
             SuspendLayout();
             // 
             // label1
@@ -61,8 +61,9 @@
             button1.Name = "button1";
             button1.Size = new Size(279, 50);
             button1.TabIndex = 1;
-            button1.Text = "       Đổi email và mật khẩu";
+            button1.Text = "       Thay đổi mật khẩu";
             button1.UseVisualStyleBackColor = false;
+            button1.Click += button1_Click;
             // 
             // imageList1
             // 
@@ -74,20 +75,21 @@
             imageList1.Images.SetKeyName(2, "Lecturer.png");
             imageList1.Images.SetKeyName(3, "Trash.png");
             // 
-            // button2
+            // btnXoaTaiKhoan
             // 
-            button2.BackColor = Color.DeepSkyBlue;
-            button2.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
-            button2.ForeColor = SystemColors.ControlLightLight;
-            button2.ImageAlign = ContentAlignment.MiddleLeft;
-            button2.ImageKey = "Trash.png";
-            button2.ImageList = imageList1;
-            button2.Location = new Point(324, 135);
-            button2.Name = "button2";
-            button2.Size = new Size(279, 45);
-            button2.TabIndex = 2;
-            button2.Text = "Xóa tài khoản";
-            button2.UseVisualStyleBackColor = false;
+            btnXoaTaiKhoan.BackColor = Color.DeepSkyBlue;
+            btnXoaTaiKhoan.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
+            btnXoaTaiKhoan.ForeColor = SystemColors.ControlLightLight;
+            btnXoaTaiKhoan.ImageAlign = ContentAlignment.MiddleLeft;
+            btnXoaTaiKhoan.ImageKey = "Trash.png";
+            btnXoaTaiKhoan.ImageList = imageList1;
+            btnXoaTaiKhoan.Location = new Point(324, 135);
+            btnXoaTaiKhoan.Name = "btnXoaTaiKhoan";
+            btnXoaTaiKhoan.Size = new Size(279, 45);
+            btnXoaTaiKhoan.TabIndex = 2;
+            btnXoaTaiKhoan.Text = "Xóa tài khoản";
+            btnXoaTaiKhoan.UseVisualStyleBackColor = false;
+            btnXoaTaiKhoan.Click += btnXoaTaiKhoan_Click;
             // 
             // button3
             // 
@@ -103,30 +105,32 @@
             button3.TabIndex = 3;
             button3.Text = "Giới thiệu chung";
             button3.UseVisualStyleBackColor = false;
+            button3.Click += button3_Click;
             // 
-            // button4
+            // btn_logout
             // 
-            button4.BackColor = Color.DeepSkyBlue;
-            button4.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
-            button4.ForeColor = SystemColors.ControlLightLight;
-            button4.ImageAlign = ContentAlignment.MiddleLeft;
-            button4.ImageKey = "Imac Exit.png";
-            button4.ImageList = imageList1;
-            button4.Location = new Point(324, 263);
-            button4.Name = "button4";
-            button4.Size = new Size(279, 45);
-            button4.TabIndex = 4;
-            button4.Text = "Đăng xuất";
-            button4.UseVisualStyleBackColor = false;
+            btn_logout.BackColor = Color.DeepSkyBlue;
+            btn_logout.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
+            btn_logout.ForeColor = SystemColors.ControlLightLight;
+            btn_logout.ImageAlign = ContentAlignment.MiddleLeft;
+            btn_logout.ImageKey = "Imac Exit.png";
+            btn_logout.ImageList = imageList1;
+            btn_logout.Location = new Point(324, 263);
+            btn_logout.Name = "btn_logout";
+            btn_logout.Size = new Size(279, 45);
+            btn_logout.TabIndex = 4;
+            btn_logout.Text = "Đăng xuất";
+            btn_logout.UseVisualStyleBackColor = false;
+            btn_logout.Click += button4_Click;
             // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.PowderBlue;
-            Controls.Add(button4);
+            Controls.Add(btn_logout);
             Controls.Add(button3);
-            Controls.Add(button2);
+            Controls.Add(btnXoaTaiKhoan);
             Controls.Add(button1);
             Controls.Add(label1);
             Margin = new Padding(2);
@@ -141,9 +145,9 @@
 
         private Label label1;
         private Button button1;
-        private Button button2;
+        private Button btnXoaTaiKhoan;
         private Button button3;
-        private Button button4;
+        private Button btn_logout;
         private ImageList imageList1;
     }
 }
