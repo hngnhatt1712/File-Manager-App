@@ -73,6 +73,49 @@ public class FileTransferClient
         }
     }
 
+    public async Task<bool> DeleteAccountAsync()
+    {
+        try
+        {
+            await _writer.WriteLineAsync("DELETE_ACCOUNT");
+            await _writer.FlushAsync();
+
+            string response = await _reader.ReadLineAsync();
+            return response == "DELETE_SUCCESS";
+        }
+        catch { return false; }
+    }
+
+    // Trong file FileTransferClient.cs
+    public async Task SyncUpdateEmailAsync(string token, string newEmail)
+    {
+        try
+        {
+            // 1. Đảm bảo đã kết nối TCP
+            if (!IsConnected) await ConnectAsync();
+
+            // 2. Tạo đối tượng yêu cầu (phải khớp với định dạng Server mong đợi)
+            var updateRequest = new
+            {
+                Command = "UPDATE_USER_EMAIL", // Lệnh do bạn tự quy định với Server
+                Token = token,
+                NewEmail = newEmail
+            };
+
+            // 3. Chuyển thành JSON và gửi đi
+            string json = JsonConvert.SerializeObject(updateRequest);
+            byte[] data = Encoding.UTF8.GetBytes(json + "<EOF>"); // Thêm ký tự kết thúc nếu cần
+
+            await _stream.WriteAsync(data, 0, data.Length);
+            await _stream.FlushAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Lỗi đồng bộ TCP: " + ex.Message);
+        }
+    }
+
+
     public async Task<List<FileMetadata>> GetTrashFilesAsync()
     {
         try

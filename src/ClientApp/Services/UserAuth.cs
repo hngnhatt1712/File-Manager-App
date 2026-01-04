@@ -2,18 +2,27 @@
 using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Newtonsoft.Json.Linq;
-using SharedLibrary;
 using System;
 using System.Threading.Tasks;
+ // Dòng này cực kỳ quan trọng để nhận diện EmailAuthProvider
+using SharedLibrary;
+using Firebase.Auth; // Bắt buộc phải có cái này để dùng Extension Methods
+using System.Net.Http;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace ClientApp.Services
 {
     // - Điều khiển UI (ẩn/hiện nút, trạng thái đăng nhập)
     // - Gọi Firebase Client SDK để lấy ID Token
     public class UserAuth
-    {   
-        private FirebaseAuthClient _authClient;
+    {
         private readonly FileTransferClient _fileClient;
+        private FirebaseAuthClient _authClient;
+        string _apiKey = "AIzaSyC9rPbS1Ks85CIdHo98WJCLb8n7V6UR8OE"; // API Key của bạn
+
+
+
         public UserAuth(FileTransferClient fileClient)
         {
             var config = new FirebaseAuthConfig
@@ -31,7 +40,6 @@ namespace ClientApp.Services
         }
 
         // ======================= LOGIN =======================
-
         public async Task<AuthResult> LoginAsync(string email, string password)
         {
             try
@@ -128,7 +136,7 @@ namespace ClientApp.Services
             }
             catch (Exception ex)
             {
-                throw;
+                throw new Exception("Không thể gửi mail reset: " + ex.Message);
             }
         }
 
@@ -139,6 +147,48 @@ namespace ClientApp.Services
             _authClient.SignOut();
         }
 
-        
+        // đổi mail , password
+        // Trong UserAuth.cs
+        // 1. Thêm dòng này vào ngay dưới dòng: private readonly FileTransferClient _fileClient;
+        public Firebase.Auth.User CurrentUser => _authClient.User;
+        // 2. Sửa hàm ReAuthenticateAsync (Xác thực lại mật khẩu)
+        public async Task<bool> ReAuthenticateAsync(string password)
+        {
+            try
+            {
+                if (_authClient.User == null)
+                    return false;
+
+                string email = _authClient.User.Info.Email;
+
+                await _authClient.SignInWithEmailAndPasswordAsync(email, password);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                {
+                    MessageBox.Show("ReAuth FAILED: " + ex.Message);
+                    return false;
+                }
+            }
+        }
+
+        // Hàm đổi Email
+     
+        // Hàm đổi Password
+        public async Task<bool> UpdatePasswordAsync(string newPassword)
+        {
+            try
+            {
+                // Gọi hàm thay đổi mật khẩu
+                await _authClient.User.ChangePasswordAsync(newPassword);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

@@ -69,6 +69,7 @@ namespace ClientApp
             // 4. Gọi hàm chỉnh kích thước để thanh tìm kiếm DÀI RA lấp chỗ trống
             DieuChinhKichThuoc();
             sidebar.BringToFront();
+            setting1.SetServices(this._fileClient, this._authService);
         }
         private void ShowPage(UserControl page)
         {
@@ -132,11 +133,19 @@ namespace ClientApp
             RenderFileList(danhSachFileRac);
         }
 
+       
         private void button2_Click(object sender, EventArgs e)
         {
-            flowLayoutPanel1.Controls.Clear();
+            flowLayoutPanel1.Controls.Clear(); // Xoá các cái cũ
 
-            ShowPage(new Setting());
+            // 1. Tạo ra một bản sao của Setting
+            Setting settingControl = new Setting();
+
+            // 2. TRUYỀN CLIENT VÀO ĐÂY (Đây là bước bạn đang thiếu)
+            settingControl.SetServices(this._fileClient, this._authService);
+
+            // 3. Hiển thị nó lên
+            ShowPage(settingControl);
         }
 
         private void panel3_Paint(object sender, PaintEventArgs e)
