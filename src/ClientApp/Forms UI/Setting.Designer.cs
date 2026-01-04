@@ -34,8 +34,13 @@
             button1 = new Button();
             imageList1 = new ImageList(components);
             btnXoaTaiKhoan = new Button();
-            button3 = new Button();
             btn_logout = new Button();
+            panel1 = new Panel();
+            label2 = new Label();
+            label4 = new Label();
+            lblStorageInfo = new Label();
+            button3 = new Button();
+            pbStorage = new ProgressBar();
             SuspendLayout();
             // 
             // label1
@@ -43,7 +48,7 @@
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI Semibold", 20F, FontStyle.Bold);
             label1.ForeColor = Color.Red;
-            label1.Location = new Point(413, 11);
+            label1.Location = new Point(412, 0);
             label1.Name = "label1";
             label1.Size = new Size(105, 37);
             label1.TabIndex = 0;
@@ -57,7 +62,7 @@
             button1.ImageAlign = ContentAlignment.MiddleLeft;
             button1.ImageKey = "Change.png";
             button1.ImageList = imageList1;
-            button1.Location = new Point(324, 69);
+            button1.Location = new Point(324, 51);
             button1.Name = "button1";
             button1.Size = new Size(279, 50);
             button1.TabIndex = 1;
@@ -83,29 +88,13 @@
             btnXoaTaiKhoan.ImageAlign = ContentAlignment.MiddleLeft;
             btnXoaTaiKhoan.ImageKey = "Trash.png";
             btnXoaTaiKhoan.ImageList = imageList1;
-            btnXoaTaiKhoan.Location = new Point(324, 135);
+            btnXoaTaiKhoan.Location = new Point(324, 107);
             btnXoaTaiKhoan.Name = "btnXoaTaiKhoan";
             btnXoaTaiKhoan.Size = new Size(279, 45);
             btnXoaTaiKhoan.TabIndex = 2;
             btnXoaTaiKhoan.Text = "Xóa tài khoản";
             btnXoaTaiKhoan.UseVisualStyleBackColor = false;
             btnXoaTaiKhoan.Click += btnXoaTaiKhoan_Click;
-            // 
-            // button3
-            // 
-            button3.BackColor = Color.DeepSkyBlue;
-            button3.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
-            button3.ForeColor = SystemColors.ControlLightLight;
-            button3.ImageAlign = ContentAlignment.MiddleLeft;
-            button3.ImageKey = "Lecturer.png";
-            button3.ImageList = imageList1;
-            button3.Location = new Point(324, 200);
-            button3.Name = "button3";
-            button3.Size = new Size(279, 45);
-            button3.TabIndex = 3;
-            button3.Text = "Giới thiệu chung";
-            button3.UseVisualStyleBackColor = false;
-            button3.Click += button3_Click;
             // 
             // btn_logout
             // 
@@ -115,7 +104,7 @@
             btn_logout.ImageAlign = ContentAlignment.MiddleLeft;
             btn_logout.ImageKey = "Imac Exit.png";
             btn_logout.ImageList = imageList1;
-            btn_logout.Location = new Point(324, 263);
+            btn_logout.Location = new Point(324, 219);
             btn_logout.Name = "btn_logout";
             btn_logout.Size = new Size(279, 45);
             btn_logout.TabIndex = 4;
@@ -123,11 +112,79 @@
             btn_logout.UseVisualStyleBackColor = false;
             btn_logout.Click += button4_Click;
             // 
+            // panel1
+            // 
+            panel1.BackColor = SystemColors.ButtonFace;
+            panel1.BorderStyle = BorderStyle.FixedSingle;
+            panel1.Dock = DockStyle.Bottom;
+            panel1.Location = new Point(0, 326);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(780, 0);
+            panel1.TabIndex = 5;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font("Segoe UI Semibold", 12.25F, FontStyle.Bold);
+            label2.Location = new Point(0, 277);
+            label2.Name = "label2";
+            label2.Size = new Size(148, 23);
+            label2.TabIndex = 6;
+            label2.Text = "Thông tin bộ nhớ:";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(347, 164);
+            label4.Name = "label4";
+            label4.Size = new Size(0, 15);
+            label4.TabIndex = 8;
+            // 
+            // lblStorageInfo
+            // 
+            lblStorageInfo.AutoSize = true;
+            lblStorageInfo.Font = new Font("Segoe UI Semibold", 12.25F, FontStyle.Bold);
+            lblStorageInfo.Location = new Point(154, 277);
+            lblStorageInfo.Name = "lblStorageInfo";
+            lblStorageInfo.Size = new Size(27, 23);
+            lblStorageInfo.TabIndex = 9;
+            lblStorageInfo.Text = "số";
+            // 
+            // button3
+            // 
+            button3.BackColor = Color.DeepSkyBlue;
+            button3.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
+            button3.ForeColor = SystemColors.ControlLightLight;
+            button3.ImageAlign = ContentAlignment.MiddleLeft;
+            button3.ImageKey = "Lecturer.png";
+            button3.ImageList = imageList1;
+            button3.Location = new Point(324, 158);
+            button3.Name = "button3";
+            button3.Size = new Size(279, 45);
+            button3.TabIndex = 3;
+            button3.Text = "Giới thiệu chung";
+            button3.UseVisualStyleBackColor = false;
+            button3.Click += button3_Click;
+            // 
+            // pbStorage
+            // 
+            pbStorage.BackColor = SystemColors.ActiveBorder;
+            pbStorage.Dock = DockStyle.Bottom;
+            pbStorage.Location = new Point(0, 303);
+            pbStorage.Name = "pbStorage";
+            pbStorage.Size = new Size(780, 23);
+            pbStorage.TabIndex = 10;
+            // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.PowderBlue;
+            Controls.Add(pbStorage);
+            Controls.Add(lblStorageInfo);
+            Controls.Add(label4);
+            Controls.Add(label2);
+            Controls.Add(panel1);
             Controls.Add(btn_logout);
             Controls.Add(button3);
             Controls.Add(btnXoaTaiKhoan);
@@ -146,8 +203,13 @@
         private Label label1;
         private Button button1;
         private Button btnXoaTaiKhoan;
-        private Button button3;
         private Button btn_logout;
         private ImageList imageList1;
+        private Panel panel1;
+        private Label label2;
+        private Label label4;
+        private Label lblStorageInfo;
+        private Button button3;
+        private ProgressBar pbStorage;
     }
 }
