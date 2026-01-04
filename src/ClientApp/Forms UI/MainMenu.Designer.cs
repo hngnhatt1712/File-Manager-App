@@ -62,11 +62,13 @@
             sideBarTransition = new System.Windows.Forms.Timer(components);
             fileTransition = new System.Windows.Forms.Timer(components);
             flowLayoutPanel1 = new FlowLayoutPanel();
+            setting1 = new ClientApp.Forms_UI.Setting();
             panel1.SuspendLayout();
             roundedPanel1.SuspendLayout();
             panel3.SuspendLayout();
             sidebar.SuspendLayout();
             changefile.SuspendLayout();
+            flowLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
@@ -537,10 +539,20 @@
             // 
             // flowLayoutPanel1
             // 
+            flowLayoutPanel1.Controls.Add(setting1);
             flowLayoutPanel1.Location = new Point(230, 114);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
             flowLayoutPanel1.Size = new Size(787, 381);
             flowLayoutPanel1.TabIndex = 5;
+            // 
+            // setting1
+            // 
+            setting1.BackColor = Color.PowderBlue;
+            setting1.Location = new Point(2, 2);
+            setting1.Margin = new Padding(2);
+            setting1.Name = "setting1";
+            setting1.Size = new Size(780, 326);
+            setting1.TabIndex = 0;
             // 
             // MainMenu
             // 
@@ -567,6 +579,7 @@
             panel3.PerformLayout();
             sidebar.ResumeLayout(false);
             changefile.ResumeLayout(false);
+            flowLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -603,5 +616,6 @@
         private Button btn_star;
         private Button btn_ThongBao;
         private FlowLayoutPanel flowLayoutPanel1;
+        private Forms_UI.Setting setting1;
     }
 }
