@@ -31,7 +31,6 @@
             pnlDropZone = new Panel();
             label1 = new Label();
             btnFile = new Button();
-            btnFolder = new Button();
             flpHistory = new FlowLayoutPanel();
             pnlDropZone.SuspendLayout();
             SuspendLayout();
@@ -56,7 +55,7 @@
             label1.ForeColor = SystemColors.AppWorkspace;
             label1.Location = new Point(345, 60);
             label1.Name = "label1";
-            label1.Size = new Size(217, 26);
+            label1.Size = new Size(216, 26);
             label1.TabIndex = 0;
             label1.Text = "☁️ Kéo thả file vào đây";
             // 
@@ -67,28 +66,13 @@
             btnFile.FlatStyle = FlatStyle.Flat;
             btnFile.Font = new Font("Comic Sans MS", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnFile.ForeColor = Color.FromArgb(255, 255, 192);
-            btnFile.Location = new Point(198, 213);
+            btnFile.Location = new Point(382, 214);
             btnFile.Name = "btnFile";
             btnFile.Size = new Size(162, 37);
             btnFile.TabIndex = 1;
             btnFile.Text = "📂 Chọn Tệp";
             btnFile.UseVisualStyleBackColor = false;
             btnFile.Click += btnFile_Click;
-            // 
-            // btnFolder
-            // 
-            btnFolder.BackColor = Color.FromArgb(255, 192, 192);
-            btnFolder.FlatAppearance.BorderSize = 0;
-            btnFolder.FlatStyle = FlatStyle.Flat;
-            btnFolder.Font = new Font("Comic Sans MS", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnFolder.ForeColor = Color.FromArgb(255, 255, 192);
-            btnFolder.Location = new Point(573, 213);
-            btnFolder.Name = "btnFolder";
-            btnFolder.Size = new Size(156, 37);
-            btnFolder.TabIndex = 2;
-            btnFolder.Text = "📂 Chọn Thư mục";
-            btnFolder.UseVisualStyleBackColor = false;
-            btnFolder.Click += btnFolder_Click;
             // 
             // flpHistory
             // 
@@ -108,7 +92,6 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.WhiteSmoke;
             Controls.Add(flpHistory);
-            Controls.Add(btnFolder);
             Controls.Add(btnFile);
             Controls.Add(pnlDropZone);
             Margin = new Padding(2);
@@ -125,7 +108,6 @@
         private Panel pnlDropZone;
         private Label label1;
         private Button btnFile;
-        private Button btnFolder;
         private FlowLayoutPanel flpHistory;
     }
 }

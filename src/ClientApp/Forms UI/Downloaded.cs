@@ -17,6 +17,7 @@ namespace ClientApp.Forms_UI
     public partial class Downloaded : UserControl
     {
         private FileTransferClient _client;
+        public event EventHandler DataChanged;
         public Downloaded(FileTransferClient client)
         {
             InitializeComponent();
@@ -63,6 +64,7 @@ namespace ClientApp.Forms_UI
                     await AnalyzeAndUpload(file);
                 }
             }
+            DataChanged?.Invoke(this, EventArgs.Empty);
         }
         private async void btnFolder_Click(object sender, EventArgs e)
         {

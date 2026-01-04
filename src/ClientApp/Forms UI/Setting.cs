@@ -14,7 +14,7 @@ namespace ClientApp.Forms_UI
     public partial class Setting : UserControl
     {
         private FileTransferClient _fileClient;
-        private UserAuth _authService; // 1. Thêm biến này
+        private UserAuth _authService; 
         public Setting()
         {
             InitializeComponent();
@@ -22,7 +22,7 @@ namespace ClientApp.Forms_UI
 
         private void Setting_Load(object sender, EventArgs e)
         {
-
+            UpdateStorageUI();
         }
         public void SetServices(FileTransferClient client, UserAuth auth)
         {
@@ -110,5 +110,70 @@ namespace ClientApp.Forms_UI
             ChangeEAP frm = new ChangeEAP(_authService);
             frm.ShowDialog();
         }
+        // Hàm đổi Bytes sang KB, MB, GB
+        private string FormatBytes(long bytes)
+        {
+            string[] suffixes = { "B", "KB", "MB", "GB", "TB" };
+            int counter = 0;
+            decimal number = (decimal)bytes;
+
+            while (Math.Round(number / 1024) >= 1)
+            {
+                number = number / 1024;
+                counter++;
+            }
+            // Hiển thị 2 chữ số thập phân (ví dụ: 1.25 GB)
+            return string.Format("{0:n2} {1}", number, suffixes[counter]);
+        }
+        public async void UpdateStorageUI()
+        {
+            try
+            {
+                // 1. Gọi Client để lấy thông tin (Hàm bạn đã viết ở bước trước)
+                // Giả sử hàm này trả về model chứa TotalUsed và MaxQuota
+                var info = await _fileClient.GetStorageInfoAsync();
+
+                if (info == null) return;
+
+                // 2. Tính toán phần trăm để hiển thị lên thanh ProgressBar
+                int percentage = 0;
+                if (info.MaxQuota > 0)
+                {
+                    // Ép kiểu double để chia có số thập phân
+                    percentage = (int)((double)info.TotalUsed / info.MaxQuota * 100);
+                }
+
+                // Chặn lỗi: Nếu vượt quá 100% thì chỉ hiện 100 thôi (để không crash app)
+                if (percentage > 100) percentage = 100;
+                if (percentage < 0) percentage = 0;
+
+                // 3. Cập nhật lên UI 
+                this.Invoke((MethodInvoker)delegate
+                {
+                    // Cập nhật thanh ProgressBar
+                    pbStorage.Value = percentage;
+
+                    // Cập nhật dòng chữ: "1.25 GB / 5.00 GB (25%)"
+                    string usedStr = FormatBytes(info.TotalUsed);
+                    string maxStr = FormatBytes(info.MaxQuota);
+                    lblStorageInfo.Text = $"Bộ nhớ: {usedStr} / {maxStr} ({percentage}%)";
+
+                    // (Tùy chọn) Đổi màu chữ thành Đỏ nếu sắp đầy (> 90%)
+                    if (percentage >= 90)
+                    {
+                        lblStorageInfo.ForeColor = Color.Red;
+                    }
+                    else
+                    {
+                        lblStorageInfo.ForeColor = Color.Green;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi cập nhật UI Storage: " + ex.Message);
+            }
+        }
+
     }
 }

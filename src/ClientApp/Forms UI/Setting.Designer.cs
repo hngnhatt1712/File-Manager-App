@@ -38,9 +38,9 @@
             panel1 = new Panel();
             label2 = new Label();
             label4 = new Label();
-            label5 = new Label();
+            lblStorageInfo = new Label();
             button3 = new Button();
-            progressBar1 = new ProgressBar();
+            pbStorage = new ProgressBar();
             SuspendLayout();
             // 
             // label1
@@ -126,7 +126,7 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI Semibold", 12.25F, FontStyle.Bold);
-            label2.Location = new Point(3, 271);
+            label2.Location = new Point(0, 277);
             label2.Name = "label2";
             label2.Size = new Size(148, 23);
             label2.TabIndex = 6;
@@ -140,15 +140,15 @@
             label4.Size = new Size(0, 15);
             label4.TabIndex = 8;
             // 
-            // label5
+            // lblStorageInfo
             // 
-            label5.AutoSize = true;
-            label5.Font = new Font("Segoe UI Semibold", 12.25F, FontStyle.Bold);
-            label5.Location = new Point(145, 270);
-            label5.Name = "label5";
-            label5.Size = new Size(27, 23);
-            label5.TabIndex = 9;
-            label5.Text = "số";
+            lblStorageInfo.AutoSize = true;
+            lblStorageInfo.Font = new Font("Segoe UI Semibold", 12.25F, FontStyle.Bold);
+            lblStorageInfo.Location = new Point(154, 277);
+            lblStorageInfo.Name = "lblStorageInfo";
+            lblStorageInfo.Size = new Size(27, 23);
+            lblStorageInfo.TabIndex = 9;
+            lblStorageInfo.Text = "số";
             // 
             // button3
             // 
@@ -166,22 +166,22 @@
             button3.UseVisualStyleBackColor = false;
             button3.Click += button3_Click;
             // 
-            // progressBar1
+            // pbStorage
             // 
-            progressBar1.BackColor = SystemColors.ActiveBorder;
-            progressBar1.Dock = DockStyle.Bottom;
-            progressBar1.Location = new Point(0, 296);
-            progressBar1.Name = "progressBar1";
-            progressBar1.Size = new Size(780, 30);
-            progressBar1.TabIndex = 10;
+            pbStorage.BackColor = SystemColors.ActiveBorder;
+            pbStorage.Dock = DockStyle.Bottom;
+            pbStorage.Location = new Point(0, 303);
+            pbStorage.Name = "pbStorage";
+            pbStorage.Size = new Size(780, 23);
+            pbStorage.TabIndex = 10;
             // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.PowderBlue;
-            Controls.Add(progressBar1);
-            Controls.Add(label5);
+            Controls.Add(pbStorage);
+            Controls.Add(lblStorageInfo);
             Controls.Add(label4);
             Controls.Add(label2);
             Controls.Add(panel1);
@@ -208,8 +208,8 @@
         private Panel panel1;
         private Label label2;
         private Label label4;
-        private Label label5;
+        private Label lblStorageInfo;
         private Button button3;
-        private ProgressBar progressBar1;
+        private ProgressBar pbStorage;
     }
 }
