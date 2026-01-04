@@ -63,6 +63,11 @@
         // tìm kiếm file
         public const string SEARCH_REQ = "SEARCH_REQ";      // Client gửi yêu cầu
         public const string SEARCH_SUCCESS = "SEARCH_SUCCESS"; // Server trả kết quả
+
+        // ============ STORAGE INFO ============
+        public const string GET_STORAGE_INFO = "GET_STORAGE_INFO";           // Client yêu cầu thông tin dung lượng
+        public const string GET_STORAGE_INFO_SUCCESS = "GET_STORAGE_INFO_SUCCESS"; // Server trả kết quả
+        public const string GET_STORAGE_INFO_FAIL = "GET_STORAGE_INFO_FAIL";   // Server lỗi
     }
 
 }
