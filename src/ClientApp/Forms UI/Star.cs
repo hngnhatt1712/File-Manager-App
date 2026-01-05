@@ -25,22 +25,13 @@ namespace ClientApp.Forms_UI
         private async void Star_Load(object sender, EventArgs e)
         {
             startFile.SetClient(_client);
-
-            startFile.IsStarredMode = true; // Báo cho FileList biết đây là tab Dấu sao
-                                          
-
             string json = await _client.GetFileListAsync("/");
             var allFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
 
-            // Lọc lấy file có dấu sao
-            var starredFiles = allFiles.Where(f => f.IsStarred == true).ToList();
+            var top10Files = allFiles.Take(10).ToList();
 
-            startFile.RenderFileList(starredFiles);
-        }
-
-        private void startFile_Load(object sender, EventArgs e)
-        {
-
+            // Gọi hàm Render trực tiếp
+            startFile.RenderFileList(top10Files);
         }
     }
 }

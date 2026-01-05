@@ -34,20 +34,18 @@
             // startFile
             // 
             startFile.Location = new Point(-1, 0);
-            startFile.Margin = new Padding(3, 5, 3, 5);
             startFile.Name = "startFile";
-            startFile.Size = new Size(899, 508);
+            startFile.Size = new Size(787, 381);
             startFile.TabIndex = 0;
-            startFile.Load += startFile_Load;
             // 
             // Star
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(startFile);
-            Margin = new Padding(2, 3, 2, 3);
+            Margin = new Padding(2);
             Name = "Star";
-            Size = new Size(899, 508);
+            Size = new Size(787, 381);
             Load += Star_Load;
             ResumeLayout(false);
         }

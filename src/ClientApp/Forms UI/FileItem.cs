@@ -80,26 +80,5 @@ namespace ClientApp
             if (ext == ".png" || ext == ".jpg" || ext == ".jpeg") return Properties.Resources.icon_image;
             return Properties.Resources.icon_default;
         }
-        public void SetFileName(string newName)
-        {
-            if (lblFileName != null) lblFileName.Text = newName;
-        }
-        public void SetStarStatus(bool isStarred)
-        {
-            // Cập nhật lại dữ liệu nội bộ
-            FileData.IsStarred = isStarred;
-
-            // Đổi màu nút (Giả sử nút tên là btnStar)
-            if (isStarred)
-            {
-                btnStar.Text = "★"; // Sao đặc
-                btnStar.ForeColor = Color.Gold; // Màu vàng
-            }
-            else
-            {
-                btnStar.Text = "☆"; // Sao rỗng
-                btnStar.ForeColor = Color.Gray; // Màu xám
-            }
-        }
     }
 }
