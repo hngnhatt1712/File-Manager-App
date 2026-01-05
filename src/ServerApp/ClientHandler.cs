@@ -125,6 +125,16 @@ public class ClientHandler
                                 return;
                             }
 
+                            // --- KIỂM TRA QUOTA ---
+                            bool quotaOK = await _fileController.CheckStorageQuotaAsync(_authenticatedUid, metadata.Size);
+                            if (!quotaOK)
+                            {
+                                Console.WriteLine($"[Upload] Từ chối: Dung lượng không đủ!");
+                                await _writer.WriteLineAsync(ProtocolCommands.QUOTA_EXCEEDED + "|Dung lượng bộ nhớ không đủ");
+                                await _writer.FlushAsync();
+                                break; // Dừng xử lý upload này
+                            }
+
                             // 3. Cập nhật các thông tin phía Server (mà Client không biết)
                             string userFolder = Path.Combine(_storagePath, _authenticatedUid);
                             Directory.CreateDirectory(userFolder);
@@ -190,6 +200,33 @@ public class ClientHandler
                         Console.WriteLine($"[DEBUG] Đã nhận lệnh STAR từ User {_authenticatedUid}");
                         await HandleStarFileAsync(parts);
                         break;
+                    case "DELETE_ACCOUNT":
+                        await HandleDeleteAccountAsync();
+                        break;
+                    case "UPDATE_EMAIL":
+                        if (parts.Length >= 3)
+                        {
+                            string token = parts[1];
+                            string newEmail = parts[2];
+                            // Gọi hàm xử lý riêng để code gọn gàng hơn
+                            await HandleUpdateEmailRequestAsync(token, newEmail);
+                        }
+                        else
+                        {
+                            await _writer.WriteLineAsync("UPDATE_EMAIL_FAIL|Thiếu dữ liệu");
+                            await _writer.FlushAsync();
+                        }
+                        break;
+                    case ProtocolCommands.GET_STORAGE_INFO:
+                        if (!_isAuthenticated)
+                        {
+                            await _writer.WriteLineAsync(ProtocolCommands.ACCESS_DENIED);
+                        }
+                        else
+                        {
+                            await HandleGetStorageInfoAsync();
+                        }
+                        break;
                     default:
                         await _writer.WriteLineAsync(ProtocolCommands.UNKNOWN_COMMAND);
                         break;
@@ -204,6 +241,32 @@ public class ClientHandler
         {
             _client.Close();
         }
+    }
+    private async Task HandleDeleteAccountAsync()
+    {
+        try
+        {
+            // 1. Gọi FirebaseAdminService để xoá (Bước 5)
+            bool success = await _firestoreService.DeleteUserCompletelyAsync(_authenticatedUid);
+
+            if (success)
+            {
+                await _writer.WriteLineAsync("DELETE_SUCCESS");
+                _client.Close(); // Ngắt kết nối luôn sau khi xoá
+            }
+            else
+            {
+                await _writer.WriteLineAsync("DELETE_FAIL");
+            }
+        }
+        catch
+        {
+            await _writer.WriteLineAsync("DELETE_FAIL");
+        }
+    }
+    private async Task HandleUpdateEmailRequestAsync(string idToken, string newEmail)
+    {
+      
     }
 
     private async Task<bool> AuthenticateClientAsync()
@@ -523,6 +586,29 @@ public class ClientHandler
         catch (Exception ex)
         {
             Console.WriteLine($"[Star Exception] {ex.Message}");
+        }
+    }
+    // Lấy thông tin dung lượng bộ nhớ (đã dùng/còn trống)
+    private async Task HandleGetStorageInfoAsync()
+    {
+        try
+        {
+            Console.WriteLine($"[Storage Request] User {_authenticatedUid} đang kiểm tra dung lượng...");
+
+            // Gọi hàm từ FileController để lấy thông tin dung lượng
+            string response = await _fileController.HandleGetStorageInfoAsync(_authenticatedUid);
+
+            // Gửi phản hồi về Client
+            await _writer.WriteLineAsync(response);
+            await _writer.FlushAsync();
+
+            Console.WriteLine($"[Storage Success] Đã gửi thông tin dung lượng.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Storage Error] Lỗi khi lấy thông tin dung lượng: {ex.Message}");
+            await _writer.WriteLineAsync(ProtocolCommands.GET_STORAGE_INFO_FAIL + "|" + ex.Message);
+            await _writer.FlushAsync();
         }
     }
 }

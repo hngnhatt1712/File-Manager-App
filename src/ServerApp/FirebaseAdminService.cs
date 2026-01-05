@@ -74,6 +74,7 @@ namespace ServerApp
             }
         }
 
+
         // ================= FIRESTORE METHODS =================
 
         public async Task CheckAndCreateUserAsync(string uid, string email, string phone)
@@ -305,6 +306,26 @@ namespace ServerApp
             catch (Exception ex)
             {
                 Console.WriteLine($"[DB EXCEPTION] Lỗi chi tiết: {ex.Message}");
+            }
+        }
+        public async Task<bool> DeleteUserCompletelyAsync(string uid)
+        {
+            try
+            {
+                // 1. Xoá thông tin User trong Firestore (Collection "users")
+                await _firestoreDb.Collection("users").Document(uid).DeleteAsync();
+
+                // 2. Tùy chọn: Xoá danh sách file của User này nếu muốn (Collection "files")
+                // Bạn có thể viết thêm logic xoá file vật lý ở đây
+
+                // 3. Xoá User trong Firebase Authentication
+                await FirebaseAuth.DefaultInstance.DeleteUserAsync(uid);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi xoá tài khoản: {ex.Message}");
                 return false;
             }
         }

@@ -69,5 +69,93 @@ namespace ServerApp.Controllers
                 return $"LIST_FILES_FAIL|{ex.Message}";
             }
         }
+
+        // --- TÍNH TỔNG DUNG LƯỢNG BỘ NHỚ ---
+        public async Task<string> HandleGetStorageInfoAsync(string uid, long maxQuota = 5368709120) // Default 5GB
+        {
+            try
+            {
+                // 1. Query tất cả file của user từ Firestore
+                Query query = _firestoreDb.Collection("Files").WhereEqualTo("OwnerUid", uid).Select("Size");
+                QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+                // 2. Cộng tổng cột Size của tất cả file
+                long totalUsed = 0;
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    if (document.Exists && document.ContainsField("Size"))
+                    {
+                        var sizeValue = document.GetValue<long?>("Size");
+                        if (sizeValue.HasValue)
+                        {
+                            totalUsed += sizeValue.Value;
+                        }
+                    }
+                }
+
+                // 3. Tính dung lượng còn trống
+                long totalRemaining = maxQuota - totalUsed;
+
+                // 4. Tạo object JSON để gửi về Client
+                var storageInfo = new
+                {
+                    TotalUsed = totalUsed,
+                    MaxQuota = maxQuota,
+                    TotalRemaining = totalRemaining,
+                    UsagePercent = (int)((totalUsed * 100) / maxQuota)
+                };
+
+                string json = JsonConvert.SerializeObject(storageInfo);
+                Console.WriteLine($"[Storage] User {uid} đã dùng {totalUsed} bytes / {maxQuota} bytes");
+                return $"GET_STORAGE_INFO_SUCCESS|{json}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi GetStorageInfo: " + ex.Message);
+                return $"GET_STORAGE_INFO_FAIL|{ex.Message}";
+            }
+        }
+
+        // --- KIỂM TRA QUOTA TRƯỚC UPLOAD ---
+        public async Task<bool> CheckStorageQuotaAsync(string uid, long fileSize, long maxQuota = 5368709120)
+        {
+            try
+            {
+                // 1. Query tất cả file của user từ Firestore
+                Query query = _firestoreDb.Collection("Files").WhereEqualTo("OwnerUid", uid).Select("Size");
+                QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+                // 2. Cộng tổng cột Size của tất cả file
+                long totalUsed = 0;
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    if (document.Exists && document.ContainsField("Size"))
+                    {
+                        var sizeValue = document.GetValue<long?>("Size");
+                        if (sizeValue.HasValue)
+                        {
+                            totalUsed += sizeValue.Value;
+                        }
+                    }
+                }
+
+                // 3. Kiểm tra: dung lượng hiện tại + file mới có vượt quá không
+                long totalAfterUpload = totalUsed + fileSize;
+                
+                if (totalAfterUpload > maxQuota)
+                {
+                    Console.WriteLine($"[Quota Check] User {uid}: FAIL - {totalAfterUpload} > {maxQuota}");
+                    return false; // Không đủ dung lượng
+                }
+
+                Console.WriteLine($"[Quota Check] User {uid}: OK - {totalAfterUpload} <= {maxQuota}");
+                return true; // Đủ dung lượng
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi CheckStorageQuota: " + ex.Message);
+                return false; // Nếu lỗi, từ chối upload để safety
+            }
+        }
     }
 }

@@ -28,13 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Setting));
             label1 = new Label();
-            label2 = new Label();
-            label3 = new Label();
-            textBox1 = new TextBox();
-            textBox2 = new TextBox();
             button1 = new Button();
-            button2 = new Button();
+            imageList1 = new ImageList(components);
+            btnXoaTaiKhoan = new Button();
+            btn_logout = new Button();
+            panel1 = new Panel();
+            label2 = new Label();
+            label4 = new Label();
+            lblStorageInfo = new Label();
+            button3 = new Button();
+            pbStorage = new ProgressBar();
             SuspendLayout();
             // 
             // label1
@@ -42,90 +48,152 @@
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI Semibold", 20F, FontStyle.Bold);
             label1.ForeColor = Color.Red;
-            label1.Location = new Point(234, 17);
+            label1.Location = new Point(412, 0);
             label1.Name = "label1";
-            label1.Size = new Size(363, 37);
+            label1.Size = new Size(105, 37);
             label1.TabIndex = 0;
-            label1.Text = "Thông Tin File App Manager";
+            label1.Text = "Cài Đặt";
+            // 
+            // button1
+            // 
+            button1.BackColor = Color.DeepSkyBlue;
+            button1.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
+            button1.ForeColor = SystemColors.ControlLightLight;
+            button1.ImageAlign = ContentAlignment.MiddleLeft;
+            button1.ImageKey = "Change.png";
+            button1.ImageList = imageList1;
+            button1.Location = new Point(324, 51);
+            button1.Name = "button1";
+            button1.Size = new Size(279, 50);
+            button1.TabIndex = 1;
+            button1.Text = "       Thay đổi mật khẩu";
+            button1.UseVisualStyleBackColor = false;
+            button1.Click += button1_Click;
+            // 
+            // imageList1
+            // 
+            imageList1.ColorDepth = ColorDepth.Depth32Bit;
+            imageList1.ImageStream = (ImageListStreamer)resources.GetObject("imageList1.ImageStream");
+            imageList1.TransparentColor = Color.Transparent;
+            imageList1.Images.SetKeyName(0, "Change.png");
+            imageList1.Images.SetKeyName(1, "Imac Exit.png");
+            imageList1.Images.SetKeyName(2, "Lecturer.png");
+            imageList1.Images.SetKeyName(3, "Trash.png");
+            // 
+            // btnXoaTaiKhoan
+            // 
+            btnXoaTaiKhoan.BackColor = Color.DeepSkyBlue;
+            btnXoaTaiKhoan.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
+            btnXoaTaiKhoan.ForeColor = SystemColors.ControlLightLight;
+            btnXoaTaiKhoan.ImageAlign = ContentAlignment.MiddleLeft;
+            btnXoaTaiKhoan.ImageKey = "Trash.png";
+            btnXoaTaiKhoan.ImageList = imageList1;
+            btnXoaTaiKhoan.Location = new Point(324, 107);
+            btnXoaTaiKhoan.Name = "btnXoaTaiKhoan";
+            btnXoaTaiKhoan.Size = new Size(279, 45);
+            btnXoaTaiKhoan.TabIndex = 2;
+            btnXoaTaiKhoan.Text = "Xóa tài khoản";
+            btnXoaTaiKhoan.UseVisualStyleBackColor = false;
+            btnXoaTaiKhoan.Click += btnXoaTaiKhoan_Click;
+            // 
+            // btn_logout
+            // 
+            btn_logout.BackColor = Color.DeepSkyBlue;
+            btn_logout.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
+            btn_logout.ForeColor = SystemColors.ControlLightLight;
+            btn_logout.ImageAlign = ContentAlignment.MiddleLeft;
+            btn_logout.ImageKey = "Imac Exit.png";
+            btn_logout.ImageList = imageList1;
+            btn_logout.Location = new Point(324, 219);
+            btn_logout.Name = "btn_logout";
+            btn_logout.Size = new Size(279, 45);
+            btn_logout.TabIndex = 4;
+            btn_logout.Text = "Đăng xuất";
+            btn_logout.UseVisualStyleBackColor = false;
+            btn_logout.Click += button4_Click;
+            // 
+            // panel1
+            // 
+            panel1.BackColor = SystemColors.ButtonFace;
+            panel1.BorderStyle = BorderStyle.FixedSingle;
+            panel1.Dock = DockStyle.Bottom;
+            panel1.Location = new Point(0, 326);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(780, 0);
+            panel1.TabIndex = 5;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Font = new Font("Segoe UI", 14.25F);
-            label2.Location = new Point(96, 99);
+            label2.Font = new Font("Segoe UI Semibold", 12.25F, FontStyle.Bold);
+            label2.Location = new Point(0, 277);
             label2.Name = "label2";
-            label2.Size = new Size(62, 25);
-            label2.TabIndex = 1;
-            label2.Text = "Email:";
+            label2.Size = new Size(148, 23);
+            label2.TabIndex = 6;
+            label2.Text = "Thông tin bộ nhớ:";
             // 
-            // label3
+            // label4
             // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI", 14.25F);
-            label3.Location = new Point(63, 169);
-            label3.Name = "label3";
-            label3.Size = new Size(95, 25);
-            label3.TabIndex = 2;
-            label3.Text = "Password:";
+            label4.AutoSize = true;
+            label4.Location = new Point(347, 164);
+            label4.Name = "label4";
+            label4.Size = new Size(0, 15);
+            label4.TabIndex = 8;
             // 
-            // textBox1
+            // lblStorageInfo
             // 
-            textBox1.BackColor = Color.Gainsboro;
-            textBox1.Enabled = false;
-            textBox1.Location = new Point(234, 99);
-            textBox1.Name = "textBox1";
-            textBox1.ReadOnly = true;
-            textBox1.Size = new Size(393, 23);
-            textBox1.TabIndex = 3;
+            lblStorageInfo.AutoSize = true;
+            lblStorageInfo.Font = new Font("Segoe UI Semibold", 12.25F, FontStyle.Bold);
+            lblStorageInfo.Location = new Point(154, 277);
+            lblStorageInfo.Name = "lblStorageInfo";
+            lblStorageInfo.Size = new Size(27, 23);
+            lblStorageInfo.TabIndex = 9;
+            lblStorageInfo.Text = "số";
             // 
-            // textBox2
+            // button3
             // 
-            textBox2.BackColor = Color.Gainsboro;
-            textBox2.Enabled = false;
-            textBox2.Location = new Point(234, 171);
-            textBox2.Name = "textBox2";
-            textBox2.ReadOnly = true;
-            textBox2.Size = new Size(393, 23);
-            textBox2.TabIndex = 4;
+            button3.BackColor = Color.DeepSkyBlue;
+            button3.Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold);
+            button3.ForeColor = SystemColors.ControlLightLight;
+            button3.ImageAlign = ContentAlignment.MiddleLeft;
+            button3.ImageKey = "Lecturer.png";
+            button3.ImageList = imageList1;
+            button3.Location = new Point(324, 158);
+            button3.Name = "button3";
+            button3.Size = new Size(279, 45);
+            button3.TabIndex = 3;
+            button3.Text = "Giới thiệu chung";
+            button3.UseVisualStyleBackColor = false;
+            button3.Click += button3_Click;
             // 
-            // button1
+            // pbStorage
             // 
-            button1.BackColor = Color.PeachPuff;
-            button1.Font = new Font("Segoe UI", 12F);
-            button1.ForeColor = Color.Red;
-            button1.Location = new Point(466, 254);
-            button1.Name = "button1";
-            button1.Size = new Size(161, 44);
-            button1.TabIndex = 5;
-            button1.Text = "Đổi mật khẩu";
-            button1.UseVisualStyleBackColor = false;
-            // 
-            // button2
-            // 
-            button2.BackColor = Color.PeachPuff;
-            button2.Font = new Font("Segoe UI", 12F);
-            button2.ForeColor = Color.Red;
-            button2.Location = new Point(234, 254);
-            button2.Name = "button2";
-            button2.Size = new Size(161, 44);
-            button2.TabIndex = 6;
-            button2.Text = "Thông tin App";
-            button2.UseVisualStyleBackColor = false;
+            pbStorage.BackColor = SystemColors.ActiveBorder;
+            pbStorage.Dock = DockStyle.Bottom;
+            pbStorage.Location = new Point(0, 303);
+            pbStorage.Name = "pbStorage";
+            pbStorage.Size = new Size(780, 23);
+            pbStorage.TabIndex = 10;
             // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(button2);
-            Controls.Add(button1);
-            Controls.Add(textBox2);
-            Controls.Add(textBox1);
-            Controls.Add(label3);
+            BackColor = Color.PowderBlue;
+            Controls.Add(pbStorage);
+            Controls.Add(lblStorageInfo);
+            Controls.Add(label4);
             Controls.Add(label2);
+            Controls.Add(panel1);
+            Controls.Add(btn_logout);
+            Controls.Add(button3);
+            Controls.Add(btnXoaTaiKhoan);
+            Controls.Add(button1);
             Controls.Add(label1);
             Margin = new Padding(2);
             Name = "Setting";
             Size = new Size(780, 326);
+            Load += Setting_Load;
             ResumeLayout(false);
             PerformLayout();
         }
@@ -133,11 +201,15 @@
         #endregion
 
         private Label label1;
-        private Label label2;
-        private Label label3;
-        private TextBox textBox1;
-        private TextBox textBox2;
         private Button button1;
-        private Button button2;
+        private Button btnXoaTaiKhoan;
+        private Button btn_logout;
+        private ImageList imageList1;
+        private Panel panel1;
+        private Label label2;
+        private Label label4;
+        private Label lblStorageInfo;
+        private Button button3;
+        private ProgressBar pbStorage;
     }
 }

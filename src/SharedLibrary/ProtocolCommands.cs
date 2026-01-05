@@ -67,6 +67,11 @@
         public const string STAR_FILE = "STAR_FILE";
         public const string STAR_SUCCESS = "STAR_SUCCESS";
         public const string STAR_FAIL = "STAR_FAIL";
+
+        // ============ STORAGE INFO ============
+        public const string GET_STORAGE_INFO = "GET_STORAGE_INFO";           // Client yêu cầu thông tin dung lượng
+        public const string GET_STORAGE_INFO_SUCCESS = "GET_STORAGE_INFO_SUCCESS"; // Server trả kết quả
+        public const string GET_STORAGE_INFO_FAIL = "GET_STORAGE_INFO_FAIL";   // Server lỗi
     }
 
 }

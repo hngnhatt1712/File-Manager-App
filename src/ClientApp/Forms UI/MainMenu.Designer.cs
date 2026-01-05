@@ -62,11 +62,13 @@
             sideBarTransition = new System.Windows.Forms.Timer(components);
             fileTransition = new System.Windows.Forms.Timer(components);
             flowLayoutPanel1 = new FlowLayoutPanel();
+            setting1 = new ClientApp.Forms_UI.Setting();
             panel1.SuspendLayout();
             roundedPanel1.SuspendLayout();
             panel3.SuspendLayout();
             sidebar.SuspendLayout();
             changefile.SuspendLayout();
+            flowLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
@@ -384,6 +386,7 @@
             imageList1.Images.SetKeyName(7, "Upload Document.png");
             imageList1.Images.SetKeyName(8, "Star.png");
             imageList1.Images.SetKeyName(9, "Notification.png");
+            imageList1.Images.SetKeyName(10, "Sorting Arrows.png");
             // 
             // btn_word
             // 
@@ -473,14 +476,14 @@
             btn_ThongBao.Font = new Font("Segoe UI", 11F);
             btn_ThongBao.ForeColor = Color.Cyan;
             btn_ThongBao.ImageAlign = ContentAlignment.MiddleLeft;
-            btn_ThongBao.ImageKey = "Notification.png";
+            btn_ThongBao.ImageKey = "Sorting Arrows.png";
             btn_ThongBao.ImageList = imageList1;
             btn_ThongBao.Location = new Point(0, 52);
             btn_ThongBao.Margin = new Padding(0);
             btn_ThongBao.Name = "btn_ThongBao";
             btn_ThongBao.Size = new Size(225, 52);
             btn_ThongBao.TabIndex = 0;
-            btn_ThongBao.Text = " Notification";
+            btn_ThongBao.Text = "Sort";
             btn_ThongBao.UseVisualStyleBackColor = false;
             btn_ThongBao.Click += btn_ThongBao_Click;
             // 
@@ -536,10 +539,20 @@
             // 
             // flowLayoutPanel1
             // 
+            flowLayoutPanel1.Controls.Add(setting1);
             flowLayoutPanel1.Location = new Point(230, 114);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
             flowLayoutPanel1.Size = new Size(787, 381);
             flowLayoutPanel1.TabIndex = 5;
+            // 
+            // setting1
+            // 
+            setting1.BackColor = Color.PowderBlue;
+            setting1.Location = new Point(2, 2);
+            setting1.Margin = new Padding(2);
+            setting1.Name = "setting1";
+            setting1.Size = new Size(780, 326);
+            setting1.TabIndex = 0;
             // 
             // MainMenu
             // 
@@ -566,6 +579,7 @@
             panel3.PerformLayout();
             sidebar.ResumeLayout(false);
             changefile.ResumeLayout(false);
+            flowLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -602,5 +616,6 @@
         private Button btn_star;
         private Button btn_ThongBao;
         private FlowLayoutPanel flowLayoutPanel1;
+        private Forms_UI.Setting setting1;
     }
 }

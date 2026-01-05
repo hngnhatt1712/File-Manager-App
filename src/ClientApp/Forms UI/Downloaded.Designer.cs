@@ -31,7 +31,6 @@
             pnlDropZone = new Panel();
             label1 = new Label();
             btnFile = new Button();
-            btnFolder = new Button();
             flpHistory = new FlowLayoutPanel();
             pnlDropZone.SuspendLayout();
             SuspendLayout();
@@ -45,7 +44,7 @@
             pnlDropZone.Location = new Point(0, 0);
             pnlDropZone.MaximumSize = new Size(0, 200);
             pnlDropZone.Name = "pnlDropZone";
-            pnlDropZone.Size = new Size(787, 114);
+            pnlDropZone.Size = new Size(787, 173);
             pnlDropZone.TabIndex = 0;
             // 
             // label1
@@ -54,7 +53,7 @@
             label1.Enabled = false;
             label1.Font = new Font("Comic Sans MS", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label1.ForeColor = SystemColors.AppWorkspace;
-            label1.Location = new Point(274, 42);
+            label1.Location = new Point(345, 60);
             label1.Name = "label1";
             label1.Size = new Size(216, 26);
             label1.TabIndex = 0;
@@ -67,7 +66,7 @@
             btnFile.FlatStyle = FlatStyle.Flat;
             btnFile.Font = new Font("Comic Sans MS", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnFile.ForeColor = Color.FromArgb(255, 255, 192);
-            btnFile.Location = new Point(131, 120);
+            btnFile.Location = new Point(382, 214);
             btnFile.Name = "btnFile";
             btnFile.Size = new Size(162, 37);
             btnFile.TabIndex = 1;
@@ -75,30 +74,15 @@
             btnFile.UseVisualStyleBackColor = false;
             btnFile.Click += btnFile_Click;
             // 
-            // btnFolder
-            // 
-            btnFolder.BackColor = Color.FromArgb(255, 192, 192);
-            btnFolder.FlatAppearance.BorderSize = 0;
-            btnFolder.FlatStyle = FlatStyle.Flat;
-            btnFolder.Font = new Font("Comic Sans MS", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnFolder.ForeColor = Color.FromArgb(255, 255, 192);
-            btnFolder.Location = new Point(474, 120);
-            btnFolder.Name = "btnFolder";
-            btnFolder.Size = new Size(156, 37);
-            btnFolder.TabIndex = 2;
-            btnFolder.Text = "📂 Chọn Thư mục";
-            btnFolder.UseVisualStyleBackColor = false;
-            btnFolder.Click += btnFolder_Click;
-            // 
             // flpHistory
             // 
             flpHistory.AutoScroll = true;
             flpHistory.BackColor = Color.White;
             flpHistory.Dock = DockStyle.Bottom;
             flpHistory.FlowDirection = FlowDirection.TopDown;
-            flpHistory.Location = new Point(0, 163);
+            flpHistory.Location = new Point(0, 308);
             flpHistory.Name = "flpHistory";
-            flpHistory.Size = new Size(787, 218);
+            flpHistory.Size = new Size(787, 73);
             flpHistory.TabIndex = 3;
             flpHistory.WrapContents = false;
             // 
@@ -108,7 +92,6 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.WhiteSmoke;
             Controls.Add(flpHistory);
-            Controls.Add(btnFolder);
             Controls.Add(btnFile);
             Controls.Add(pnlDropZone);
             Margin = new Padding(2);
@@ -125,7 +108,6 @@
         private Panel pnlDropZone;
         private Label label1;
         private Button btnFile;
-        private Button btnFolder;
         private FlowLayoutPanel flpHistory;
     }
 }

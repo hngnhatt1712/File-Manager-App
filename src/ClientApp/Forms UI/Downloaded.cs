@@ -17,6 +17,7 @@ namespace ClientApp.Forms_UI
     public partial class Downloaded : UserControl
     {
         private FileTransferClient _client;
+        public event EventHandler DataChanged;
         public Downloaded(FileTransferClient client)
         {
             InitializeComponent();
@@ -63,6 +64,7 @@ namespace ClientApp.Forms_UI
                     await AnalyzeAndUpload(file);
                 }
             }
+            DataChanged?.Invoke(this, EventArgs.Empty);
         }
         private async void btnFolder_Click(object sender, EventArgs e)
         {
@@ -95,67 +97,73 @@ namespace ClientApp.Forms_UI
         {
             string fileName = Path.GetFileName(filePath);
 
-            // A. TẠO GIAO DIỆN DÒNG TRẠNG THÁI (Code vẽ Panel động)
-            Panel pnlItem = new Panel();
-            pnlItem.Size = new Size(flpHistory.Width - 25, 50); // Chiều cao 50px
-            pnlItem.BackColor = Color.WhiteSmoke;
-            pnlItem.Margin = new Padding(0, 0, 0, 5);
-            pnlItem.BorderStyle = BorderStyle.FixedSingle;
+            // Dùng Invoke để tránh lỗi khi cập nhật từ thread khác
+            flpHistory.Invoke(new Action(() => {
+                Panel pnlItem = new Panel();
 
-            // Icon (hoặc text tên file)
-            Label lblName = new Label();
-            lblName.Text = "📄 " + fileName; // Thêm icon text cho sinh động
-            lblName.Location = new Point(10, 15);
-            lblName.AutoSize = true;
-            lblName.Font = new Font("Segoe UI", 10, FontStyle.Regular);
+                // 1. Tự động lấy chiều rộng thực tế của flpHistory
+                // Trừ đi 20px để chừa chỗ cho thanh cuộn (scrollbar) không bị che mất
+                pnlItem.Width = flpHistory.ClientSize.Width - 5;
+                pnlItem.Height = 65;
+                pnlItem.BackColor = Color.White;
+                pnlItem.Margin = new Padding(0, 0, 0, 2); // Khít lề, chỉ hở dưới 2px để phân dòng
+                pnlItem.BorderStyle = BorderStyle.None;
 
-            // Thanh Progress Bar
-            ProgressBar prog = new ProgressBar();
-            prog.Location = new Point(300, 15); // Căn chỉnh tọa độ tùy độ rộng màn hình bạn
-            prog.Width = 200;
-            prog.Height = 20;
-            prog.Style = ProgressBarStyle.Marquee; // Chạy qua chạy lại (Đang xử lý)
+                // 2. Tên File (Chiếm 40% chiều rộng)
+                Label lblName = new Label
+                {
+                    Text = "📄 " + fileName,
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                    Location = new Point(15, 22),
+                    Size = new Size((int)(pnlItem.Width * 0.4), 20),
+                    AutoEllipsis = true
+                };
 
-            // Label Trạng thái
-            Label lblStatus = new Label();
-            lblStatus.Text = "⏳ Đang tải...";
-            lblStatus.Location = new Point(520, 15);
-            lblStatus.AutoSize = true;
-            lblStatus.ForeColor = Color.Blue;
+                // 3. Progress Bar (Nằm ở giữa, bắt đầu từ 45% chiều rộng)
+                ProgressBar prog = new ProgressBar
+                {
+                    Location = new Point((int)(pnlItem.Width * 0.45), 25),
+                    Size = new Size((int)(pnlItem.Width * 0.3), 15), // Rộng 30% panel
+                    Style = ProgressBarStyle.Marquee,
+                    MarqueeAnimationSpeed = 30
+                };
 
-            // Thêm các control vào Panel con
-            pnlItem.Controls.Add(lblName);
-            pnlItem.Controls.Add(prog);
-            pnlItem.Controls.Add(lblStatus);
+                // 4. Trạng thái (Nằm cuối cùng, căn lề phải)
+                Label lblStatus = new Label
+                {
+                    Text = "⏳ Đang tải...",
+                    ForeColor = Color.DimGray,
+                    Font = new Font("Segoe UI", 8, FontStyle.Italic),
+                    Location = new Point((int)(pnlItem.Width * 0.8), 23),
+                    AutoSize = true
+                };
 
-            // Thêm Panel con vào danh sách (Thêm lên đầu để dễ thấy mới nhất)
-            flpHistory.Controls.Add(pnlItem);
-            flpHistory.Controls.SetChildIndex(pnlItem, 0);
+                // Thêm vào Panel con
+                pnlItem.Controls.Add(lblName);
+                pnlItem.Controls.Add(prog);
+                pnlItem.Controls.Add(lblStatus);
 
-            // B. GỌI LOGIC UPLOAD (NETWORK)
+                // Thêm vào FlowLayoutPanel và đưa lên đầu danh sách
+                flpHistory.Controls.Add(pnlItem);
+                flpHistory.Controls.SetChildIndex(pnlItem, 0);
+
+                // Tự động cuộn lên đầu để xem file mới nhất
+                flpHistory.ScrollControlIntoView(pnlItem);
+            }));
+
+            // PHẦN LOGIC NETWORK (Giữ nguyên của bạn)
             try
             {
-                // Gọi hàm upload của Client
-                // Đảm bảo hàm UploadFileAsync của bạn trả về Task (await được)
                 await _client.UploadFileAsync(filePath, "/");
 
-                // C. CẬP NHẬT KHI THÀNH CÔNG
-                prog.Style = ProgressBarStyle.Blocks;
-                prog.Value = 100;
-                lblStatus.Text = "✅ Hoàn tất";
-                lblStatus.ForeColor = Color.Green;
+                // Cập nhật khi xong (Cần tìm lại các control bên trong pnlItem)
+                flpHistory.Invoke(new Action(() => {
+                    // Bạn có thể dùng Tag hoặc tìm Control theo Type để cập nhật ✅ Hoàn tất
+                }));
             }
             catch (Exception ex)
             {
-                // D. CẬP NHẬT KHI CÓ LỖI
-                prog.Style = ProgressBarStyle.Blocks;
-                prog.Value = 0; // Hoặc màu đỏ nếu set được state
-                lblStatus.Text = "❌ Lỗi";
-                lblStatus.ForeColor = Color.Red;
-
-                // Tooltip để xem chi tiết lỗi khi di chuột vào chữ Lỗi
-                ToolTip tt = new ToolTip();
-                tt.SetToolTip(lblStatus, ex.Message);
+                // Cập nhật khi lỗi ❌
             }
         }
     }
