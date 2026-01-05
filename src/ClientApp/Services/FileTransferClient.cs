@@ -179,17 +179,40 @@ public class FileTransferClient
 
             // Kiểm tra null trước khi sử dụng
             if (_writer == null || _reader == null)
-                throw new Exception("Kết nối Server bị mất");
+            {
+                Console.WriteLine("[Warning] _writer or _reader is null");
+                return null;
+            }
 
             // 1. Gửi lệnh GET_STORAGE_INFO lên Server
-            await _writer.WriteLineAsync(ProtocolCommands.GET_STORAGE_INFO);
-            await _writer.FlushAsync();
+            try
+            {
+                await _writer.WriteLineAsync(ProtocolCommands.GET_STORAGE_INFO);
+                await _writer.FlushAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Warning] Không thể gửi lệnh GET_STORAGE_INFO: {ex.Message}");
+                return null;
+            }
 
             // 2. Đợi phản hồi từ Server (dạng: GET_STORAGE_INFO_SUCCESS|{JSON})
-            string response = await _reader.ReadLineAsync();
+            string response = null;
+            try
+            {
+                response = await _reader.ReadLineAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Warning] Không thể nhận phản hồi: {ex.Message}");
+                return null;
+            }
 
             if (string.IsNullOrEmpty(response)) 
-                throw new Exception("Không nhận được phản hồi từ Server");
+            {
+                Console.WriteLine("[Warning] Không nhận được phản hồi từ Server");
+                return null;
+            }
 
             // 3. Kiểm tra phản hồi
             string[] parts = response.Split('|');
@@ -206,23 +229,26 @@ public class FileTransferClient
                 }
                 else
                 {
-                    throw new Exception("Không thể parse JSON thông tin dung lượng");
+                    Console.WriteLine("[Warning] Không thể parse JSON thông tin dung lượng");
+                    return null;
                 }
             }
             else if (parts[0] == ProtocolCommands.GET_STORAGE_INFO_FAIL)
             {
                 string errorMsg = parts.Length > 1 ? parts[1] : "Unknown error";
-                throw new Exception($"Lỗi lấy thông tin dung lượng: {errorMsg}");
+                Console.WriteLine($"[Warning] Lỗi lấy thông tin dung lượng: {errorMsg}");
+                return null;
             }
             else
             {
-                throw new Exception($"Phản hồi không hợp lệ: {response}");
+                Console.WriteLine($"[Warning] Phản hồi không hợp lệ: {response}");
+                return null;
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[Lỗi] GetStorageInfo: {ex.Message}");
-            throw;
+            Console.WriteLine($"[Warning] GetStorageInfo exception: {ex.Message}");
+            return null; // Trả về null thay vì throw để không làm crash app
         }
     }
 
@@ -369,27 +395,29 @@ public class FileTransferClient
             {
                 StorageInfo storageInfo = await GetStorageInfoAsync();
                 
-                // Nếu file sắp upload + dung lượng đã dùng > giới hạn -> Từ chối
-                if (storageInfo == null)
-                    throw new Exception("Không thể lấy thông tin dung lượng");
-
-                if (storageInfo.TotalUsed + fi.Length > storageInfo.MaxQuota)
+                // Nếu không lấy được dung lượng, vẫn cho phép upload (để không block hoàn toàn)
+                // Nhưng Server sẽ là layer thứ 2 để xác thực
+                if (storageInfo != null)
                 {
-                    long spaceNeeded = (storageInfo.TotalUsed + fi.Length) - storageInfo.MaxQuota;
-                    throw new Exception(
-                        $"Dung lượng không đủ! File cần: {fi.Length} bytes, còn trống: {storageInfo.TotalRemaining} bytes. " +
-                        $"Cần thêm {spaceNeeded} bytes để upload."
-                    );
+                    if (storageInfo.TotalUsed + fi.Length > storageInfo.MaxQuota)
+                    {
+                        long spaceNeeded = (storageInfo.TotalUsed + fi.Length) - storageInfo.MaxQuota;
+                        throw new Exception(
+                            $"Dung lượng không đủ! File cần: {fi.Length} bytes, còn trống: {storageInfo.TotalRemaining} bytes. " +
+                            $"Cần thêm {spaceNeeded} bytes để upload."
+                        );
+                    }
+                    Console.WriteLine($"[Upload] Kiểm tra thành công. Còn trống: {storageInfo.TotalRemaining} bytes, File size: {fi.Length} bytes");
                 }
-                
-                Console.WriteLine($"[Upload] Kiểm tra thành công. Còn trống: {storageInfo.TotalRemaining} bytes, File size: {fi.Length} bytes");
+                else
+                {
+                    Console.WriteLine("[Upload] Cảnh báo: Không thể lấy thông tin dung lượng, vẫn tiếp tục upload");
+                }
             }
             catch (Exception ex)
             {
-                // Nếu không lấy được dung lượng, vẫn cho phép upload (để không block hoàn toàn)
-                // Nhưng Server sẽ là layer thứ 2 để xác thực
-                Console.WriteLine($"[Upload] Cảnh báo: Không kiểm tra được dung lượng: {ex.Message}");
-                throw new Exception($"Lỗi kiểm tra dung lượng: {ex.Message}");
+                Console.WriteLine($"[Upload] Cảnh báo: Lỗi kiểm tra dung lượng: {ex.Message}");
+                // Vẫn cho phép upload tiếp tục
             }
 
             // --- BƯỚC 1: CHUẨN BỊ METADATA & GỬI JSON ---
