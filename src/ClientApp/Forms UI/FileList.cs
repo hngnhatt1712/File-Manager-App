@@ -19,6 +19,7 @@ namespace ClientApp.Forms_UI
         private string _currentPath = "/";
         private bool _isTrashMode = false;
         private FileMetadata _selectedFile = null;
+        public bool IsStarredMode { get; set; } = false;
         private List<FileMetadata> _allFiles = new List<FileMetadata>();
         public FileList()
         {
@@ -96,8 +97,8 @@ namespace ClientApp.Forms_UI
                 item.OnDeleteClicked += (s, f) => XoaFile(f);      // Nút Xóa
                 item.OnDownloadClicked += (s, f) => TaiFile(f);    // Nút Tải
 
-                item.OnRenameClicked += (s, f) => DoiTenFile(f);   // Nút Đổi tên
-                item.OnStarClicked += (s, f) => DanhDauSao(f);     // Nút Sao
+                item.OnRenameClicked += async (s, f) => await DoiTenFile(item, f);   // Nút Đổi tên
+                item.OnStarClicked += (s, f) => DanhDauSao(s, f);     // Nút Sao
 
                 // --- BẮT SỰ KIỆN CLICK VÀO NỀN (HIGHLIGHT & MENU) ---
                 item.MouseClick += (s, e) =>
@@ -155,21 +156,131 @@ namespace ClientApp.Forms_UI
             RenderFileList(query.ToList());
         }
 
-        private async void TaiFile(FileMetadata file)
+        private async void TaiFile(FileMetadata fileData)
         {
+            try
+            {
+                using (SaveFileDialog sfd = new SaveFileDialog())
+                {
+                    // 1. Lấy đuôi file để xử lý Filter
+                    string originalName = fileData.FileName;
+                    string ext = System.IO.Path.GetExtension(originalName).ToLower();
 
+                    // 2. Cấu hình SaveFileDialog
+                    sfd.FileName = originalName;
+                    sfd.DefaultExt = ext;
+                    sfd.AddExtension = true;
+
+                    // 3. Bộ lọc để hiện đúng Icon (Word, PDF...)
+                    if (ext.Contains("pdf")) sfd.Filter = "PDF Documents|*.pdf|All Files|*.*";
+                    else if (ext.Contains("doc")) sfd.Filter = "Word Documents|*.doc;*.docx|All Files|*.*";
+                    else if (ext.Contains("xls")) sfd.Filter = "Excel Files|*.xls;*.xlsx|All Files|*.*";
+                    else if (ext.Contains("txt")) sfd.Filter = "Text Files|*.txt|All Files|*.*";
+                    else if (ext.Contains("png") || ext.Contains("jpg")) sfd.Filter = "Images|*.png;*.jpg;*.jpeg|All Files|*.*";
+                    else sfd.Filter = "All Files|*.*";
+
+                    // 4. Hiện hộp thoại
+                    if (sfd.ShowDialog() == DialogResult.OK)
+                    {
+                        bool success = await _fileClient.DownloadFileAsync(fileData.FileName, sfd.FileName);
+
+                        if (success)
+                            MessageBox.Show("Tải xong rồi nha!", "Thành công");
+                        else
+                            MessageBox.Show("Lỗi tải file (Server hoặc Mạng).", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message);
+            }
         }
 
         // Xử lý khi bấm nút Đổi tên
-        private void DoiTenFile(FileMetadata file)
-        {
 
+        private async Task DoiTenFile(FileItem item, FileMetadata fileData)
+        {
+            // 1. Hiện hộp thoại nhập tên
+            string promptValue = Microsoft.VisualBasic.Interaction.InputBox(
+                "Nhập tên mới (không cần ghi đuôi file):",
+                "Đổi tên file",
+                fileData.FileName
+            );
+
+            // 2. Kiểm tra nếu user có nhập gì đó và khác tên cũ
+            if (!string.IsNullOrWhiteSpace(promptValue) && promptValue != fileData.FileName)
+            {
+                string newNameInput = promptValue;
+
+                // Gọi Server đổi tên
+                bool result = await _fileClient.RenameFileAsync(fileData.FileId, fileData.FileName, newNameInput);
+
+                if (result)
+                {
+                    MessageBox.Show("Đổi tên thành công!");
+
+                    // --- CẬP NHẬT GIAO DIỆN TẠI CHỖ (Fix lỗi nhảy tab) ---
+
+                    // Tự tính toán lại tên đầy đủ (kèm đuôi) để hiển thị cho đúng
+                    string ext = System.IO.Path.GetExtension(fileData.FileName);
+                    if (!newNameInput.EndsWith(ext)) newNameInput += ext;
+
+                    // Update chữ trên giao diện ngay lập tức
+                    item.SetFileName(newNameInput);
+
+                    // Update lại biến dữ liệu gốc để lần sau đổi tiếp không bị lỗi
+                    fileData.FileName = newNameInput;
+                }
+                else
+                {
+                    MessageBox.Show("Đổi tên thất bại (Trùng tên hoặc lỗi server).");
+                }
+            }
         }
 
-        // Xử lý khi bấm nút Sao (Yêu thích)
-        private void DanhDauSao(FileMetadata file)
+        private async void DanhDauSao(object sender, FileMetadata file)
         {
+            try
+            {
+                // 1. Gọi Server đảo ngược trạng thái
+                bool success = await _fileClient.ToggleStarAsync(file.FileId, file.IsStarred);
 
+                if (success)
+                {
+                    // 2. Tính toán trạng thái mới
+                    bool trangThaiMoi = !file.IsStarred;
+
+                    // 3. Cập nhật dữ liệu cục bộ
+                    file.IsStarred = trangThaiMoi;
+
+                    // 4. Cập nhật giao diện (Đổi màu ngôi sao)
+                    if (sender is FileItem item)
+                    {
+                        item.SetStarStatus(trangThaiMoi);
+
+                        if (IsStarredMode && trangThaiMoi == false)
+                        {
+                            flowLayoutPanel1.Controls.Remove(item);
+
+                            // Nếu xóa hết thì hiện thông báo trống
+                            if (flowLayoutPanel1.Controls.Count == 0)
+                            {
+                                Label lblEmpty = new Label();
+                                lblEmpty.Text = "Không có file nào được đánh dấu.";
+                                lblEmpty.AutoSize = false;
+                                lblEmpty.Width = flowLayoutPanel1.Width;
+                                lblEmpty.TextAlign = ContentAlignment.MiddleCenter;
+                                flowLayoutPanel1.Controls.Add(lblEmpty);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message);
+            }
         }
         // thực hiện chonn file 
         private void HighlightItem(FileItem clickedItem)

@@ -35,5 +35,8 @@ namespace SharedLibrary
         [FirestoreProperty]
         [JsonProperty("isDeleted")]
         public bool IsDeleted { get; set; }
+        [FirestoreProperty]
+        [JsonProperty("isStarred")] // Để đồng bộ tên với JSON/Firestore
+        public bool IsStarred { get; set; }
     }
 }

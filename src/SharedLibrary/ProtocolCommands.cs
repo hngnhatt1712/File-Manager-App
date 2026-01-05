@@ -63,6 +63,10 @@
         // tìm kiếm file
         public const string SEARCH_REQ = "SEARCH_REQ";      // Client gửi yêu cầu
         public const string SEARCH_SUCCESS = "SEARCH_SUCCESS"; // Server trả kết quả
+        //Star file
+        public const string STAR_FILE = "STAR_FILE";
+        public const string STAR_SUCCESS = "STAR_SUCCESS";
+        public const string STAR_FAIL = "STAR_FAIL";
 
         // ============ STORAGE INFO ============
         public const string GET_STORAGE_INFO = "GET_STORAGE_INFO";           // Client yêu cầu thông tin dung lượng

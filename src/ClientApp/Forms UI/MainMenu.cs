@@ -503,8 +503,8 @@ namespace ClientApp
                 item.OnDeleteClicked += (s, f) => XoaFile(f);      // Nút Xóa
                 item.OnDownloadClicked += (s, f) => TaiFile(f);    // Nút Tải
 
-                item.OnRenameClicked += (s, f) => DoiTenFile(f);   // Nút Đổi tên
-                item.OnStarClicked += (s, f) => DanhDauSao(f);     // Nút Sao
+                item.OnRenameClicked += (s, f) => DoiTenFile(s, f);   // Nút Đổi tên
+                item.OnStarClicked += (s, f) => DanhDauSao(s, f);      // Nút Sao
 
                 // --- BẮT SỰ KIỆN CLICK VÀO NỀN (HIGHLIGHT & MENU) ---
                 item.MouseClick += (s, e) =>
@@ -526,19 +526,71 @@ namespace ClientApp
         // Xử lý khi bấm nút Tải xuống
         private async void TaiFile(FileMetadata file)
         {
-            
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.FileName = file.FileName; // Gợi ý tên file gốc
+            sfd.Filter = "All files (*.*)|*.*";
+
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    bool ok = await _fileClient.DownloadFileAsync(file.FileName, sfd.FileName);
+
+                    if (ok) MessageBox.Show("Tải thành công!");
+                    else MessageBox.Show("Lỗi: Không tìm thấy file trên Server hoặc mất kết nối!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi tải file: " + ex.Message);
+                }
+            }
         }
         
         // Xử lý khi bấm nút Đổi tên
-        private void DoiTenFile(FileMetadata file)
+        private async void DoiTenFile(object sender, FileMetadata file)
         {
-            
+            string newName = Microsoft.VisualBasic.Interaction.InputBox("Nhập tên mới:", "Đổi tên", file.FileName);
+
+            if (!string.IsNullOrWhiteSpace(newName) && newName != file.FileName)
+            {
+                try
+                {
+                    // Gọi Server
+                    bool ok = await _fileClient.RenameFileAsync(file.FileId, file.FileName, newName);
+                    if (ok)
+                    {
+                        file.FileName = newName; 
+
+                        if (sender is FileItem item)
+                        {
+                            item.SetFileName(newName);
+                        }
+                    }
+                    else MessageBox.Show("Đổi tên thất bại!");
+                }
+                catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
+            }
         }
 
-        // Xử lý khi bấm nút Sao (Yêu thích)
-        private void DanhDauSao(FileMetadata file)
+        private async void DanhDauSao(object sender, FileMetadata file)
         {
-            
+            try
+            {
+                await _fileClient.ToggleStarAsync(file.FileId, file.IsStarred);
+
+                bool trangThaiMoi = !file.IsStarred;
+                file.IsStarred = trangThaiMoi;
+
+                // 3. Đổi màu ngôi sao ngay lập tức cho đẹp
+                if (sender is FileItem item)
+                {
+                    item.SetStarStatus(trangThaiMoi); 
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message);
+            }
         }
         // thực hiện chonn file 
         private void HighlightItem(FileItem clickedItem)
