@@ -120,16 +120,23 @@ public class FileTransferClient
     {
         try
         {
+            // Kiểm tra kết nối
+            if (_writer == null || _reader == null)
+                throw new Exception("Kết nối Server bị mất");
+
             // 1. Gửi lệnh yêu cầu lấy file trong thùng rác
             await _writer.WriteLineAsync("GET_TRASH_FILES");
+            await _writer.FlushAsync();
 
             // 2. Đợi Server gửi chuỗi JSON chứa danh sách file
             string jsonResponse = await _reader.ReadLineAsync();
 
-            if (string.IsNullOrEmpty(jsonResponse)) return new List<FileMetadata>();
+            if (string.IsNullOrEmpty(jsonResponse)) 
+                return new List<FileMetadata>();
 
             // 3. Chuyển chuỗi JSON thành List trong C#
-            return JsonConvert.DeserializeObject<List<FileMetadata>>(jsonResponse);
+            var result = JsonConvert.DeserializeObject<List<FileMetadata>>(jsonResponse);
+            return result ?? new List<FileMetadata>();
         }
         catch (Exception ex)
         {
@@ -170,6 +177,10 @@ public class FileTransferClient
         {
             await EnsureConnectedAsync();
 
+            // Kiểm tra null trước khi sử dụng
+            if (_writer == null || _reader == null)
+                throw new Exception("Kết nối Server bị mất");
+
             // 1. Gửi lệnh GET_STORAGE_INFO lên Server
             await _writer.WriteLineAsync(ProtocolCommands.GET_STORAGE_INFO);
             await _writer.FlushAsync();
@@ -188,8 +199,15 @@ public class FileTransferClient
                 string json = parts[1];
                 var storageInfo = JsonConvert.DeserializeObject<StorageInfo>(json);
                 
-                Console.WriteLine($"[Storage] Đã dùng: {storageInfo.TotalUsed} bytes, Còn trống: {storageInfo.TotalRemaining} bytes ({storageInfo.UsagePercent}%)");
-                return storageInfo;
+                if (storageInfo != null)
+                {
+                    Console.WriteLine($"[Storage] Đã dùng: {storageInfo.TotalUsed} bytes, Còn trống: {storageInfo.TotalRemaining} bytes ({storageInfo.UsagePercent}%)");
+                    return storageInfo;
+                }
+                else
+                {
+                    throw new Exception("Không thể parse JSON thông tin dung lượng");
+                }
             }
             else if (parts[0] == ProtocolCommands.GET_STORAGE_INFO_FAIL)
             {
@@ -334,91 +352,106 @@ public class FileTransferClient
     // sẽ tạo nhánh 'feature/chuc-nang-upload'
     public async Task UploadFileAsync(string localFilePath, string currentDirectory = "/")
     {
-        await EnsureConnectedAsync();
-
-        FileInfo fi = new FileInfo(localFilePath);
-        if (!fi.Exists) throw new FileNotFoundException("File not found");
-
-        // --- BƯỚC 0: KIỂM TRA QUOTA TRƯỚC KHI UPLOAD ---
-        Console.WriteLine("[Upload] Kiểm tra dung lượng có sẵn...");
         try
         {
-            StorageInfo storageInfo = await GetStorageInfoAsync();
-            
-            // Nếu file sắp upload + dung lượng đã dùng > giới hạn -> Từ chối
-            if (storageInfo.TotalUsed + fi.Length > storageInfo.MaxQuota)
+            await EnsureConnectedAsync();
+
+            // Kiểm tra null cho các stream
+            if (_writer == null || _reader == null || _stream == null)
+                throw new Exception("Kết nối Server bị mất");
+
+            FileInfo fi = new FileInfo(localFilePath);
+            if (!fi.Exists) throw new FileNotFoundException("File not found");
+
+            // --- BƯỚC 0: KIỂM TRA QUOTA TRƯỚC KHI UPLOAD ---
+            Console.WriteLine("[Upload] Kiểm tra dung lượng có sẵn...");
+            try
             {
-                long spaceNeeded = (storageInfo.TotalUsed + fi.Length) - storageInfo.MaxQuota;
-                throw new Exception(
-                    $"Dung lượng không đủ! File cần: {fi.Length} bytes, còn trống: {storageInfo.TotalRemaining} bytes. " +
-                    $"Cần thêm {spaceNeeded} bytes để upload."
-                );
+                StorageInfo storageInfo = await GetStorageInfoAsync();
+                
+                // Nếu file sắp upload + dung lượng đã dùng > giới hạn -> Từ chối
+                if (storageInfo == null)
+                    throw new Exception("Không thể lấy thông tin dung lượng");
+
+                if (storageInfo.TotalUsed + fi.Length > storageInfo.MaxQuota)
+                {
+                    long spaceNeeded = (storageInfo.TotalUsed + fi.Length) - storageInfo.MaxQuota;
+                    throw new Exception(
+                        $"Dung lượng không đủ! File cần: {fi.Length} bytes, còn trống: {storageInfo.TotalRemaining} bytes. " +
+                        $"Cần thêm {spaceNeeded} bytes để upload."
+                    );
+                }
+                
+                Console.WriteLine($"[Upload] Kiểm tra thành công. Còn trống: {storageInfo.TotalRemaining} bytes, File size: {fi.Length} bytes");
             }
-            
-            Console.WriteLine($"[Upload] Kiểm tra thành công. Còn trống: {storageInfo.TotalRemaining} bytes, File size: {fi.Length} bytes");
+            catch (Exception ex)
+            {
+                // Nếu không lấy được dung lượng, vẫn cho phép upload (để không block hoàn toàn)
+                // Nhưng Server sẽ là layer thứ 2 để xác thực
+                Console.WriteLine($"[Upload] Cảnh báo: Không kiểm tra được dung lượng: {ex.Message}");
+                throw new Exception($"Lỗi kiểm tra dung lượng: {ex.Message}");
+            }
+
+            // --- BƯỚC 1: CHUẨN BỊ METADATA & GỬI JSON ---
+
+            // 1. Tạo đối tượng Metadata đầy đủ 
+            var metadata = new FileMetadata
+            {
+                FileId = Guid.NewGuid().ToString(), // Tạo ID duy nhất cho file ngay tại Client
+                FileName = fi.Name,
+                Size = fi.Length,
+                Path = "/",
+                UploadedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                IsDeleted = false
+                // OwnerUid: Server sẽ tự điền dựa trên Token đăng nhập
+            };
+
+            // 2. Chuyển đối tượng thành chuỗi JSON
+            string jsonMeta = Newtonsoft.Json.JsonConvert.SerializeObject(metadata);
+
+            // 3. Gửi lệnh theo cấu trúc mới: UPLOAD_REQ | {JSON}
+            await _writer.WriteLineAsync($"{ProtocolCommands.UPLOAD_REQ}|{jsonMeta}");
+            await _writer.FlushAsync(); // Đẩy dữ liệu đi ngay
+
+            // B2: Chờ READY (Giữ nguyên)
+            string response = await _reader.ReadLineAsync();
+            if (response != ProtocolCommands.READY_FOR_UPLOAD)
+                throw new Exception($"Server refused: {response}");
+
+            // B3: Gửi Stream (Giữ nguyên - Code này tốt rồi)
+            using (var fs = new FileStream(localFilePath, FileMode.Open, FileAccess.Read))
+            {
+                byte[] buffer = new byte[8192];
+                int read;
+                while ((read = await fs.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                {
+                    await _stream.WriteAsync(buffer, 0, read);
+                }
+                await _stream.FlushAsync();
+            }
+
+            // B4: Chờ SUCCESS (Giữ nguyên)
+            string result = await _reader.ReadLineAsync();
+
+            // Kiểm tra kỹ hơn: Server có thể trả về thông báo lỗi chi tiết
+            if (result == null || !result.StartsWith(ProtocolCommands.UPLOAD_SUCCESS))
+            {
+                // Nếu Server gửi UPLOAD_FAIL|Lý do -> Lấy lý do ra
+                string errorMsg = "Unknown error";
+                if (result != null && result.Contains("|"))
+                    errorMsg = result.Split('|')[1];
+                
+                // Nếu là lỗi quota, thông báo cụ thể hơn
+                if (result != null && result.Contains(ProtocolCommands.QUOTA_EXCEEDED))
+                    throw new Exception($"Dung lượng bộ nhớ không đủ. Vui lòng xóa các file không cần thiết.");
+
+                throw new Exception($"Upload failed: {errorMsg}");
+            }
         }
         catch (Exception ex)
         {
-            // Nếu không lấy được dung lượng, vẫn cho phép upload (để không block hoàn toàn)
-            // Nhưng Server sẽ là layer thứ 2 để xác thực
-            Console.WriteLine($"[Upload] Cảnh báo: Không kiểm tra được dung lượng: {ex.Message}");
-            throw new Exception($"Lỗi kiểm tra dung lượng: {ex.Message}");
-        }
-
-        // --- BƯỚC 1: CHUẨN BỊ METADATA & GỬI JSON ---
-
-        // 1. Tạo đối tượng Metadata đầy đủ 
-        var metadata = new FileMetadata
-        {
-            FileId = Guid.NewGuid().ToString(), // Tạo ID duy nhất cho file ngay tại Client
-            FileName = fi.Name,
-            Size = fi.Length,
-            Path = "/",
-            UploadedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-            IsDeleted = false
-            // OwnerUid: Server sẽ tự điền dựa trên Token đăng nhập
-        };
-
-        // 2. Chuyển đối tượng thành chuỗi JSON
-        string jsonMeta = Newtonsoft.Json.JsonConvert.SerializeObject(metadata);
-
-        // 3. Gửi lệnh theo cấu trúc mới: UPLOAD_REQ | {JSON}
-        await _writer.WriteLineAsync($"{ProtocolCommands.UPLOAD_REQ}|{jsonMeta}");
-        await _writer.FlushAsync(); // Đẩy dữ liệu đi ngay
-
-        // B2: Chờ READY (Giữ nguyên)
-        string response = await _reader.ReadLineAsync();
-        if (response != ProtocolCommands.READY_FOR_UPLOAD)
-            throw new Exception($"Server refused: {response}");
-
-        // B3: Gửi Stream (Giữ nguyên - Code này tốt rồi)
-        using (var fs = new FileStream(localFilePath, FileMode.Open, FileAccess.Read))
-        {
-            byte[] buffer = new byte[8192];
-            int read;
-            while ((read = await fs.ReadAsync(buffer, 0, buffer.Length)) > 0)
-            {
-                await _stream.WriteAsync(buffer, 0, read);
-            }
-            await _stream.FlushAsync();
-        }
-
-        // B4: Chờ SUCCESS (Giữ nguyên)
-        string result = await _reader.ReadLineAsync();
-
-        // Kiểm tra kỹ hơn: Server có thể trả về thông báo lỗi chi tiết
-        if (result == null || !result.StartsWith(ProtocolCommands.UPLOAD_SUCCESS))
-        {
-            // Nếu Server gửi UPLOAD_FAIL|Lý do -> Lấy lý do ra
-            string errorMsg = "Unknown error";
-            if (result != null && result.Contains("|"))
-                errorMsg = result.Split('|')[1];
-            
-            // Nếu là lỗi quota, thông báo cụ thể hơn
-            if (result != null && result.Contains(ProtocolCommands.QUOTA_EXCEEDED))
-                throw new Exception($"Dung lượng bộ nhớ không đủ. Vui lòng xóa các file không cần thiết.");
-
-            throw new Exception($"Upload failed: {errorMsg}");
+            Console.WriteLine($"[Upload Error] {ex.Message}");
+            throw;
         }
     }
     //dowload file

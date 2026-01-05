@@ -89,27 +89,24 @@ namespace ClientApp
         }
         private void MainMenu_Load(object sender, EventArgs e)
         {
-            try
-            {
-                // Kiểm tra setting1 có được khởi tạo không
-                if (setting1 != null)
-                {
-                    setting1.UpdateStorageUI();
-                }
-                else
-                {
-                    Console.WriteLine("[Error] setting1 chưa được khởi tạo");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[Error] MainMenu_Load: {ex.Message}");
-            }
+            // UpdateStorageUI đã được gọi từ setting1.SetServices() ở constructor
+            // Không cần gọi lại ở đây
+            Console.WriteLine("[MainMenu] Loaded - Setting1 already initialized");
         }
         private void Downloaded_DataChanged(object sender, EventArgs e)
         {
             // MainForm ra lệnh cho Storage cập nhật
-            setting1.UpdateStorageUI();
+            try
+            {
+                if (setting1 != null)
+                {
+                    setting1.UpdateStorageUI();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Error] Downloaded_DataChanged: {ex.Message}");
+            }
         }
         private async void btnLogout_Click(object sender, EventArgs e)
         {

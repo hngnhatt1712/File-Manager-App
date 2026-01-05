@@ -22,12 +22,20 @@ namespace ClientApp.Forms_UI
 
         private void Setting_Load(object sender, EventArgs e)
         {
-            UpdateStorageUI();
+            // Không gọi UpdateStorageUI() ở đây vì _fileClient chưa được khởi tạo
+            // Sẽ được gọi từ MainMenu.cs sau khi SetServices()
+            Console.WriteLine("[Setting] Loaded - waiting for SetServices()");
         }
         public void SetServices(FileTransferClient client, UserAuth auth)
         {
             _fileClient = client;
             _authService = auth;
+            
+            // Gọi UpdateStorageUI() TẠI ĐÂY sau khi đã gán services
+            if (_fileClient != null)
+            {
+                UpdateStorageUI();
+            }
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -129,11 +137,22 @@ namespace ClientApp.Forms_UI
         {
             try
             {
+                // Kiểm tra null trước
+                if (_fileClient == null)
+                {
+                    Console.WriteLine("[Storage UI] Error: _fileClient is null");
+                    return;
+                }
+
                 // 1. Gọi Client để lấy thông tin (Hàm bạn đã viết ở bước trước)
                 // Giả sử hàm này trả về model chứa TotalUsed và MaxQuota
                 var info = await _fileClient.GetStorageInfoAsync();
 
-                if (info == null) return;
+                if (info == null)
+                {
+                    Console.WriteLine("[Storage UI] Error: GetStorageInfoAsync returned null");
+                    return;
+                }
 
                 // 2. Tính toán phần trăm để hiển thị lên thanh ProgressBar
                 int percentage = 0;
@@ -150,28 +169,32 @@ namespace ClientApp.Forms_UI
                 // 3. Cập nhật lên UI 
                 this.Invoke((MethodInvoker)delegate
                 {
-                    // Cập nhật thanh ProgressBar
-                    pbStorage.Value = percentage;
-
-                    // Cập nhật dòng chữ: "1.25 GB / 5.00 GB (25%)"
-                    string usedStr = FormatBytes(info.TotalUsed);
-                    string maxStr = FormatBytes(info.MaxQuota);
-                    lblStorageInfo.Text = $"Bộ nhớ: {usedStr} / {maxStr} ({percentage}%)";
-
-                    // (Tùy chọn) Đổi màu chữ thành Đỏ nếu sắp đầy (> 90%)
-                    if (percentage >= 90)
+                    // Kiểm tra các control có tồn tại không
+                    if (pbStorage != null && lblStorageInfo != null)
                     {
-                        lblStorageInfo.ForeColor = Color.Red;
-                    }
-                    else
-                    {
-                        lblStorageInfo.ForeColor = Color.Green;
+                        // Cập nhật thanh ProgressBar
+                        pbStorage.Value = percentage;
+
+                        // Cập nhật dòng chữ: "1.25 GB / 5.00 GB (25%)"
+                        string usedStr = FormatBytes(info.TotalUsed);
+                        string maxStr = FormatBytes(info.MaxQuota);
+                        lblStorageInfo.Text = $"Bộ nhớ: {usedStr} / {maxStr} ({percentage}%)";
+
+                        // (Tùy chọn) Đổi màu chữ thành Đỏ nếu sắp đầy (> 90%)
+                        if (percentage >= 90)
+                        {
+                            lblStorageInfo.ForeColor = Color.Red;
+                        }
+                        else
+                        {
+                            lblStorageInfo.ForeColor = Color.Green;
+                        }
                     }
                 });
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi cập nhật UI Storage: " + ex.Message);
+                Console.WriteLine($"[Error] UpdateStorageUI: {ex.Message}");
             }
         }
 

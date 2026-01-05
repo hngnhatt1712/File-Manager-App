@@ -164,6 +164,12 @@ namespace ClientApp.Forms_UI
             // PHẦN LOGIC NETWORK (Giữ nguyên của bạn)
             try
             {
+                // Kiểm tra null
+                if (_client == null)
+                {
+                    throw new Exception("Lỗi: Chưa kết nối với Server!");
+                }
+
                 await _client.UploadFileAsync(filePath, "/");
 
                 // Cập nhật khi xong ✅ Hoàn tất
