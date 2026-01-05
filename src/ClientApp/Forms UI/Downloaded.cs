@@ -103,10 +103,13 @@ namespace ClientApp.Forms_UI
         private async Task ProcessUploadFile(string filePath)
         {
             string fileName = Path.GetFileName(filePath);
+            Panel pnlItem = null;
+            Label lblStatus = null;
+            ProgressBar prog = null;
 
             // Dùng Invoke để tránh lỗi khi cập nhật từ thread khác
             flpHistory.Invoke(new Action(() => {
-                Panel pnlItem = new Panel();
+                pnlItem = new Panel();
 
                 // 1. Tự động lấy chiều rộng thực tế của flpHistory
                 // Trừ đi 20px để chừa chỗ cho thanh cuộn (scrollbar) không bị che mất
@@ -127,7 +130,7 @@ namespace ClientApp.Forms_UI
                 };
 
                 // 3. Progress Bar (Nằm ở giữa, bắt đầu từ 45% chiều rộng)
-                ProgressBar prog = new ProgressBar
+                prog = new ProgressBar
                 {
                     Location = new Point((int)(pnlItem.Width * 0.45), 25),
                     Size = new Size((int)(pnlItem.Width * 0.3), 15), // Rộng 30% panel
@@ -136,7 +139,7 @@ namespace ClientApp.Forms_UI
                 };
 
                 // 4. Trạng thái (Nằm cuối cùng, căn lề phải)
-                Label lblStatus = new Label
+                lblStatus = new Label
                 {
                     Text = "⏳ Đang tải...",
                     ForeColor = Color.DimGray,
@@ -163,14 +166,43 @@ namespace ClientApp.Forms_UI
             {
                 await _client.UploadFileAsync(filePath, "/");
 
-                // Cập nhật khi xong (Cần tìm lại các control bên trong pnlItem)
-                flpHistory.Invoke(new Action(() => {
-                    // Bạn có thể dùng Tag hoặc tìm Control theo Type để cập nhật ✅ Hoàn tất
-                }));
+                // Cập nhật khi xong ✅ Hoàn tất
+                if (pnlItem != null && lblStatus != null)
+                {
+                    flpHistory.Invoke(new Action(() => {
+                        if (lblStatus != null)
+                        {
+                            lblStatus.Text = "✅ Hoàn tất";
+                            lblStatus.ForeColor = Color.Green;
+                        }
+                        if (prog != null)
+                        {
+                            prog.Style = ProgressBarStyle.Continuous;
+                            prog.Value = 100;
+                        }
+                    }));
+                }
+                DataChanged?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
                 // Cập nhật khi lỗi ❌
+                Console.WriteLine($"[Upload Error] {ex.Message}");
+                if (pnlItem != null && lblStatus != null)
+                {
+                    flpHistory.Invoke(new Action(() => {
+                        if (lblStatus != null)
+                        {
+                            lblStatus.Text = "❌ Lỗi: " + ex.Message.Substring(0, Math.Min(30, ex.Message.Length));
+                            lblStatus.ForeColor = Color.Red;
+                        }
+                        if (prog != null)
+                        {
+                            prog.Style = ProgressBarStyle.Continuous;
+                            prog.Value = 0;
+                        }
+                    }));
+                }
             }
         }
     }
