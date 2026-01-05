@@ -306,6 +306,7 @@ namespace ServerApp
             catch (Exception ex)
             {
                 Console.WriteLine($"[DB EXCEPTION] Lỗi chi tiết: {ex.Message}");
+                return false;
             }
         }
         public async Task<bool> DeleteUserCompletelyAsync(string uid)

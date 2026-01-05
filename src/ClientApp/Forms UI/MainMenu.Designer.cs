@@ -63,6 +63,7 @@
             fileTransition = new System.Windows.Forms.Timer(components);
             flowLayoutPanel1 = new FlowLayoutPanel();
             setting1 = new ClientApp.Forms_UI.Setting();
+            downloaded1 = new ClientApp.Forms_UI.Downloaded();
             panel1.SuspendLayout();
             roundedPanel1.SuspendLayout();
             panel3.SuspendLayout();
@@ -539,6 +540,7 @@
             // 
             // flowLayoutPanel1
             // 
+            flowLayoutPanel1.Controls.Add(downloaded1);
             flowLayoutPanel1.Controls.Add(setting1);
             flowLayoutPanel1.Location = new Point(230, 114);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
@@ -548,11 +550,20 @@
             // setting1
             // 
             setting1.BackColor = Color.PowderBlue;
-            setting1.Location = new Point(2, 2);
+            setting1.Location = new Point(2, 387);
             setting1.Margin = new Padding(2);
             setting1.Name = "setting1";
             setting1.Size = new Size(780, 326);
             setting1.TabIndex = 0;
+            // 
+            // downloaded1
+            // 
+            downloaded1.BackColor = Color.WhiteSmoke;
+            downloaded1.Location = new Point(2, 2);
+            downloaded1.Margin = new Padding(2);
+            downloaded1.Name = "downloaded1";
+            downloaded1.Size = new Size(787, 381);
+            downloaded1.TabIndex = 1;
             // 
             // MainMenu
             // 
@@ -617,5 +628,6 @@
         private Button btn_ThongBao;
         private FlowLayoutPanel flowLayoutPanel1;
         private Forms_UI.Setting setting1;
+        private Forms_UI.Downloaded downloaded1;
     }
 }

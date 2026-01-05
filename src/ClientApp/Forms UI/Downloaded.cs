@@ -18,17 +18,24 @@ namespace ClientApp.Forms_UI
     {
         private FileTransferClient _client;
         public event EventHandler DataChanged;
-        public Downloaded(FileTransferClient client)
+        public Downloaded()
         {
             InitializeComponent();
-            _client = client;
-            pnlDropZone.AllowDrop = true;
-            pnlDropZone.DragEnter += PnlDropZone_DragEnter;
-            pnlDropZone.DragDrop += PnlDropZone_DragDrop;
         }
+
+        public Downloaded(FileTransferClient client) : this()
+        {
+            _client = client;
+        }
+
 
         private async void Downloaded_Load(object sender, EventArgs e)
         {
+            if (DesignMode) return;
+
+            pnlDropZone.AllowDrop = true;
+            pnlDropZone.DragEnter += PnlDropZone_DragEnter;
+            pnlDropZone.DragDrop += PnlDropZone_DragDrop;
         }
         private void PnlDropZone_DragEnter(object sender, DragEventArgs e)
         {

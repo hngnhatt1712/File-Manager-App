@@ -89,13 +89,13 @@ namespace ClientApp
         }
         private void MainMenu_Load(object sender, EventArgs e)
         {
-            Setting.UpdateStorageUI();
-            Downloaded.DataChanged += Downloaded_DataChanged;
+            setting1.UpdateStorageUI();
+            downloaded1.DataChanged += Downloaded_DataChanged;
         }
         private void Downloaded_DataChanged(object sender, EventArgs e)
         {
             // MainForm ra lệnh cho Storage cập nhật
-            Setting.UpdateStorageUI();
+            setting1.UpdateStorageUI();
         }
         private async void btnLogout_Click(object sender, EventArgs e)
         {
