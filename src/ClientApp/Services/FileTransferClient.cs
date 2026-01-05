@@ -191,16 +191,55 @@ public class FileTransferClient
 
     //Code chức năng Rename
     // sẽ tạo nhánh 'feature/chuc-nang-rename'
-    public async Task<bool> RenameFile(string oldPath, string newPath)
+    // Trong FileTransferClient.cs
+
+    public async Task<bool> RenameFileAsync(string fileId, string oldName, string newName)
     {
-        // TODO: Code logic gọi API đổi tên
-        return false;
+        try
+        {
+            if (!IsConnected) return false;
+
+            // Gửi: RENAME_FILE|ID|TenCu|TenMoi
+            string command = $"{ProtocolCommands.RENAME_FILE}|{fileId}|{oldName}|{newName}";
+
+            await _writer.WriteLineAsync(command);
+            await _writer.FlushAsync();
+
+            // Chờ phản hồi: RENAME_SUCCESS
+            string response = await _reader.ReadLineAsync();
+
+            return response == ProtocolCommands.RENAME_SUCCESS;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
+    // đánh dấu file
+    public async Task<bool> ToggleStarAsync(string fileId, bool currentStatus)
+    {
+        try
+        {
+            if (!IsConnected) return false;
+
+            // Gửi lệnh: STAR_FILE|ID|True
+            string command = $"{ProtocolCommands.STAR_FILE}|{fileId}|{currentStatus}";
+            await _writer.WriteLineAsync(command);
+            await _writer.FlushAsync();
+
+            // Đợi Server trả lời STAR_SUCCESS
+            string response = await _reader.ReadLineAsync();
+            return response == ProtocolCommands.STAR_SUCCESS;
+        }
+        catch
+        {
+            return false;
+        }
+    }
     #endregion
 
     // Upload/Download File (TCP Server)
-
     #region TCP File Transfer (Truyền tải file)
 
     // Code chức năng Upload File
@@ -264,18 +303,87 @@ public class FileTransferClient
             throw new Exception($"Upload failed: {errorMsg}");
         }
     }
+    //dowload file
 
-    // Code chức năng Download File
-    // sẽ tạo nhánh 'feature/chuc-nang-download'
-    public void DownloadFile(string remotePath, string localSavePath)
+    public async Task<bool> DownloadFileAsync(string fileName, string savePath)
     {
-        Console.WriteLine($"Dang download {remotePath} ve {localSavePath}");
-        // TODO:
-        // 1. Kết nối đến TCP Server (nếu chưa)
-        // 2. Gửi lệnh "DOWNLOAD"
-        // 3. Gửi thông tin file (tên, token...)
-        // 4. Nhận gói tin từ Server và ghi ra file ở đĩa
-        // 5. Gửi xác nhận cho Server khi hoàn tất
+        try
+        {
+            if (!IsConnected)
+            {
+                Console.WriteLine("Lỗi: Chưa kết nối đến server.");
+                return false;
+            }
+
+            // 1. Gửi lệnh yêu cầu: DOWNLOAD|TenFile.txt
+            string command = $"{ProtocolCommands.DOWNLOAD}|{fileName}";
+            await _writer.WriteLineAsync(command);
+            await _writer.FlushAsync();
+
+            // 2. Đọc phản hồi Header
+            string header = await _reader.ReadLineAsync();
+
+            // Xử lý các trường hợp lỗi từ Server trả về
+            if (header == ProtocolCommands.FILE_NOT_FOUND) return false;
+            if (header == ProtocolCommands.ACCESS_DENIED) return false;
+            if (header == ProtocolCommands.DOWNLOAD_FAIL) return false;
+
+            if (header != null && header.StartsWith(ProtocolCommands.DOWNLOADING))
+            {
+                // Parse kích thước file
+                long fileSize = 0;
+                try
+                {
+                    fileSize = long.Parse(header.Split('|')[1]);
+                }
+                catch
+                {
+                    Console.WriteLine("Lỗi: Không đọc được kích thước file từ server.");
+                    return false;
+                }
+
+                // 3. Gửi tín hiệu 'READY' để Server biết đường bắt đầu gửi
+                await _writer.WriteLineAsync("READY");
+                await _writer.FlushAsync();
+
+                // 4. Nhận dữ liệu và ghi xuống ổ cứng
+                using (FileStream fs = new FileStream(savePath, FileMode.Create, FileAccess.Write))
+                {
+                    byte[] buffer = new byte[8192];
+                    long totalRead = 0;
+                    int read;
+
+                    while (totalRead < fileSize)
+                    {
+                        // Tính toán lượng byte cần đọc (tránh đọc dư thừa sang gói tin sau)
+                        int toRead = (int)Math.Min(buffer.Length, fileSize - totalRead);
+
+                        read = await _stream.ReadAsync(buffer, 0, toRead);
+
+                        if (read == 0) throw new IOException("Mất kết nối với Server giữa chừng.");
+
+                        await fs.WriteAsync(buffer, 0, read);
+                        totalRead += read;
+                    }
+                }
+                return true; // Tải thành công
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Client Download Error] {ex.Message}");
+
+            //Nếu tải lỗi, xóa file rác đi để người dùng không mở nhầm
+            try
+            {
+                if (File.Exists(savePath)) File.Delete(savePath);
+            }
+            catch { }
+
+            return false;
+        }
     }
 
     #endregion

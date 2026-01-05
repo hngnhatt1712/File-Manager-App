@@ -271,5 +271,60 @@ namespace ServerApp
                 return new List<FileMetadata>();
             }
         }
+
+        //Rename
+
+        public async Task<bool> RenameFileDBAsync(string fileId, string newName)
+        {
+            try
+            {
+                Console.WriteLine($"[DB Debug] Đang tìm ID: {fileId} để đổi tên thành: {newName}");
+
+                // Kiểm tra biến DB
+                if (_firestoreDb == null)
+                {
+                    Console.WriteLine("[DB Error] Biến _firestoreDb bị NULL!");
+                    return false;
+                }
+
+                DocumentReference docRef = _firestoreDb.Collection("Files").Document(fileId);
+
+                // Kiểm tra xem file có tồn tại không
+                DocumentSnapshot snap = await docRef.GetSnapshotAsync();
+                if (!snap.Exists)
+                {
+                    Console.WriteLine($"[DB Error] Không tìm thấy ID {fileId} trong Collection 'Files'.");
+                    return false;
+                }
+
+                await docRef.UpdateAsync("FileName", newName);
+
+                Console.WriteLine("[DB Success] Update thành công!");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DB EXCEPTION] Lỗi chi tiết: {ex.Message}");
+                return false;
+            }
+        }
+
+        //Đánh dấu
+        public async Task<bool> ToggleStarDBAsync(string fileId, bool currentStatus)
+        {
+            try
+            {
+                DocumentReference docRef = _firestoreDb.Collection("Files").Document(fileId); 
+
+                await docRef.UpdateAsync("IsStarred", !currentStatus);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[Star DB Error] " + ex.Message);
+                return false;
+            }
+        }
     }
 }

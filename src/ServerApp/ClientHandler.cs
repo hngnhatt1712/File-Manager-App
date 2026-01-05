@@ -98,7 +98,7 @@ public class ClientHandler
                         await _writer.WriteLineAsync(ProtocolCommands.PONG);
                         break;
                     case ProtocolCommands.DOWNLOAD:
-                        await HandleDownloadAsync();
+                        await HandleDownloadAsync(parts);
                         break;
                     case ProtocolCommands.DELETE_FILE:
                          await HandleDeleteFileAsync();
@@ -180,6 +180,15 @@ public class ClientHandler
                         {
                             await HandleGetTrashFilesAsync();
                         }
+                        break;
+                    case ProtocolCommands.RENAME_FILE:
+                        Console.WriteLine($"[DEBUG] Đã nhận lệnh RENAME từ User {_authenticatedUid}");
+                        await HandleRenameFileAsync(parts);
+                        break;
+
+                    case ProtocolCommands.STAR_FILE:
+                        Console.WriteLine($"[DEBUG] Đã nhận lệnh STAR từ User {_authenticatedUid}");
+                        await HandleStarFileAsync(parts);
                         break;
                     default:
                         await _writer.WriteLineAsync(ProtocolCommands.UNKNOWN_COMMAND);
@@ -270,73 +279,110 @@ public class ClientHandler
             }
         }
     }
-    private async Task HandleDownloadAsync()
-    {
-        // BƯỚC 1: Kiểm tra xác thực
-        if (!_isAuthenticated)
-        {
-            await _writer.WriteLineAsync(ProtocolCommands.ACCESS_DENIED);
-            await _writer.FlushAsync();
-            return;
-        }
+    //dowload file
 
+    private async Task HandleDownloadAsync(string[] parts)
+    {
+        string fileNameReq = "Unknown";
         try
         {
-            // BƯỚC 2: Đọc tên file client muốn tải
-            // (Client sẽ gửi lệnh DOWNLOAD)
-            string fileNameReq = await _reader.ReadLineAsync();
+            Console.WriteLine("[Download] ---------------------------------------------");
 
-            if (string.IsNullOrEmpty(fileNameReq)) return;
-
-            Console.WriteLine($"[Download Req] User {_authenticatedUid} muon tai: {fileNameReq}");
-
-            // BƯỚC 3: Tìm đường dẫn vật lý của file trên Server
-            // Logic: ServerStorage / UserID / FileName
-            string userFolder = Path.Combine(_storagePath, _authenticatedUid);
-            string fullPath = Path.Combine(userFolder, fileNameReq);
-
-            // BƯỚC 4: Kiểm tra file có tồn tại không
-            if (!File.Exists(fullPath))
+            // 1. Kiểm tra tham số đầu vào
+            if (parts.Length < 2)
             {
-                Console.WriteLine($"[Download Error] Khong tim thay file: {fullPath}");
-                await _writer.WriteLineAsync(ProtocolCommands.FILE_NOT_FOUND);
-                await _writer.FlushAsync();
+                Console.WriteLine("[Download Error] Client gửi lệnh thiếu tên file!");
                 return;
             }
 
-            // BƯỚC 5: Chuẩn bị gửi
-            long fileSize = new FileInfo(fullPath).Length;
+            fileNameReq = parts[1].Trim();
+            Console.WriteLine($"[Download Req] Yêu cầu tải file: {fileNameReq}");
 
-            // Gửi lệnh: DOWNLOADING|Kích_thước (Dùng dấu | ngăn cách cho dễ tách)
-            // Ví dụ gửi: "DOWNLOADING|5242880"
+            // 2. Kiểm tra xác thực
+            if (!_isAuthenticated)
+            {
+                Console.WriteLine("[Download Error] User chưa đăng nhập. Từ chối.");
+                await _writer.WriteLineAsync(ProtocolCommands.ACCESS_DENIED);
+                return;
+            }
+
+            // 3. Kiểm tra file vật lý
+            string userFolder = Path.Combine(_storagePath, _authenticatedUid);
+            string fullPath = Path.Combine(userFolder, fileNameReq);
+
+            if (!File.Exists(fullPath))
+            {
+                Console.WriteLine($"[Download Error] Không tìm thấy file tại: {fullPath}");
+                await _writer.WriteLineAsync(ProtocolCommands.FILE_NOT_FOUND);
+                return;
+            }
+
+            long fileSize = new FileInfo(fullPath).Length;
+            Console.WriteLine($"[Download] Đã tìm thấy file. Kích thước: {fileSize} bytes");
+
+            // 4. Gửi Header báo kích thước
+            // Gửi: DOWNLOADING|102400
             await _writer.WriteLineAsync($"{ProtocolCommands.DOWNLOADING}|{fileSize}");
             await _writer.FlushAsync();
 
-            // BƯỚC 6: Bơm dữ liệu file qua NetworkStream
+            // 5. HANDSHAKE (BẮT TAY): Chờ Client báo "READY" mới gửi dữ liệu
+            Console.WriteLine("[Download] Đang chờ Client báo sẵn sàng...");
+            try
+            {
+                // Tạo timeout 10 giây, nếu Client đơ thì hủy luôn
+                var readTask = _reader.ReadLineAsync();
+                var timeoutTask = Task.Delay(10000);
+
+                var completedTask = await Task.WhenAny(readTask, timeoutTask);
+                if (completedTask == timeoutTask)
+                {
+                    Console.WriteLine("[Download Error] Timeout! Client không phản hồi 'READY'.");
+                    return;
+                }
+
+                string ack = await readTask;
+                if (ack != "READY")
+                {
+                    Console.WriteLine($"[Download Error] Client phản hồi lạ: {ack}");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Download Handshake Error] {ex.Message}");
+                return;
+            }
+
+            // 6. Bắt đầu gửi dữ liệu (Stream)
+            Console.WriteLine("[Download] Client đã sẵn sàng. Bắt đầu bơm dữ liệu...");
+
             using (FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
             {
-                byte[] buffer = new byte[8192];
+                byte[] buffer = new byte[8192]; // 8KB Chunk
                 int bytesRead;
+                long totalSent = 0;
 
-                // Đọc từ ổ cứng Server -> Đẩy ra Client
                 while ((bytesRead = await fs.ReadAsync(buffer, 0, buffer.Length)) > 0)
                 {
                     await _client.GetStream().WriteAsync(buffer, 0, bytesRead);
+                    totalSent += bytesRead;
                 }
             }
+
+            // Đẩy nốt dữ liệu còn sót trong buffer mạng đi
             await _client.GetStream().FlushAsync();
-            Console.WriteLine($"[Download Success] Da gui xong file {fileNameReq}");
+
+            Console.WriteLine($"[Download Success] Đã gửi xong file: {fileNameReq}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[Download Exception] {ex.Message}");
-            // Chỉ gửi lỗi nếu kết nối còn sống
-            try
-            {
-                await _writer.WriteLineAsync(ProtocolCommands.DOWNLOAD_FAIL);
-                await _writer.FlushAsync();
-            }
-            catch { }
+            Console.WriteLine($"[Download Exception] Lỗi nghiêm trọng khi gửi file {fileNameReq}: {ex.Message}");
+            // Cố gắng báo lỗi cho client nếu còn kết nối (để client không treo)
+            try { await _writer.WriteLineAsync(ProtocolCommands.DOWNLOAD_FAIL); } catch { }
+        }
+        finally
+        {
+            Console.WriteLine("[Download] ---------------------------------------------");
         }
     }
 
@@ -363,6 +409,120 @@ public class ClientHandler
             Console.WriteLine($"[Trash Error] Lỗi khi lấy thùng rác: {ex.Message}");
             await _writer.WriteLineAsync("[]");
             await _writer.FlushAsync();
+        }
+    }
+
+    //Rename file
+
+    private async Task HandleRenameFileAsync(string[] parts)
+    {
+        Console.WriteLine("[Rename] ---------------------------------------------");
+
+        // 1. Kiểm tra đầu vào
+        if (parts.Length < 4) return;
+
+        string fileId = parts[1];
+        string oldName = parts[2];
+        string newNameRaw = parts[3]; 
+
+        Console.WriteLine($"[Rename Req] Đổi {oldName} -> {newNameRaw}");
+
+        try
+        {
+            string userFolder = Path.Combine(_storagePath, _authenticatedUid);
+            string oldPath = Path.Combine(userFolder, oldName);
+
+            // A. XỬ LÝ TÊN VÀ ĐUÔI FILE 
+            string extension = Path.GetExtension(oldName); // Lấy đuôi gốc (.txt, .pdf...)
+            string newName = newNameRaw;
+
+            // Nếu tên mới chưa có đuôi giống tên cũ -> Tự động gắn vào
+            if (!string.IsNullOrEmpty(extension) && !newNameRaw.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+            {
+                newName = newNameRaw + extension;
+                Console.WriteLine($"[Rename Auto] Đã tự động thêm đuôi file: {newName}");
+            }
+
+            string newPath = Path.Combine(userFolder, newName);
+
+            if (File.Exists(oldPath))
+            {
+                // Kiểm tra xem tên mới có bị trùng file khác không
+                if (File.Exists(newPath) && newPath != oldPath)
+                {
+                    Console.WriteLine($"[Rename Error] Tên file mới đã tồn tại: {newName}");
+                    await _writer.WriteLineAsync(ProtocolCommands.RENAME_FAIL);
+                    return;
+                }
+
+                File.Move(oldPath, newPath);
+                Console.WriteLine($"[Rename Disk] Đã đổi tên trên ổ cứng thành công.");
+            }
+            else
+            {
+                Console.WriteLine($"[Rename Warning] Không tìm thấy file trên ổ cứng (File ảo). Chỉ đổi trong DB.");
+            }
+
+            // C. CẬP NHẬT DATABASE (Chỉ làm khi bước trên OK)
+            bool dbOk = await _firestoreService.RenameFileDBAsync(fileId, newName);
+
+            if (dbOk)
+            {
+                Console.WriteLine("[Rename Success] --> Database đã cập nhật.");
+                await _writer.WriteLineAsync(ProtocolCommands.RENAME_SUCCESS);
+            }
+            else
+            {
+                Console.WriteLine("[Rename Error] Lỗi khi cập nhật Database!");
+                await _writer.WriteLineAsync(ProtocolCommands.RENAME_FAIL);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Rename Exception] Lỗi: {ex.Message}");
+            // Có thể file đang bị khóa bởi tiến trình khác (đang upload/download dở)
+            await _writer.WriteLineAsync(ProtocolCommands.RENAME_FAIL);
+        }
+        finally
+        {
+            Console.WriteLine("[Rename] ---------------------------------------------");
+        }
+    }
+
+    //Đánh dấu file
+    private async Task HandleStarFileAsync(string[] parts)
+    {
+        // Format nhận: STAR_FILE|FileID|TrạngTháiHiệnTại
+        if (parts.Length < 3) return;
+
+        string fileId = parts[1];
+        string statusStr = parts[2];
+
+        Console.WriteLine($"[Star Req] ID: {fileId} | Đang là sao? {statusStr}");
+
+        try
+        {
+            if (bool.TryParse(statusStr, out bool currentStar))
+            {
+                // Gọi DB để đảo ngược trạng thái (True -> False, False -> True)
+                bool dbOk = await _firestoreService.ToggleStarDBAsync(fileId, currentStar);
+
+                if (dbOk)
+                {
+                    Console.WriteLine($"[Star Success] Đã đổi trạng thái thành công.");
+                    // Gửi phản hồi OK về cho Client (để Client biết mà đổi màu)
+                    await _writer.WriteLineAsync(ProtocolCommands.STAR_SUCCESS);
+                }
+                else
+                {
+                    Console.WriteLine($"[Star Error] Lỗi DB.");
+                    await _writer.WriteLineAsync("STAR_FAIL");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Star Exception] {ex.Message}");
         }
     }
 }
