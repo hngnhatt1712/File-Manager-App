@@ -104,19 +104,20 @@ namespace ClientApp.Forms_UI
         {
             string fileName = Path.GetFileName(filePath);
 
-            // Dùng Invoke để tránh lỗi khi cập nhật từ thread khác
-            flpHistory.Invoke(new Action(() => {
-                Panel pnlItem = new Panel();
+            // 1. KHAI BÁO BIẾN Ở NGOÀI (Để tí nữa dùng lại được)
+            Panel pnlItem = null;
+            Label lblStatus = null;
+            ProgressBar prog = null;
 
-                // 1. Tự động lấy chiều rộng thực tế của flpHistory
-                // Trừ đi 20px để chừa chỗ cho thanh cuộn (scrollbar) không bị che mất
+            // 2. TẠO GIAO DIỆN (Invoke lần 1)
+            flpHistory.Invoke(new Action(() => {
+                pnlItem = new Panel();
                 pnlItem.Width = flpHistory.ClientSize.Width - 5;
                 pnlItem.Height = 65;
                 pnlItem.BackColor = Color.White;
-                pnlItem.Margin = new Padding(0, 0, 0, 2); // Khít lề, chỉ hở dưới 2px để phân dòng
+                pnlItem.Margin = new Padding(0, 0, 0, 2);
                 pnlItem.BorderStyle = BorderStyle.None;
 
-                // 2. Tên File (Chiếm 40% chiều rộng)
                 Label lblName = new Label
                 {
                     Text = "📄 " + fileName,
@@ -126,17 +127,17 @@ namespace ClientApp.Forms_UI
                     AutoEllipsis = true
                 };
 
-                // 3. Progress Bar (Nằm ở giữa, bắt đầu từ 45% chiều rộng)
-                ProgressBar prog = new ProgressBar
+                // Gán vào biến đã khai báo ở trên
+                prog = new ProgressBar
                 {
                     Location = new Point((int)(pnlItem.Width * 0.45), 25),
-                    Size = new Size((int)(pnlItem.Width * 0.3), 15), // Rộng 30% panel
-                    Style = ProgressBarStyle.Marquee,
+                    Size = new Size((int)(pnlItem.Width * 0.3), 15),
+                    Style = ProgressBarStyle.Marquee, // Đang chạy
                     MarqueeAnimationSpeed = 30
                 };
 
-                // 4. Trạng thái (Nằm cuối cùng, căn lề phải)
-                Label lblStatus = new Label
+                // Gán vào biến đã khai báo ở trên
+                lblStatus = new Label
                 {
                     Text = "⏳ Đang tải...",
                     ForeColor = Color.DimGray,
@@ -145,32 +146,50 @@ namespace ClientApp.Forms_UI
                     AutoSize = true
                 };
 
-                // Thêm vào Panel con
                 pnlItem.Controls.Add(lblName);
                 pnlItem.Controls.Add(prog);
                 pnlItem.Controls.Add(lblStatus);
 
-                // Thêm vào FlowLayoutPanel và đưa lên đầu danh sách
                 flpHistory.Controls.Add(pnlItem);
                 flpHistory.Controls.SetChildIndex(pnlItem, 0);
-
-                // Tự động cuộn lên đầu để xem file mới nhất
                 flpHistory.ScrollControlIntoView(pnlItem);
             }));
 
-            // PHẦN LOGIC NETWORK (Giữ nguyên của bạn)
+            // 3. XỬ LÝ UPLOAD
             try
             {
+                // Gọi server upload (Việc này tốn thời gian, nhưng với file 4KB thì cực nhanh)
                 await _client.UploadFileAsync(filePath, "/");
 
-                // Cập nhật khi xong (Cần tìm lại các control bên trong pnlItem)
+                // 4. CẬP NHẬT GIAO DIỆN KHI XONG (Invoke lần 2)
+                // Đây là đoạn bạn bị thiếu code
                 flpHistory.Invoke(new Action(() => {
-                    // Bạn có thể dùng Tag hoặc tìm Control theo Type để cập nhật ✅ Hoàn tất
+                    if (lblStatus != null && prog != null)
+                    {
+                        lblStatus.Text = "✅ Hoàn tất";
+                        lblStatus.ForeColor = Color.Green;
+
+                        // Dừng thanh xoay lại
+                        prog.Style = ProgressBarStyle.Blocks;
+                        prog.Value = 100;
+                    }
                 }));
+
+                // Bắn sự kiện ra ngoài để MainMenu cập nhật lại danh sách file & bộ nhớ
+                DataChanged?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
-                // Cập nhật khi lỗi ❌
+                // 5. CẬP NHẬT GIAO DIỆN KHI LỖI
+                flpHistory.Invoke(new Action(() => {
+                    if (lblStatus != null && prog != null)
+                    {
+                        lblStatus.Text = "❌ Lỗi";
+                        lblStatus.ForeColor = Color.Red;
+                        prog.Style = ProgressBarStyle.Blocks;
+                        prog.Value = 0;
+                    }
+                }));
             }
         }
     }
