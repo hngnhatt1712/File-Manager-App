@@ -29,12 +29,14 @@ namespace ClientApp
         private readonly FileTransferClient _fileClient;
         private readonly UserAuth _authService;
         private bool _isTrashMode = false; // Mặc định là không phải thùng rác
+            
         public MainMenu(FileTransferClient fileClient, UserAuth authService)
         {
             InitializeComponent();
 
             _fileClient = fileClient;
             _authService = authService;
+                
             // Đặt sự kiện cho ô tìm kiếm (giả sử tên là txtSearch)
             txtSearch.Text = "🔍 Tìm kiếm File";
             txtSearch.ForeColor = Color.Gray;
@@ -56,7 +58,7 @@ namespace ClientApp
                     txtSearch.ForeColor = Color.Gray;
                 }
             };
-
+            txtSearch.TextChanged += textBox1_TextChanged;
             button1_Click(null, null);
 
 
@@ -101,12 +103,15 @@ namespace ClientApp
         {
 
         }
+        private Home _homePage;
 
         private void button1_Click(object sender, EventArgs e)
         {
             flowLayoutPanel1.Controls.Clear();
-            _isTrashMode = false; // QUAN TRỌNG: Tắt chế độ thùng rác
-            ShowPage(new Home(_fileClient));
+            _isTrashMode = false;
+
+            _homePage = new Home(_fileClient);
+            ShowPage(_homePage);
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -134,8 +139,6 @@ namespace ClientApp
 
             var danhSachFileRac = await _fileClient.GetTrashFilesAsync();
 
-            // Tận dụng hàm vẽ Card file đã có ở Ảnh 1
-            RenderFileList(danhSachFileRac);
         }
 
        
@@ -165,7 +168,10 @@ namespace ClientApp
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
+           
+            if (_homePage == null) return;
 
+            _homePage.FileListControl.SearchFiles(txtSearch.Text.Trim());
         }
 
 
@@ -447,240 +453,12 @@ namespace ClientApp
         // thực hiện tìm kiếm 
         private async void txtSearch_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
-            {
-                string query = txtSearch.Text.Trim();
-                if (string.IsNullOrEmpty(query)) return;
-                var ketQua = await _fileClient.SearchFilesAsync(query);
-
-                // Hiển thị kết quả 
-                RenderFileList(ketQua);
-
-                e.SuppressKeyPress = true; 
-            }
+           
         }
 
         // z: Hàm này dùng để vẽ các file tìm được lên màn hình
-        private FileItem _currentSelectedItem = null;
-        private void RenderFileList(List<FileMetadata> danhSachFile)
-        {
-            // 1. Đảm bảo chạy trên luồng giao diện (tránh lỗi Cross-thread)
-            if (flowLayoutPanel1.InvokeRequired)
-            {
-                flowLayoutPanel1.Invoke(new Action(() => RenderFileList(danhSachFile)));
-                return;
-            }
-
-            // 2. Xóa danh sách cũ
-            flowLayoutPanel1.Controls.Clear();
-
-            // 3. Xử lý trường hợp danh sách rỗng
-            if (danhSachFile == null || danhSachFile.Count == 0)
-            {
-                Label lblEmpty = new Label();
-                lblEmpty.Text = "📂 Thư mục trống";
-                lblEmpty.AutoSize = false;
-                lblEmpty.Width = flowLayoutPanel1.Width - 10;
-                lblEmpty.TextAlign = ContentAlignment.MiddleCenter;
-                lblEmpty.Font = new Font("Segoe UI", 12, FontStyle.Italic);
-                lblEmpty.ForeColor = Color.Gray;
-                lblEmpty.Padding = new Padding(0, 20, 0, 0); 
-                flowLayoutPanel1.Controls.Add(lblEmpty);
-                return;
-            }
-
-            // 4. Tạo UserControl cho từng file
-            foreach (var file in danhSachFile)
-            {
-                // Khởi tạo FileItem với dữ liệu file
-                FileItem item = new FileItem(file);
-
-                // --- CẤU HÌNH GIAO DIỆN ---
-                item.Width = flowLayoutPanel1.Width - 25;
-                item.Margin = new Padding(0, 0, 0, 2);
-
-                // --- BẮT SỰ KIỆN TỪ CÁC NÚT BẤM (GỌI THẲNG HÀM LOGIC) ---
-                item.OnDeleteClicked += (s, f) => XoaFile(f);      // Nút Xóa
-                item.OnDownloadClicked += (s, f) => TaiFile(f);    // Nút Tải
-
-                item.OnRenameClicked += (s, f) => DoiTenFile(s, f);   // Nút Đổi tên
-                item.OnStarClicked += (s, f) => DanhDauSao(s, f);      // Nút Sao
-
-                // --- BẮT SỰ KIỆN CLICK VÀO NỀN (HIGHLIGHT & MENU) ---
-                item.MouseClick += (s, e) =>
-                {
-                    // Luôn Highlight item này dù bấm chuột trái hay phải
-                    HighlightItem(item);
-
-                    // Nếu là chuột phải -> Hiện Menu Context
-                    if (e.Button == MouseButtons.Right)
-                    {
-                        ShowContextMenu(item, Cursor.Position);
-                    }
-                };
-
-                // QUAN TRỌNG: Thêm Item vào Panel 
-                flowLayoutPanel1.Controls.Add(item);
-            }
-        }
-        // Xử lý khi bấm nút Tải xuống
-        private async void TaiFile(FileMetadata file)
-        {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.FileName = file.FileName; // Gợi ý tên file gốc
-            sfd.Filter = "All files (*.*)|*.*";
-
-            if (sfd.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    bool ok = await _fileClient.DownloadFileAsync(file.FileName, sfd.FileName);
-
-                    if (ok) MessageBox.Show("Tải thành công!");
-                    else MessageBox.Show("Lỗi: Không tìm thấy file trên Server hoặc mất kết nối!");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi tải file: " + ex.Message);
-                }
-            }
-        }
         
-        // Xử lý khi bấm nút Đổi tên
-        private async void DoiTenFile(object sender, FileMetadata file)
-        {
-            string newName = Microsoft.VisualBasic.Interaction.InputBox("Nhập tên mới:", "Đổi tên", file.FileName);
-
-            if (!string.IsNullOrWhiteSpace(newName) && newName != file.FileName)
-            {
-                try
-                {
-                    // Gọi Server
-                    bool ok = await _fileClient.RenameFileAsync(file.FileId, file.FileName, newName);
-                    if (ok)
-                    {
-                        file.FileName = newName; 
-
-                        if (sender is FileItem item)
-                        {
-                            item.SetFileName(newName);
-                        }
-                    }
-                    else MessageBox.Show("Đổi tên thất bại!");
-                }
-                catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
-            }
-        }
-
-        private async void DanhDauSao(object sender, FileMetadata file)
-        {
-            try
-            {
-                await _fileClient.ToggleStarAsync(file.FileId, file.IsStarred);
-
-                bool trangThaiMoi = !file.IsStarred;
-                file.IsStarred = trangThaiMoi;
-
-                // 3. Đổi màu ngôi sao ngay lập tức cho đẹp
-                if (sender is FileItem item)
-                {
-                    item.SetStarStatus(trangThaiMoi); 
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi: " + ex.Message);
-            }
-        }
-        // thực hiện chonn file 
-        private void HighlightItem(FileItem clickedItem)
-        {
-            if (_currentSelectedItem != null)
-            {
-                _currentSelectedItem.BackColor = Color.White;
-                _currentSelectedItem.BorderStyle = BorderStyle.None;
-            }
-
-            // 2. Chọn cái mới
-            clickedItem.BackColor = Color.FromArgb(232, 240, 254); 
-            clickedItem.BorderStyle = BorderStyle.FixedSingle;
-
-            // 3. Lưu vết
-            _currentSelectedItem = clickedItem;
-            _selectedFile = clickedItem.FileData; // Lưu Metadata để dùng cho việc khác
-        }
-        private void ShowContextMenu(FileItem item, Point screenPosition)
-        {
-            ContextMenuStrip menu = new ContextMenuStrip();
-
-            if (_isTrashMode) // Nếu đang ở chế độ xem thùng rác
-            {
-                menu.Items.Add("⏪ Khôi phục file", null, (s, e) => KhoiPhucFile(item.FileData));
-                menu.Items.Add("🔥 Xóa vĩnh viễn", null, (s, e) => XoaVinhVien(item.FileData));
-            }
-            else // Chế độ bình thường
-            {
-                menu.Items.Add("👁 Xem nội dung", null, (s, e) => XemNoiDungFile(item.FileData));
-                menu.Items.Add("📥 Tải xuống", null, (s, e) => TaiFile(item.FileData));
-                menu.Items.Add("🗑 Đưa vào thùng rác", null, (s, e) => XoaFile(item.FileData));
-            }
-
-            menu.Show(screenPosition);
-        }
-        private void XemNoiDungFile(FileMetadata file)
-        {
-            // Kiểm tra đuôi file, nếu là .txt thì mới cho xem
-            if (file.FileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
-            {
-                MessageBox.Show($"Đang chuẩn bị đọc nội dung file: {file.FileName}");
-            }
-            else
-            {
-                MessageBox.Show("Chức năng xem nhanh hiện chỉ hỗ trợ file .txt");
-            }
-        }
-
-        private async void XoaFile(FileMetadata file)
-        {
-            var result = MessageBox.Show($"Bạn có chắc muốn đưa {file.FileName} vào thùng rác?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            if (result == DialogResult.Yes)
-            {
-                bool thanhCong = await _fileClient.MoveToTrashAsync(file.FileId);
-
-                if (thanhCong)
-                {
-                    MessageBox.Show("Đã chuyển vào thùng rác thành công!");
-                    txtSearch_KeyDown(null, new KeyEventArgs(Keys.Enter));
-                }
-            }
-        }
-
-        private async void KhoiPhucFile(FileMetadata file)
-        {
-            // Gọi Client gửi lệnh RESTORE (Bạn cần thêm hàm RestoreFileAsync vào FileTransferClient)
-            bool thanhCong = await _fileClient.RestoreFileAsync(file.FileId);
-            if (thanhCong)
-            {
-                MessageBox.Show("Đã khôi phục file!");
-                button5_Click(null, null); // Load lại thùng rác
-            }
-        }
-
-        // xóa vĩnh viễn file 
-        private async void XoaVinhVien(FileMetadata file)
-        {
-            var confirm = MessageBox.Show("Hành động này không thể hoàn tác. Xóa vĩnh viễn?", "Cảnh báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (confirm == DialogResult.Yes)
-            {
-                // Gọi Client gửi lệnh DELETE_PERMANENT 
-                bool thanhCong = await _fileClient.DeletePermanentlyAsync(file.FileId);
-                if (thanhCong)
-                {
-                    MessageBox.Show("Đã xóa vĩnh viễn!");
-                    button5_Click(null, null); // Load lại thùng rác
-                }
-            }
-        }
+        
+       
     }
 }

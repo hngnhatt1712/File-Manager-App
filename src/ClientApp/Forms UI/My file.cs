@@ -31,7 +31,7 @@ namespace ClientApp.Forms_UI
             var top10Files = allFiles.Take(10).ToList();
 
             // Gọi hàm Render trực tiếp
-            fileList1.RenderFileList(top10Files);
+            fileList1.SetFiles(top10Files);
         }
     }
 }

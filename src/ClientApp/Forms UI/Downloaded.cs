@@ -75,11 +75,7 @@ namespace ClientApp.Forms_UI
         }
         private async void btnFolder_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog fbd = new FolderBrowserDialog();
-            if (fbd.ShowDialog() == DialogResult.OK)
-            {
-                await AnalyzeAndUpload(fbd.SelectedPath);
-            }
+            
         }
         private async Task AnalyzeAndUpload(string path)
         {
@@ -108,6 +104,7 @@ namespace ClientApp.Forms_UI
             Panel pnlItem = null;
             Label lblStatus = null;
             ProgressBar prog = null;
+            string errorDetails = ""; // Lưu lỗi chi tiết
 
             // 2. TẠO GIAO DIỆN (Invoke lần 1)
             flpHistory.Invoke(new Action(() => {
@@ -156,40 +153,62 @@ namespace ClientApp.Forms_UI
             }));
 
             // 3. XỬ LÝ UPLOAD
+            bool uploadSuccess = false;
             try
             {
-                // Gọi server upload (Việc này tốn thời gian, nhưng với file 4KB thì cực nhanh)
+                // Kiểm tra file có tồn tại không
+                if (!File.Exists(filePath))
+                {
+                    throw new FileNotFoundException($"File không tồn tại: {filePath}");
+                }
+
+                // Kiểm tra client đã kết nối chưa
+                if (_client == null || !_client.IsConnected)
+                {
+                    throw new Exception("Không kết nối được đến Server. Vui lòng đăng nhập lại.");
+                }
+
                 await _client.UploadFileAsync(filePath, "/");
-
-                // 4. CẬP NHẬT GIAO DIỆN KHI XONG (Invoke lần 2)
-                // Đây là đoạn bạn bị thiếu code
-                flpHistory.Invoke(new Action(() => {
-                    if (lblStatus != null && prog != null)
-                    {
-                        lblStatus.Text = "✅ Hoàn tất";
-                        lblStatus.ForeColor = Color.Green;
-
-                        // Dừng thanh xoay lại
-                        prog.Style = ProgressBarStyle.Blocks;
-                        prog.Value = 100;
-                    }
-                }));
-
-                // Bắn sự kiện ra ngoài để MainMenu cập nhật lại danh sách file & bộ nhớ
-                DataChanged?.Invoke(this, EventArgs.Empty);
+                uploadSuccess = true;
             }
             catch (Exception ex)
             {
-                // 5. CẬP NHẬT GIAO DIỆN KHI LỖI
-                flpHistory.Invoke(new Action(() => {
-                    if (lblStatus != null && prog != null)
+                uploadSuccess = false;
+                errorDetails = ex.Message; // Lưu lỗi chi tiết
+                
+                // In log để debug
+                Console.WriteLine($"[Upload Error] {fileName}: {ex.Message}");
+                Console.WriteLine($"[Stack Trace] {ex.StackTrace}");
+            }
+
+            flpHistory.Invoke(new Action(() => {
+                if (lblStatus != null && prog != null)
+                {
+                    if (uploadSuccess)
                     {
-                        lblStatus.Text = "❌ Lỗi";
+                        lblStatus.Text = "✅ Hoàn tất";
+                        lblStatus.ForeColor = Color.Green;
+                        prog.Style = ProgressBarStyle.Blocks;
+                        prog.Value = 100;
+                    }
+                    else
+                    {
+                        // Hiển thị lỗi chi tiết (rút ngắn nếu quá dài)
+                        string displayError = errorDetails.Length > 40 
+                            ? errorDetails.Substring(0, 37) + "..." 
+                            : errorDetails;
+
+                        lblStatus.Text = $"❌ {displayError}";
                         lblStatus.ForeColor = Color.Red;
                         prog.Style = ProgressBarStyle.Blocks;
                         prog.Value = 0;
                     }
-                }));
+                }
+            }));
+
+            if (uploadSuccess)
+            {
+                DataChanged?.Invoke(this, EventArgs.Empty);
             }
         }
     }
