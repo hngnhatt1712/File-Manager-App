@@ -13,9 +13,11 @@ using SharedLibrary;
 
 namespace ClientApp.Forms_UI
 {
-    public partial class Home : UserControl
+    public partial class Home : UserControl, ISearchable
     {
         private FileTransferClient _client;
+        private List<FileMetadata> _cachedFiles = new List<FileMetadata>();
+        public FileList FileListControl => homeFileList;
         public Home(FileTransferClient client)
         {
             InitializeComponent();
@@ -25,7 +27,12 @@ namespace ClientApp.Forms_UI
 
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
+            
+        }
 
+        public void SearchFiles(string keyword)
+        {
+            homeFileList.SearchFiles(keyword);
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
@@ -36,15 +43,23 @@ namespace ClientApp.Forms_UI
         private async void TrangChu_Load(object sender, EventArgs e)
         {
             homeFileList.SetClient(_client);
+            await homeFileList.LoadFilesFromServer("/");
+
             // Logic riêng của Home: Lấy file rồi lọc ra 10 cái mới nhất
             string json = await _client.GetFileListAsync("/");
-            var allFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
+            if (!string.IsNullOrEmpty(json) && json != "[]")
+            {
+                _cachedFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
+            }
+            else
+            {
+                _cachedFiles = new List<FileMetadata>();
+            }
 
-            var top10Files = allFiles.Take(10).ToList();
-
-            // Gọi hàm Render trực tiếp
-            homeFileList.RenderFileList(top10Files);
+            // Mặc định ban đầu chỉ hiện 10 file mới nhất
+            var top10Files = _cachedFiles.Take(10).ToList();
+            homeFileList.SetFiles(top10Files);
         }
-        
+
     }
 }

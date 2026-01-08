@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +21,49 @@ namespace ClientApp.Forms_UI
         private bool _isTrashMode = false;
         private FileMetadata _selectedFile = null;
         public bool IsStarredMode { get; set; } = false;
+        public bool IsLoaded { get; private set; } = false;
         private List<FileMetadata> _allFiles = new List<FileMetadata>();
+
+        /// <summary>
+        /// Remove Vietnamese diacritics (dấu) để hỗ trợ tìm kiếm không phân biệt dấu
+        /// </summary>
+        private string RemoveDiacritics(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+        }
+
+        // Public method to search files by keyword and update UI
+        public void SearchFiles(string keyword)
+        {
+            // Nếu keyword rỗng, hiện tất cả file
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                RenderFileList(_allFiles);
+                return;
+            }
+
+            // Remove diacritics từ keyword để so sánh
+            string normalizedKeyword = RemoveDiacritics(keyword.ToLower().Trim());
+
+            var filtered = _allFiles
+                .Where(f => RemoveDiacritics(f.FileName.ToLower()).Contains(normalizedKeyword))
+                .ToList();
+            RenderFileList(filtered);
+        }
         public FileList()
         {
             InitializeComponent();
@@ -29,29 +72,39 @@ namespace ClientApp.Forms_UI
         {
             _fileClient = client;
         }
-
+        public void SetFiles(List<FileMetadata> files)
+        {
+            _allFiles = files ?? new List<FileMetadata>();
+            IsLoaded = true;
+            RenderFileList(_allFiles);
+        }
         // 2. Hàm Tải dữ liệu từ Server (Dùng cho My File)
         public async Task LoadFilesFromServer(string path = "/")
         {
             if (_fileClient == null) return;
             _currentPath = path;
-
             try
             {
                 // Gọi Client lấy JSON
                 string json = await _fileClient.GetFileListAsync(path);
                 if (string.IsNullOrEmpty(json) || json == "[]")
                 {
+                    _allFiles = new List<FileMetadata>();
+                    IsLoaded = true;
                     RenderFileList(new List<FileMetadata>());
                     return;
                 }
               
                 var listFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
-                RenderFileList(listFiles);
+                _allFiles = listFiles;
+                IsLoaded = true;
+                SetFiles(listFiles);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi tải file: " + ex.Message);
+                _allFiles = new List<FileMetadata>();
+                IsLoaded = true; // Set = true dù có lỗi, để search function vẫn hoạt động
             }
         }
         // z: Hàm này dùng để vẽ các file tìm được lên màn hình

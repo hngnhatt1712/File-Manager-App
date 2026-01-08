@@ -13,9 +13,10 @@ using SharedLibrary;
 
 namespace ClientApp.Forms_UI
 {
-    public partial class Star : UserControl
+    public partial class Star : UserControl, ISearchable
     {
         private FileTransferClient _client;
+        private List<FileMetadata> _cachedFiles = new List<FileMetadata>();
         public Star(FileTransferClient client)
         {
             InitializeComponent();
@@ -34,8 +35,14 @@ namespace ClientApp.Forms_UI
 
             // Lọc lấy file có dấu sao
             var starredFiles = allFiles.Where(f => f.IsStarred == true).ToList();
+            _cachedFiles = starredFiles;
 
             startFile.RenderFileList(starredFiles);
+        }
+
+        public void SearchFiles(string keyword)
+        {
+            startFile.SearchFiles(keyword);
         }
 
         private void startFile_Load(object sender, EventArgs e)
