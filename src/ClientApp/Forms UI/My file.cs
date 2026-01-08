@@ -13,7 +13,7 @@ using SharedLibrary;
 
 namespace ClientApp.Forms_UI
 {
-    public partial class RiengTu : UserControl
+    public partial class RiengTu : UserControl, ISearchable
     {
         private FileTransferClient _client;
         public RiengTu(FileTransferClient client)
@@ -32,6 +32,11 @@ namespace ClientApp.Forms_UI
 
             // Gọi hàm Render trực tiếp
             fileList1.SetFiles(top10Files);
+        }
+
+        public void SearchFiles(string keyword)
+        {
+            fileList1.SearchFiles(keyword);
         }
     }
 }

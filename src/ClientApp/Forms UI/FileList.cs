@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +23,30 @@ namespace ClientApp.Forms_UI
         public bool IsStarredMode { get; set; } = false;
         public bool IsLoaded { get; private set; } = false;
         private List<FileMetadata> _allFiles = new List<FileMetadata>();
-            // Public method to search files by keyword and update UI
+
+        /// <summary>
+        /// Remove Vietnamese diacritics (dấu) để hỗ trợ tìm kiếm không phân biệt dấu
+        /// </summary>
+        private string RemoveDiacritics(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+        }
+
+        // Public method to search files by keyword and update UI
         public void SearchFiles(string keyword)
         {
             // Nếu keyword rỗng, hiện tất cả file
@@ -31,9 +55,12 @@ namespace ClientApp.Forms_UI
                 RenderFileList(_allFiles);
                 return;
             }
-            
+
+            // Remove diacritics từ keyword để so sánh
+            string normalizedKeyword = RemoveDiacritics(keyword.ToLower().Trim());
+
             var filtered = _allFiles
-                .Where(f => f.FileName.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                .Where(f => RemoveDiacritics(f.FileName.ToLower()).Contains(normalizedKeyword))
                 .ToList();
             RenderFileList(filtered);
         }

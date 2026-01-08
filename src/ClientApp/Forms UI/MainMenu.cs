@@ -29,6 +29,7 @@ namespace ClientApp
         private readonly FileTransferClient _fileClient;
         private readonly UserAuth _authService;
         private bool _isTrashMode = false; // Mặc định là không phải thùng rác
+        private UserControl _currentPage = null; // Lưu UserControl hiện tại đang hiển thị
             
         public MainMenu(FileTransferClient fileClient, UserAuth authService)
         {
@@ -88,6 +89,9 @@ namespace ClientApp
             // 3. Thêm vào khung hiển thị
             flowLayoutPanel1.Controls.Add(page);
             page.BringToFront();
+
+            // 4. Lưu reference của page hiện tại
+            _currentPage = page;
         }
         private void MainMenu_Load(object sender, EventArgs e)
         {
@@ -168,10 +172,11 @@ namespace ClientApp
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-           
-            if (_homePage == null) return;
-
-            _homePage.FileListControl.SearchFiles(txtSearch.Text.Trim());
+            // Nếu UserControl hiện tại implement ISearchable, gọi SearchFiles
+            if (_currentPage is ISearchable searchablePage)
+            {
+                searchablePage.SearchFiles(txtSearch.Text.Trim());
+            }
         }
 
 
