@@ -26,14 +26,12 @@ namespace ClientApp.Forms_UI
         private async void Word_Load(object sender, EventArgs e)
         {
             fileList1.SetClient(_client);
-            string json = await _client.GetFileListAsync("/");
-            var allFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
-            _cachedFiles = allFiles;
 
-            var top10Files = allFiles.Take(10).ToList();
+            // Khai báo: Tab này chỉ chấp nhận file Word
+            fileList1.AllowedExtensions = new[] { ".doc"};
 
-            // Gọi hàm Render trực tiếp
-            fileList1.RenderFileList(top10Files);
+            // Gọi hàm load như bình thường, FileList sẽ tự lo phần lọc
+            await fileList1.LoadFilesFromServer("/");
         }
 
         public void SearchFiles(string keyword)
