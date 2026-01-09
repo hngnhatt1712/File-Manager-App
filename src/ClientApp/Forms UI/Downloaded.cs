@@ -106,6 +106,16 @@ namespace ClientApp.Forms_UI
             ProgressBar prog = null;
             string errorDetails = ""; // Lưu lỗi chi tiết
 
+            // 0. KIỂM TRA CLIENT HỢP LỆ (CHỈ NULL CHECK - KHÔNG TỰ CONNECT)
+            // Lý do: UploadFileAsync sẽ tự gọi EnsureConnectedAsync nếu cần
+            // Tự ý connect ở đây sẽ tạo socket mới → Double Login + Race Condition
+            if (_client == null)
+            {
+                errorDetails = "Lỗi: Client chưa khởi tạo";
+                Console.WriteLine($"[Upload] ✗ {errorDetails}");
+                return;
+            }
+
             // 2. TẠO GIAO DIỆN (Invoke lần 1)
             flpHistory.Invoke(new Action(() => {
                 pnlItem = new Panel();
@@ -127,7 +137,7 @@ namespace ClientApp.Forms_UI
                 // Gán vào biến đã khai báo ở trên
                 prog = new ProgressBar
                 {
-                    Location = new Point((int)(pnlItem.Width * 0.45), 25),
+                    Location = new Point((int)(pnlItem.Width * 0.35), 25),
                     Size = new Size((int)(pnlItem.Width * 0.3), 15),
                     Style = ProgressBarStyle.Marquee, // Đang chạy
                     MarqueeAnimationSpeed = 30
@@ -139,7 +149,7 @@ namespace ClientApp.Forms_UI
                     Text = "⏳ Đang tải...",
                     ForeColor = Color.DimGray,
                     Font = new Font("Segoe UI", 8, FontStyle.Italic),
-                    Location = new Point((int)(pnlItem.Width * 0.8), 23),
+                    Location = new Point((int)(pnlItem.Width * 0.65), 23),
                     AutoSize = true
                 };
 
@@ -162,23 +172,26 @@ namespace ClientApp.Forms_UI
                     throw new FileNotFoundException($"File không tồn tại: {filePath}");
                 }
 
-                // Kiểm tra client đã kết nối chưa
-                if (_client == null || !_client.IsConnected)
-                {
-                    throw new Exception("Không kết nối được đến Server. Vui lòng đăng nhập lại.");
-                }
-
+                // *** QUAN TRỌNG: Không kiểm tra IsConnected tại đây ***
+                // FileTransferClient.UploadFileAsync sẽ tự gọi EnsureConnectedAsync()
                 await _client.UploadFileAsync(filePath, "/");
                 uploadSuccess = true;
             }
             catch (Exception ex)
             {
                 uploadSuccess = false;
-                errorDetails = ex.Message; // Lưu lỗi chi tiết
+                errorDetails = ex.Message;
                 
                 // In log để debug
-                Console.WriteLine($"[Upload Error] {fileName}: {ex.Message}");
-                Console.WriteLine($"[Stack Trace] {ex.StackTrace}");
+                Console.WriteLine($"[Upload] ✗ Upload Error for {fileName}: {ex.Message}");
+                Console.WriteLine($"[Upload] Exception Type: {ex.GetType().Name}");
+                Console.WriteLine($"[Upload] Stack Trace: {ex.StackTrace}");
+                
+                // Nếu là InnerException, log thêm
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"[Upload] Inner Exception: {ex.InnerException.Message}");
+                }
             }
 
             flpHistory.Invoke(new Action(() => {
