@@ -26,14 +26,8 @@ namespace ClientApp.Forms_UI
         private async void PDF_Load(object sender, EventArgs e)
         {
             fileList1.SetClient(_client);
-            string json = await _client.GetFileListAsync("/");
-            var allFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
-            _cachedFiles = allFiles;
-
-            var top10Files = allFiles.Take(10).ToList();
-
-            // Gọi hàm Render trực tiếp
-            fileList1.RenderFileList(top10Files);
+            fileList1.AllowedExtensions = new[] { ".pdf" };
+            await fileList1.LoadFilesFromServer("/");
         }
 
         public void SearchFiles(string keyword)

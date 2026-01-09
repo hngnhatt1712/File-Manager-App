@@ -23,6 +23,7 @@ namespace ClientApp.Forms_UI
         public bool IsStarredMode { get; set; } = false;
         public bool IsLoaded { get; private set; } = false;
         private List<FileMetadata> _allFiles = new List<FileMetadata>();
+        public string[] AllowedExtensions { get; set; } = null;
 
         /// <summary>
         /// Remove Vietnamese diacritics (dấu) để hỗ trợ tìm kiếm không phân biệt dấu
@@ -59,9 +60,19 @@ namespace ClientApp.Forms_UI
             // Remove diacritics từ keyword để so sánh
             string normalizedKeyword = RemoveDiacritics(keyword.ToLower().Trim());
 
+            // Chỉ tìm kiếm trong những file thỏa mãn AllowedExtensions
             var filtered = _allFiles
-                .Where(f => RemoveDiacritics(f.FileName.ToLower()).Contains(normalizedKeyword))
+                .Where(f => {
+                    bool matchesName = RemoveDiacritics(f.FileName.ToLower()).Contains(normalizedKeyword);
+
+                    // Nếu có AllowedExtensions thì phải thỏa mãn cả đuôi file nữa
+                    bool matchesExtension = AllowedExtensions == null ||
+                                            AllowedExtensions.Contains(System.IO.Path.GetExtension(f.FileName).ToLower());
+
+                    return matchesName && matchesExtension;
+                })
                 .ToList();
+
             RenderFileList(filtered);
         }
         public FileList()
@@ -106,26 +117,44 @@ namespace ClientApp.Forms_UI
                 _allFiles = new List<FileMetadata>();
                 IsLoaded = true; // Set = true dù có lỗi, để search function vẫn hoạt động
             }
+            finally
+            {
+                // QUAN TRỌNG: Dù thành công hay thất bại, bắt buộc dừng xoay chuột
+                Cursor.Current = Cursors.Default;
+            }
         }
         // z: Hàm này dùng để vẽ các file tìm được lên màn hình
         private FileItem _currentSelectedItem = null;
         public void RenderFileList(List<FileMetadata> danhSachFile)
         {
-            // 1. Đảm bảo chạy trên luồng giao diện (tránh lỗi Cross-thread)
+            // 1. Đảm bảo chạy trên UI Thread
             if (flowLayoutPanel1.InvokeRequired)
             {
                 flowLayoutPanel1.Invoke(new Action(() => RenderFileList(danhSachFile)));
                 return;
             }
 
-            // 2. Xóa danh sách cũ
             flowLayoutPanel1.Controls.Clear();
 
-            // 3. Xử lý trường hợp danh sách rỗng
-            if (danhSachFile == null || danhSachFile.Count == 0)
+            // --- BƯỚC QUAN TRỌNG: LỌC DANH SÁCH TRƯỚC ---
+            var filesToDisplay = danhSachFile;
+
+            // Kiểm tra xem có yêu cầu lọc đuôi file không (AllowedExtensions)
+            if (AllowedExtensions != null && AllowedExtensions.Length > 0)
+            {
+                filesToDisplay = danhSachFile
+                    .Where(f => !string.IsNullOrEmpty(f.FileName) &&
+                                AllowedExtensions.Contains(System.IO.Path.GetExtension(f.FileName).ToLower()))
+                    .ToList();
+            }
+            // ----------------------------------------------
+
+            // 2. Kiểm tra danh sách ĐÃ LỌC (filesToDisplay) có rỗng không
+            // (Lưu ý: Phải kiểm tra trên filesToDisplay chứ không phải danhSachFile)
+            if (filesToDisplay == null || filesToDisplay.Count == 0)
             {
                 Label lblEmpty = new Label();
-                lblEmpty.Text = "📂 Thư mục trống";
+                lblEmpty.Text = "📂 Không tìm thấy file nào"; // Đổi text cho rõ nghĩa hơn
                 lblEmpty.AutoSize = false;
                 lblEmpty.Width = flowLayoutPanel1.Width - 10;
                 lblEmpty.TextAlign = ContentAlignment.MiddleCenter;
@@ -136,37 +165,29 @@ namespace ClientApp.Forms_UI
                 return;
             }
 
-            // 4. Tạo UserControl cho từng file
-            foreach (var file in danhSachFile)
+            // 3. Vòng lặp chạy trên danh sách ĐÃ LỌC (filesToDisplay)
+            foreach (var file in filesToDisplay)
             {
-                // Khởi tạo FileItem với dữ liệu file
                 FileItem item = new FileItem(file);
 
-                // --- CẤU HÌNH GIAO DIỆN ---
                 item.Width = flowLayoutPanel1.Width - 25;
                 item.Margin = new Padding(0, 0, 0, 2);
 
-                // --- BẮT SỰ KIỆN TỪ CÁC NÚT BẤM (GỌI THẲNG HÀM LOGIC) ---
-                item.OnDeleteClicked += (s, f) => XoaFile(f);      // Nút Xóa
-                item.OnDownloadClicked += (s, f) => TaiFile(f);    // Nút Tải
+                // Gán sự kiện
+                item.OnDeleteClicked += (s, f) => XoaFile(f);
+                item.OnDownloadClicked += (s, f) => TaiFile(f);
+                item.OnRenameClicked += async (s, f) => await DoiTenFile(item, f);
+                item.OnStarClicked += (s, f) => DanhDauSao(s, f);
 
-                item.OnRenameClicked += async (s, f) => await DoiTenFile(item, f);   // Nút Đổi tên
-                item.OnStarClicked += (s, f) => DanhDauSao(s, f);     // Nút Sao
-
-                // --- BẮT SỰ KIỆN CLICK VÀO NỀN (HIGHLIGHT & MENU) ---
-                item.MouseClick += (s, e) =>
+                item.MouseClick += (s, eventArgs) =>
                 {
-                    // Luôn Highlight item này dù bấm chuột trái hay phải
                     HighlightItem(item);
-
-                    // Nếu là chuột phải -> Hiện Menu Context
-                    if (e.Button == MouseButtons.Right)
+                    if (eventArgs.Button == MouseButtons.Right)
                     {
                         ShowContextMenu(item, Cursor.Position);
                     }
                 };
 
-                // QUAN TRỌNG: Thêm Item vào Panel 
                 flowLayoutPanel1.Controls.Add(item);
             }
         }
