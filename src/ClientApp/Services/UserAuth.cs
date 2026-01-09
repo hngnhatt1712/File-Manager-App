@@ -51,7 +51,22 @@ namespace ClientApp.Services
                 string uid = authResult.User.Uid;
                 string token = await authResult.User.GetIdTokenAsync();
 
-                // 3. TRẢ VỀ ĐỐI TƯỢNG AuthResult ĐƠN GIẢN
+                // 3. SYNC VỚI SERVER (XÁC THỰC TCP CONNECTION)
+                try
+                {
+                    if (!_fileClient.IsConnected) 
+                        await _fileClient.ConnectAsync();
+                    
+                    await _fileClient.SyncUserAsync(token, email, ""); // phone = "" if not available
+                    Console.WriteLine("[Auth] ✓ Login & Sync thành công");
+                }
+                catch (Exception tcpEx)
+                {
+                    Console.WriteLine($"[Auth] Cảnh báo: Lỗi sync TCP: {tcpEx.Message}");
+                    // Không throw - cho phép login thành công, sync sẽ tự động khi cần upload
+                }
+
+                // 4. TRẢ VỀ ĐỐI TƯỢNG AuthResult ĐƠN GIẢN
                 return new AuthResult
                 {
                     IsSuccess = true,
@@ -59,7 +74,6 @@ namespace ClientApp.Services
                     Token = token,
                     Uid = authResult.User.Uid,
                     Email = email,
-
                 };
             }
             catch (Exception ex)

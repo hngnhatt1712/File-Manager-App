@@ -122,7 +122,9 @@ public class ClientHandler
                             if (metadata == null || string.IsNullOrEmpty(metadata.FileName))
                             {
                                 Console.WriteLine("[Error] Metadata thiếu tên file!");
-                                return;
+                                await _writer.WriteLineAsync(ProtocolCommands.UPLOAD_FAIL + "|Metadata không hợp lệ");
+                                await _writer.FlushAsync();
+                                break;
                             }
 
                             // --- KIỂM TRA QUOTA ---
@@ -130,6 +132,7 @@ public class ClientHandler
                             if (!quotaOK)
                             {
                                 Console.WriteLine($"[Upload] Từ chối: Dung lượng không đủ!");
+                                // ✅ Gửi lỗi quota thôi, không cần gửi storageInfo
                                 await _writer.WriteLineAsync(ProtocolCommands.QUOTA_EXCEEDED + "|Dung lượng bộ nhớ không đủ");
                                 await _writer.FlushAsync();
                                 break; // Dừng xử lý upload này
@@ -152,7 +155,7 @@ public class ClientHandler
                             Console.WriteLine($"[Upload] Sẵn sàng nhận file {metadata.FileName} ({metadata.Size} bytes)...");
 
                             // 5. Nhận luồng file vật lý
-                            ReceiveFileFromStream(savePath, metadata.Size);
+                            await ReceiveFileFromStream(savePath, metadata.Size);
 
                             // 6. Lưu Metadata vào Firestore 
                             // LƯU Ý: Truyền nguyên cục 'metadata' đã đầy đủ thông tin vào hàm lưu
@@ -167,8 +170,30 @@ public class ClientHandler
                         catch (Exception ex)
                         {
                             Console.WriteLine($"[Upload Error] {ex.Message}");
-                            _writer.WriteLine(ProtocolCommands.UPLOAD_FAIL + "|" + ex.Message);
-                            _writer.Flush();
+                            
+                            // ✅ Xóa file rác nếu upload fail
+                            try
+                            {
+                                string userFolder = Path.Combine(_storagePath, _authenticatedUid);
+                                string savePath = Path.Combine(userFolder, "temp_file");
+                                // Find and delete the incomplete file
+                                var dir = new DirectoryInfo(userFolder);
+                                if (dir.Exists)
+                                {
+                                    foreach (var file in dir.GetFiles())
+                                    {
+                                        if (file.Length == 0) // Xóa file rỗng
+                                        {
+                                            file.Delete();
+                                            Console.WriteLine($"[Upload] Đã xóa file rỗng: {file.Name}");
+                                        }
+                                    }
+                                }
+                            }
+                            catch { }
+                            
+                            await _writer.WriteLineAsync(ProtocolCommands.UPLOAD_FAIL + "|" + ex.Message);
+                            await _writer.FlushAsync();
                         }
                         break;
                     case ProtocolCommands.SEARCH_REQ: // tìm kiếm file
@@ -220,7 +245,9 @@ public class ClientHandler
                     case ProtocolCommands.GET_STORAGE_INFO:
                         if (!_isAuthenticated)
                         {
+                            Console.WriteLine($"[Storage Error] User chưa xác thực!");
                             await _writer.WriteLineAsync(ProtocolCommands.ACCESS_DENIED);
+                            await _writer.FlushAsync();
                         }
                         else
                         {
@@ -320,26 +347,55 @@ public class ClientHandler
         }
     }
 
-    // Hàm nhận dữ liệu
+    // Hàm nhận dữ liệu (sử dụng async để tránh block thread)
     private async Task ReceiveFileFromStream(string filePath, long totalBytes)
     {
         // Tạo file mới để ghi
-        using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+        using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, FileOptions.SequentialScan | FileOptions.Asynchronous))
         {
             byte[] buffer = new byte[8192]; // Bộ đệm 8KB
             long bytesReceived = 0;
             int read;
+            
+            Console.WriteLine($"[ReceiveFile] Bắt đầu nhận file {totalBytes} bytes...");
+            
             while (bytesReceived < totalBytes)
             {
                 // Tính toán số byte cần đọc 
                 int toRead = (int)Math.Min(buffer.Length, totalBytes - bytesReceived);
 
-                // Đọc từ NetworkStream 
-                read = _client.GetStream().Read(buffer, 0, toRead);
-                if (read == 0) throw new Exception("Mất kết nối khi đang nhận file!");
-                fileStream.Write(buffer, 0, read);
+                // ✅ Thêm timeout 30 giây cho ReadAsync
+                var readTask = _stream.ReadAsync(buffer, 0, toRead);
+                var timeoutTask = Task.Delay(30000); // 30s timeout
+                var completedTask = await Task.WhenAny(readTask, timeoutTask);
+                
+                if (completedTask == timeoutTask)
+                {
+                    Console.WriteLine($"[ReceiveFile] ✗ Timeout! Client không gửi dữ liệu. Đã nhận {bytesReceived}/{totalBytes} bytes");
+                    throw new Exception($"Timeout nhận file! Đã nhận {bytesReceived}/{totalBytes} bytes");
+                }
+                
+                read = await readTask;
+                
+                if (read == 0)
+                {
+                    Console.WriteLine($"[ReceiveFile] ✗ Mất kết nối! Đã nhận {bytesReceived}/{totalBytes} bytes");
+                    throw new Exception($"Mất kết nối khi đang nhận file! Đã nhận {bytesReceived}/{totalBytes} bytes");
+                }
+                
+                // Ghi vào file (async)
+                await fileStream.WriteAsync(buffer, 0, read);
                 bytesReceived += read;
+                
+                // Log tiến độ mỗi 100KB
+                if (bytesReceived % 102400 == 0 || bytesReceived == totalBytes)
+                {
+                    Console.WriteLine($"[ReceiveFile] Tiến độ: {bytesReceived}/{totalBytes} bytes ({(bytesReceived * 100 / totalBytes)}%)");
+                }
             }
+            
+            await fileStream.FlushAsync();
+            Console.WriteLine($"[ReceiveFile] ✓ Hoàn tất! Nhận đủ {bytesReceived} bytes");
         }
     }
     //dowload file

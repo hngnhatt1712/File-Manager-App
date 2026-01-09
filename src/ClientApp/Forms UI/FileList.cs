@@ -89,7 +89,7 @@ namespace ClientApp.Forms_UI
             IsLoaded = true;
             RenderFileList(_allFiles);
         }
-        // 2. Hàm Tải dữ liệu từ Server (Dùng cho My File)
+        // 2. Hàm Tải dữ liệu từ Server 
         public async Task LoadFilesFromServer(string path = "/")
         {
             if (_fileClient == null) return;
@@ -247,7 +247,7 @@ namespace ClientApp.Forms_UI
 
                     // 3. Bộ lọc để hiện đúng Icon (Word, PDF...)
                     if (ext.Contains("pdf")) sfd.Filter = "PDF Documents|*.pdf|All Files|*.*";
-                    else if (ext.Contains("doc")) sfd.Filter = "Word Documents|*.doc;*.docx|All Files|*.*";
+                    else if (ext.Contains("docx")) sfd.Filter = "Word Documents|*.doc;*.docx|All Files|*.*";
                     else if (ext.Contains("xls")) sfd.Filter = "Excel Files|*.xls;*.xlsx|All Files|*.*";
                     else if (ext.Contains("txt")) sfd.Filter = "Text Files|*.txt|All Files|*.*";
                     else if (ext.Contains("png") || ext.Contains("jpg")) sfd.Filter = "Images|*.png;*.jpg;*.jpeg|All Files|*.*";
