@@ -203,16 +203,7 @@ public class ClientHandler
                         await _writer.WriteLineAsync(ProtocolCommands.SEARCH_SUCCESS);
                         await _writer.WriteLineAsync(json);
                         break;
-                    case "GET_TRASH_FILES": // Lệnh lấy danh sách file trong thùng rác
-                        if (!_isAuthenticated)
-                        {
-                            await _writer.WriteLineAsync(ProtocolCommands.ACCESS_DENIED);
-                        }
-                        else
-                        {
-                            await HandleGetTrashFilesAsync();
-                        }
-                        break;
+                    
                     case ProtocolCommands.RENAME_FILE:
                         Console.WriteLine($"[DEBUG] Đã nhận lệnh RENAME từ User {_authenticatedUid}");
                         await HandleRenameFileAsync(parts);
@@ -279,24 +270,28 @@ public class ClientHandler
                                 await _writer.WriteLineAsync("ERROR|Missing_FileID");
                                 break;
                             }
+                            string fileId = parts[1];
+                            bool success = await _firestoreService.MoveToTrashDBAsync(fileId, true);
 
-                            string fileIdToDelete = parts[1];
-                            Console.WriteLine($"[Server] Yêu cầu chuyển vào thùng rác: {fileIdToDelete}");
-
-                            // Gọi hàm DB đã viết ở Bước 1
-                            // Nếu bạn dùng _fileController thì gọi qua controller, 
-                            // còn không thì gọi trực tiếp _firestoreService như dưới:
-                            bool isMoved = await _firestoreService.MoveToTrashDBAsync(fileIdToDelete);
-
-                            if (isMoved)
+                            if (success)
                             {
+                                // 🔥 Phải gửi đúng chuỗi này về
                                 await _writer.WriteLineAsync(ProtocolCommands.MOVE_TO_TRASH_SUCCESS);
                             }
                             else
                             {
-                                await _writer.WriteLineAsync("MOVE_TO_TRASH_FAIL");
+                                await _writer.WriteLineAsync("MOVE_FAIL");
                             }
-                            await _writer.FlushAsync();
+                            break;
+                        }
+                    case ProtocolCommands.GET_TRASH_FILES:
+                        {
+                            // Lấy danh sách file đã xóa của user đang đăng nhập
+                            var trashFiles = await _firestoreService.GetTrashFileListAsync(_authenticatedUid);
+
+                            // Chuyển danh sách thành JSON để gửi về cho Client
+                            string trashJson = JsonConvert.SerializeObject(trashFiles);
+                            await _writer.WriteLineAsync(trashJson);
                             break;
                         }
                     default:

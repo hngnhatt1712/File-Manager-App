@@ -549,6 +549,11 @@ namespace ClientApp.Forms_UI
                 "Xác nhận",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
+            if (string.IsNullOrEmpty(file.FileId))
+            {
+                MessageBox.Show("LỖI: FileId bị NULL, không thể gửi lệnh xóa lên server!");
+                return;
+            }
 
             if (result == DialogResult.Yes)
             {

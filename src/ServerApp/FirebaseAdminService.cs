@@ -142,7 +142,7 @@ namespace ServerApp
         {
             try
             {
-                CollectionReference col = _firestoreDb.Collection("files");
+                CollectionReference col = _firestoreDb.Collection("Files");
 
                 var data = new Dictionary<string, object>
             {
@@ -151,7 +151,8 @@ namespace ServerApp
                 { "ownerUid", fileData.OwnerUid },
                 { "storagePath", fileData.StoragePath }, 
                 { "path", fileData.Path ?? "/" },
-                { "uploadedDate", DateTime.UtcNow.ToString("o") }
+                { "uploadedDate", DateTime.UtcNow.ToString("o") },
+                { "IsDeleted", false },  // 🔥 LUÔN KHỞI TẠO LÀ FALSE
             };
 
                 await col.AddAsync(data);
@@ -172,21 +173,24 @@ namespace ServerApp
             try
             {
                 // Query theo cả UID và Path
-                Query query = _firestoreDb.Collection("files")
+                Query query = _firestoreDb.Collection("Files")
                     .WhereEqualTo("ownerUid", uid)
-                    .WhereEqualTo("path", path); // Lọc file trong thư mục cụ thể
+                    .WhereEqualTo("path", path) // Lọc file trong thư mục cụ thể
+                    .WhereEqualTo("isDeleted", false); // Chỉ lấy file chưa vào thùng rác
 
                 QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
 
                 var fileList = new List<FileMetadata>();
                 foreach (DocumentSnapshot doc in querySnapshot.Documents)
                 {
-                    if (doc.Exists)
-                    {
-                        var fileData = doc.ConvertTo<FileMetadata>();
-                        fileData.FileId = doc.Id;
-                        fileList.Add(fileData);
-                    }
+                    // Chuyển dữ liệu từ Firestore sang Object
+                    FileMetadata meta = doc.ConvertTo<FileMetadata>();
+
+                    // 🔥 ĐÂY LÀ DÒNG QUAN TRỌNG NHẤT:
+                    // Gán ID của Document vào biến FileId để Client có cái mà dùng
+                    meta.FileId = doc.Id;
+
+                    fileList.Add(meta);
                 }
                 return fileList;
             }
@@ -196,6 +200,25 @@ namespace ServerApp
                 return new List<FileMetadata>();
             }
         }
+
+        public async Task<List<FileMetadata>> GetTrashFileListAsync(string uid)
+        {
+            // 🔥 Lấy tất cả file có isDeleted là true
+            Query query = _firestoreDb.Collection("Files")
+                .WhereEqualTo("ownerUid", uid)
+                .WhereEqualTo("isDeleted", true);
+
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+            List<FileMetadata> files = new List<FileMetadata>();
+            foreach (DocumentSnapshot doc in snapshot.Documents)
+            {
+                FileMetadata meta = doc.ConvertTo<FileMetadata>();
+                meta.FileId = doc.Id;
+                files.Add(meta);
+            }
+            return files;
+        }
+
         public class UserServerPayload
         {
             public string Uid { get; set; }
@@ -205,15 +228,16 @@ namespace ServerApp
 
         // Trong file: ServerApp/FirebaseAdminService.cs
 
-        public async Task<bool> MoveToTrashDBAsync(string fileId)
+        public async Task<bool> MoveToTrashDBAsync(string fileId, bool isDeleted)
         {
             try
             {
+                if (string.IsNullOrEmpty(fileId)) return false;
                 // Tìm file theo FileId
                 DocumentReference docRef = _firestoreDb.Collection("Files").Document(fileId);
 
                 // Chỉ update trường IsDeleted thành true (Soft Delete)
-                await docRef.UpdateAsync("IsDeleted", true);
+                await docRef.UpdateAsync("isDeleted", isDeleted);
 
                 Console.WriteLine($"[DB] Đã chuyển file {fileId} vào thùng rác.");
                 return true;
@@ -275,7 +299,7 @@ namespace ServerApp
                 // 1. Chỉ lấy những file của User đó VÀ đã bị đánh dấu IsDeleted = true
                 Query query = _firestoreDb.Collection("files")
                     .WhereEqualTo("ownerUid", uid)
-                    .WhereEqualTo("IsDeleted", true);
+                    .WhereEqualTo("isDeleted", true);
 
                 QuerySnapshot snapshot = await query.GetSnapshotAsync();
 
@@ -294,6 +318,8 @@ namespace ServerApp
                 return new List<FileMetadata>();
             }
         }
+
+
 
         public async Task<bool> UpdateFileDeleteStatusAsync(string fileId, bool isDeleted)
         {
@@ -405,7 +431,7 @@ namespace ServerApp
             try
             {
                 // Xóa document trong Collection "Files" dựa vào FileId
-                await _firestoreDb.Collection("Files").Document(fileId).DeleteAsync();
+                await _firestoreDb.Collection("files").Document(fileId).DeleteAsync();
 
                 // (Nâng cao: Nếu muốn xóa cả file ảnh/doc trong Storage thì cần code thêm phần xóa Storage ở đây)
 

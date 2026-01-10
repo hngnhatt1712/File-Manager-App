@@ -132,31 +132,16 @@ public class FileTransferClient
 
     public async Task<List<FileMetadata>> GetTrashFilesAsync()
     {
-        await _networkLock.WaitAsync(); // 🔒 Khóa
+        await _networkLock.WaitAsync();
         try
         {
-            await EnsureConnectedAsync();
-            // 1. Gửi lệnh yêu cầu lấy file trong thùng rác
-            await _writer.WriteLineAsync("LIST_TRASH_FILES");
+            await _writer.WriteLineAsync(ProtocolCommands.GET_TRASH_FILES);
             await _writer.FlushAsync();
 
-            // 2. Đợi Server gửi chuỗi JSON chứa danh sách file
-            string jsonResponse = await _reader.ReadLineAsync();
-
-            if (string.IsNullOrEmpty(jsonResponse)) return new List<FileMetadata>();
-
-            // 3. Chuyển chuỗi JSON thành List trong C#
-            return JsonConvert.DeserializeObject<List<FileMetadata>>(jsonResponse);
+            string json = await _reader.ReadLineAsync();
+            return JsonConvert.DeserializeObject<List<FileMetadata>>(json) ?? new List<FileMetadata>();
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[Lỗi] GetTrash: {ex.Message}");
-            return new List<FileMetadata>();
-        }
-        finally
-        {
-            _networkLock.Release();
-        }
+        finally { _networkLock.Release(); }
     }
 
 
@@ -185,6 +170,8 @@ public class FileTransferClient
             _networkLock.Release();
         }
     }
+
+
 
     // Lấy thông tin dung lượng bộ nhớ từ Server
     public async Task<StorageInfo> GetStorageInfoAsync(int maxRetries = 1)
@@ -252,6 +239,8 @@ public class FileTransferClient
                 if (lockAcquired) _networkLock.Release();
             }
         }
+
+
     }
 
     // vẫn chuyển lệnh từ client sang server 

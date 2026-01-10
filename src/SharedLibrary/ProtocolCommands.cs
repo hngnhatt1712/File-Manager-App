@@ -80,6 +80,8 @@
         public const string RESTORE_FILE = "RESTORE_FILE";             // Lệnh khôi phục
         public const string RESTORE_SUCCESS = "RESTORE_SUCCESS";
 
+        // Thêm vào file ProtocolCommands.cs
+        public const string GET_TRASH_FILES = "GET_TRASH_FILES";
     }
 
 }
