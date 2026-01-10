@@ -156,7 +156,7 @@ namespace ClientApp.Forms_UI
                     // Cập nhật dòng chữ: "1.25 GB / 5.00 GB (25%)"
                     string usedStr = FormatBytes(info.TotalUsed);
                     string maxStr = FormatBytes(info.MaxQuota);
-                    lblStorageInfo.Text = $"Bộ nhớ: {usedStr} / {maxStr} ({percentage}%)";
+                    lblStorageInfo.Text = $"Bộ nhớ: {usedStr} / {maxStr}";
 
                     // (Tùy chọn) Đổi màu chữ thành Đỏ nếu sắp đầy (> 90%)
                     if (percentage >= 90)
