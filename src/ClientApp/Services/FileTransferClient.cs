@@ -313,22 +313,6 @@ public class FileTransferClient
     }
 
     // 1. Chuyển vào thùng rác
-    public async Task<bool> MoveToTrashAsync(string fileId)
-    {
-        await _networkLock.WaitAsync();
-        try
-        {
-            await _writer.WriteLineAsync(ProtocolCommands.MOVE_TO_TRASH);
-            await _writer.WriteLineAsync(fileId);
-            await _writer.FlushAsync();
-
-            string response = await _reader.ReadLineAsync();
-            return response == ProtocolCommands.MOVE_TO_TRASH_SUCCESS;
-        }
-        catch { return false; }
-        finally { _networkLock.Release(); }
-    }
-
     // 2. Khôi phục file
     public async Task<bool> RestoreFileAsync(string fileId)
     {
@@ -381,6 +365,45 @@ public class FileTransferClient
         finally
         {
             _networkLock.Release(); // Giải phóng để lệnh khác được chạy
+        }
+    }
+
+    // Trong file: FileTransferClient.cs
+
+    public async Task<bool> MoveToTrashAsync(string fileId)
+    {
+        await _networkLock.WaitAsync(); // Dùng lock để tránh xung đột luồng
+        try
+        {
+            await EnsureConnectedAsync();
+
+            // Gửi lệnh theo định dạng: COMMAND|ID
+            string command = $"{ProtocolCommands.MOVE_TO_TRASH}|{fileId}";
+            await _writer.WriteLineAsync(command);
+            await _writer.FlushAsync();
+
+            // Đọc phản hồi từ Server
+            string response = await _reader.ReadLineAsync();
+
+            // Kiểm tra xem Server có trả về SUCCESS không
+            if (response == ProtocolCommands.MOVE_TO_TRASH_SUCCESS)
+            {
+                return true;
+            }
+            else
+            {
+                Console.WriteLine($"[MoveToTrash] Lỗi: {response}");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Client Error] {ex.Message}");
+            return false;
+        }
+        finally
+        {
+            _networkLock.Release();
         }
     }
 

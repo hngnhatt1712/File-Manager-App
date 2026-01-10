@@ -28,7 +28,7 @@ namespace ClientApp.Forms_UI
             fileList1.SetClient(_client);
 
             // Khai báo: Tab này chỉ chấp nhận file Word
-            fileList1.AllowedExtensions = new[] { ".doc"};
+            fileList1.AllowedExtensions = new[] { ".docx"};
 
             // Gọi hàm load như bình thường, FileList sẽ tự lo phần lọc
             await fileList1.LoadFilesFromServer("/");

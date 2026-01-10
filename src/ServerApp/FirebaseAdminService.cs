@@ -203,6 +203,28 @@ namespace ServerApp
             public string Phone { get; set; }
         }
 
+        // Trong file: ServerApp/FirebaseAdminService.cs
+
+        public async Task<bool> MoveToTrashDBAsync(string fileId)
+        {
+            try
+            {
+                // Tìm file theo FileId
+                DocumentReference docRef = _firestoreDb.Collection("Files").Document(fileId);
+
+                // Chỉ update trường IsDeleted thành true (Soft Delete)
+                await docRef.UpdateAsync("IsDeleted", true);
+
+                Console.WriteLine($"[DB] Đã chuyển file {fileId} vào thùng rác.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DB Error] MoveToTrash: {ex.Message}");
+                return false;
+            }
+        }
+
 
         // hàm tìm file theo user
         public async Task<List<FileMetadata>> SearchFilesAsync(string uid, string searchTerm)

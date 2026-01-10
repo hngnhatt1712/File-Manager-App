@@ -251,15 +251,6 @@ public class ClientHandler
                             await HandleGetStorageInfoAsync();
                         }
                         break;
-                    case ProtocolCommands.MOVE_TO_TRASH:
-                        {
-                            string fileId = await _reader.ReadLineAsync(); // Đọc FileId gửi kèm
-                                                                           // Chuyển isDeleted thành TRUE (vào thùng rác)
-                            bool success = await _firestoreService.UpdateFileDeleteStatusAsync(fileId, true);
-                            await _writer.WriteLineAsync(success ? ProtocolCommands.MOVE_TO_TRASH_SUCCESS : "FAIL");
-                            break;
-                        }
-
                     case ProtocolCommands.RESTORE_FILE:
                         {
                             string fileId = await _reader.ReadLineAsync();
@@ -277,6 +268,35 @@ public class ClientHandler
 
                             // Phản hồi về Client
                             await _writer.WriteLineAsync(success ? ProtocolCommands.DELETE_SUCCESS : ProtocolCommands.DELETE_FAIL);
+                            break;
+                        }
+                    case ProtocolCommands.MOVE_TO_TRASH:
+                        {
+                            // Client gửi: "MOVE_TO_TRASH|fileId"
+                            if (parts.Length < 2)
+                            {
+                                // Nếu Client gửi thiếu ID
+                                await _writer.WriteLineAsync("ERROR|Missing_FileID");
+                                break;
+                            }
+
+                            string fileIdToDelete = parts[1];
+                            Console.WriteLine($"[Server] Yêu cầu chuyển vào thùng rác: {fileIdToDelete}");
+
+                            // Gọi hàm DB đã viết ở Bước 1
+                            // Nếu bạn dùng _fileController thì gọi qua controller, 
+                            // còn không thì gọi trực tiếp _firestoreService như dưới:
+                            bool isMoved = await _firestoreService.MoveToTrashDBAsync(fileIdToDelete);
+
+                            if (isMoved)
+                            {
+                                await _writer.WriteLineAsync(ProtocolCommands.MOVE_TO_TRASH_SUCCESS);
+                            }
+                            else
+                            {
+                                await _writer.WriteLineAsync("MOVE_TO_TRASH_FAIL");
+                            }
+                            await _writer.FlushAsync();
                             break;
                         }
                     default:
