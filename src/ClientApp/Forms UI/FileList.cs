@@ -102,51 +102,50 @@ namespace ClientApp.Forms_UI
         {
 
             Console.WriteLine($"[FileList] LoadFilesFromServer bắt đầu, path={path}");
+    
+    if (_fileClient == null) return;
+    
+    _currentPath = path;
+    try
+    {
+        string json = await _fileClient.GetFileListAsync(path);
+        
+        if (string.IsNullOrEmpty(json) || json == "[]")
+        {
+            _allFiles = new List<FileMetadata>();
+            RenderFileList(_allFiles);
+            return;
+        }
 
-            if (_fileClient == null) return;
+        // 1. Chỉ Deserialize MỘT LẦN duy nhất
+        var fullList = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
 
-            _currentPath = path;
-            try
+        if (fullList != null)
+        {
+            // 2. Kiểm tra chế độ: Nếu là Thùng rác thì lọc IsDeleted = true, 
+            //    Nếu là Home thì lọc IsDeleted = false
+            if (_isTrashMode) 
             {
-                string json = await _fileClient.GetFileListAsync(path);
-
-                if (string.IsNullOrEmpty(json) || json == "[]")
-                {
-                    _allFiles = new List<FileMetadata>();
-                    RenderFileList(_allFiles);
-                    return;
-                }
-
-                // 1. Chỉ Deserialize MỘT LẦN duy nhất
-                var fullList = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
-
-                if (fullList != null)
-                {
-                    // 2. Kiểm tra chế độ: Nếu là Thùng rác thì lọc IsDeleted = true, 
-                    //    Nếu là Home thì lọc IsDeleted = false
-                    if (_isTrashMode)
-                    {
-                        _allFiles = fullList.Where(f => f.IsDeleted == true).ToList();
-                    }
-                    else
-                    {
-                        _allFiles = fullList.Where(f => f.IsDeleted == false).ToList();
-                    }
-
-                    // 3. Hiển thị danh sách sau khi đã lọc chuẩn
-                    RenderFileList(_allFiles);
-                    IsLoaded = true;
-                }
+                _allFiles = fullList.Where(f => f.IsDeleted == true).ToList();
             }
-            catch (Exception ex)
+            else 
             {
-                Console.WriteLine($"[FileList] Lỗi: {ex.Message}");
-            }
-            finally
-            {
-                Cursor.Current = Cursors.Default;
+                _allFiles = fullList.Where(f => f.IsDeleted == false).ToList();
             }
 
+            // 3. Hiển thị danh sách sau khi đã lọc chuẩn
+            RenderFileList(_allFiles);
+            IsLoaded = true;
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[FileList] Lỗi: {ex.Message}");
+    }
+    finally
+    {
+        Cursor.Current = Cursors.Default;
+    }
             /*
             Console.WriteLine($"[FileList] LoadFilesFromServer bắt đầu, path={path}");
             
@@ -215,7 +214,6 @@ namespace ClientApp.Forms_UI
                 Console.WriteLine($"[FileList] LoadFilesFromServer kết thúc, _allFiles.Count = {_allFiles.Count}");
             } */
         }
-
         // z: Hàm này dùng để vẽ các file tìm được lên màn hình
         private FileItem _currentSelectedItem = null;
         public async void RenderFileList(List<FileMetadata> danhSachFile)
@@ -268,8 +266,12 @@ namespace ClientApp.Forms_UI
             {
                 FileItem item = new FileItem(file);
 
-                item.Width = flowLayoutPanel1.Width - 25;
-                item.Margin = new Padding(0, 0, 0, 2);
+                int scrollWidth = SystemInformation.VerticalScrollBarWidth;
+                item.Width = flowLayoutPanel1.ClientSize.Width - scrollWidth - 5;
+
+                // 2. Chiều cao: Set cố định khoảng 60px để giao diện thoáng, logo không bị che
+                item.Height = 60;
+                item.Margin = new Padding(0, 0, 0, 0);
 
                 // Gán sự kiện
                 item.OnDeleteClicked += async (s, f) => {

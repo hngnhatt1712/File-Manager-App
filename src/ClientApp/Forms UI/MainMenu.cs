@@ -37,7 +37,7 @@ namespace ClientApp
 
             _fileClient = fileClient;
             _authService = authService;
-                
+
             // Đặt sự kiện cho ô tìm kiếm (giả sử tên là txtSearch)
             txtSearch.Text = "🔍 Tìm kiếm File";
             txtSearch.ForeColor = Color.Gray;
@@ -146,7 +146,7 @@ namespace ClientApp
             ShowPage(trashControl);
         }
 
-       
+
         private void button2_Click(object sender, EventArgs e)
         {
             flowLayoutPanel1.Controls.Clear(); // Xoá các cái cũ
@@ -455,12 +455,12 @@ namespace ClientApp
 
         private void btn_Notification_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void btn_offNotification_Click(object sender, EventArgs e)
         {
-        
+
         }
 
         private void panel2_Paint(object sender, PaintEventArgs e)
@@ -474,12 +474,21 @@ namespace ClientApp
         // thực hiện tìm kiếm 
         private async void txtSearch_KeyDown(object sender, KeyEventArgs e)
         {
-           
+
+        }
+
+        private void flowLayoutPanel1_Resize(object sender, EventArgs e)
+        {
+            foreach (Control item in flowLayoutPanel1.Controls)
+            {
+                // Ép chiều rộng item bằng chiều rộng cha (trừ đi thanh cuộn nếu cần)
+                item.Width = flowLayoutPanel1.ClientSize.Width - 5;
+            }
         }
 
         // z: Hàm này dùng để vẽ các file tìm được lên màn hình
-        
-        
-       
+
+
+
     }
 }

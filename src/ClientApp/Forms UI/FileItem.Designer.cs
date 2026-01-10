@@ -40,9 +40,10 @@
             // pbIcon
             // 
             pbIcon.Enabled = false;
-            pbIcon.Location = new Point(3, 3);
+            pbIcon.Location = new Point(15, 0);
             pbIcon.Name = "pbIcon";
-            pbIcon.Size = new Size(32, 34);
+            pbIcon.Size = new Size(40, 40);
+            pbIcon.SizeMode = PictureBoxSizeMode.Zoom;
             pbIcon.TabIndex = 0;
             pbIcon.TabStop = false;
             // 
@@ -68,7 +69,7 @@
             lblFileName.AutoSize = true;
             lblFileName.Enabled = false;
             lblFileName.Font = new Font("Segoe UI Semibold", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblFileName.Location = new Point(47, 9);
+            lblFileName.Location = new Point(74, 16);
             lblFileName.Name = "lblFileName";
             lblFileName.Size = new Size(48, 20);
             lblFileName.TabIndex = 2;

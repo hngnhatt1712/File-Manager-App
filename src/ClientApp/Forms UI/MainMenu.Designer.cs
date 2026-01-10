@@ -62,8 +62,8 @@
             sideBarTransition = new System.Windows.Forms.Timer(components);
             fileTransition = new System.Windows.Forms.Timer(components);
             flowLayoutPanel1 = new FlowLayoutPanel();
-            setting1 = new ClientApp.Forms_UI.Setting();
             downloaded1 = new ClientApp.Forms_UI.Downloaded();
+            setting1 = new ClientApp.Forms_UI.Setting();
             panel1.SuspendLayout();
             roundedPanel1.SuspendLayout();
             panel3.SuspendLayout();
@@ -546,15 +546,7 @@
             flowLayoutPanel1.Name = "flowLayoutPanel1";
             flowLayoutPanel1.Size = new Size(787, 381);
             flowLayoutPanel1.TabIndex = 5;
-            // 
-            // setting1
-            // 
-            setting1.BackColor = Color.PowderBlue;
-            setting1.Location = new Point(2, 387);
-            setting1.Margin = new Padding(2);
-            setting1.Name = "setting1";
-            setting1.Size = new Size(780, 326);
-            setting1.TabIndex = 0;
+            flowLayoutPanel1.Resize += flowLayoutPanel1_Resize;
             // 
             // downloaded1
             // 
@@ -564,6 +556,15 @@
             downloaded1.Name = "downloaded1";
             downloaded1.Size = new Size(787, 381);
             downloaded1.TabIndex = 1;
+            // 
+            // setting1
+            // 
+            setting1.BackColor = Color.PowderBlue;
+            setting1.Location = new Point(2, 387);
+            setting1.Margin = new Padding(2);
+            setting1.Name = "setting1";
+            setting1.Size = new Size(780, 326);
+            setting1.TabIndex = 0;
             // 
             // MainMenu
             // 
