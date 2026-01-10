@@ -72,6 +72,14 @@
         public const string GET_STORAGE_INFO = "GET_STORAGE_INFO";           // Client yêu cầu thông tin dung lượng
         public const string GET_STORAGE_INFO_SUCCESS = "GET_STORAGE_INFO_SUCCESS"; // Server trả kết quả
         public const string GET_STORAGE_INFO_FAIL = "GET_STORAGE_INFO_FAIL";   // Server lỗi
+
+
+        public const string MOVE_TO_TRASH = "MOVE_TO_TRASH";           // Lệnh chuyển vào thùng rác
+        public const string MOVE_TO_TRASH_SUCCESS = "MOVE_TO_TRASH_SUCCESS"; // Thành công
+
+        public const string RESTORE_FILE = "RESTORE_FILE";             // Lệnh khôi phục
+        public const string RESTORE_SUCCESS = "RESTORE_SUCCESS";
+
     }
 
 }

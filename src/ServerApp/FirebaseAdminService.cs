@@ -273,6 +273,25 @@ namespace ServerApp
             }
         }
 
+        public async Task<bool> UpdateFileDeleteStatusAsync(string fileId, bool status)
+        {
+            try
+            {
+                DocumentReference docRef = _firestoreDb.Collection("Files").Document(fileId);
+
+                // Cập nhật trường "isDeleted" (chữ thường) trong Firestore
+                await docRef.UpdateAsync("isDeleted", status);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Trash DB Error] {ex.Message}");
+                return false;
+            }
+        }
+
+
+
         //Rename
 
         public async Task<bool> RenameFileDBAsync(string fileId, string newName)
@@ -345,6 +364,26 @@ namespace ServerApp
             catch (Exception ex)
             {
                 Console.WriteLine("[Star DB Error] " + ex.Message);
+                return false;
+            }
+        }
+
+        // xóa file
+        // Thêm hàm này vào class FirebaseAdminService
+        public async Task<bool> DeleteFilePermanentlyAsync(string fileId)
+        {
+            try
+            {
+                // Xóa document trong Collection "Files" dựa vào FileId
+                await _firestoreDb.Collection("Files").Document(fileId).DeleteAsync();
+
+                // (Nâng cao: Nếu muốn xóa cả file ảnh/doc trong Storage thì cần code thêm phần xóa Storage ở đây)
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Delete Permanent Error] {ex.Message}");
                 return false;
             }
         }

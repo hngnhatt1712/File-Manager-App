@@ -47,23 +47,7 @@ namespace ClientApp.Forms_UI
 
         private async void TrangChu_Load(object sender, EventArgs e)
         {
-            homeFileList.SetClient(_client);
-            await homeFileList.LoadFilesFromServer("/");
-
-            // Logic riêng của Home: Lấy file rồi lọc ra 10 cái mới nhất
-            string json = await _client.GetFileListAsync("/");
-            if (!string.IsNullOrEmpty(json) && json != "[]")
-            {
-                _cachedFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
-            }
-            else
-            {
-                _cachedFiles = new List<FileMetadata>();
-            }
-
-            // Mặc định ban đầu chỉ hiện 10 file mới nhất
-            var top10Files = _cachedFiles.Take(10).ToList();
-            homeFileList.SetFiles(top10Files);
+           
         }
 
     }

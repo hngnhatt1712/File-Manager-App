@@ -159,14 +159,6 @@ public class FileTransferClient
         }
     }
 
-    // gửi lênh để xóa file vĩnh viễn
-    public async Task<bool> DeletePermanentlyAsync(string fileId)
-    {
-        // Gửi lệnh "DELETE_PERMANENT" kèm fileId lên Server
-        string command = $"DELETE_PERMANENT|{fileId}";
-        return await SendCommandAsync(command);
-    }
-
 
     // để gửi tên file lên Server
     public async Task<List<FileMetadata>> SearchFilesAsync(string query)
@@ -262,20 +254,6 @@ public class FileTransferClient
         }
     }
 
-    // gửi lệnh để chuyển file vào thùng rác
-    public async Task<bool> MoveToTrashAsync(string fileId)
-    {
-        string command = $"MOVE_TO_TRASH|{fileId}";
-        return await SendCommandAsync(command);
-    }
-
-    // gửi lệnh khôi phục file đã chuyển vào thùng rác
-    public async Task<bool> RestoreFileAsync(string fileId)
-    {
-        string command = $"RESTORE_FILE|{fileId}";
-        return await SendCommandAsync(command);
-    }
-
     // vẫn chuyển lệnh từ client sang server 
     private async Task<bool> SendCommandAsync(string command)
     {
@@ -333,7 +311,79 @@ public class FileTransferClient
             _networkLock.Release();
         }
     }
-    
+
+    // 1. Chuyển vào thùng rác
+    public async Task<bool> MoveToTrashAsync(string fileId)
+    {
+        await _networkLock.WaitAsync();
+        try
+        {
+            await _writer.WriteLineAsync(ProtocolCommands.MOVE_TO_TRASH);
+            await _writer.WriteLineAsync(fileId);
+            await _writer.FlushAsync();
+
+            string response = await _reader.ReadLineAsync();
+            return response == ProtocolCommands.MOVE_TO_TRASH_SUCCESS;
+        }
+        catch { return false; }
+        finally { _networkLock.Release(); }
+    }
+
+    // 2. Khôi phục file
+    public async Task<bool> RestoreFileAsync(string fileId)
+    {
+        await _networkLock.WaitAsync();
+        try
+        {
+            await _writer.WriteLineAsync(ProtocolCommands.RESTORE_FILE);
+            await _writer.WriteLineAsync(fileId);
+            await _writer.FlushAsync();
+
+            string response = await _reader.ReadLineAsync();
+            return response == ProtocolCommands.RESTORE_SUCCESS;
+        }
+        catch { return false; }
+        finally { _networkLock.Release(); }
+    }
+
+    // 3. Xóa vĩnh viễn (Tái sử dụng lệnh xóa cũ)
+    public async Task<bool> DeletePermanentlyAsync(string fileId)
+    {
+        // Giả sử bạn đã có hàm DeleteFileAsync gửi lệnh DELETE_FILE
+        // Nếu chưa có, hãy cho tôi biết code xóa cũ của bạn
+        return await DeleteFileAsync(fileId);
+    }
+
+    // hàm xóa file
+
+    public async Task<bool> DeleteFileAsync(string fileId)
+    {
+        await _networkLock.WaitAsync(); // Chờ đến lượt gửi (tránh gửi chồng chéo)
+        try
+        {
+            // 1. Gửi lệnh XÓA
+            await _writer.WriteLineAsync(ProtocolCommands.DELETE_FILE);
+
+            // 2. Gửi ID file cần xóa
+            await _writer.WriteLineAsync(fileId);
+            await _writer.FlushAsync();
+
+            // 3. Đọc phản hồi từ Server
+            string response = await _reader.ReadLineAsync();
+
+            return response == ProtocolCommands.DELETE_SUCCESS;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Delete Error] {ex.Message}");
+            return false;
+        }
+        finally
+        {
+            _networkLock.Release(); // Giải phóng để lệnh khác được chạy
+        }
+    }
+
     // Hàm này đảm bảo đã xác thực trước khi làm gì đó
     private async Task EnsureAuthenticatedAsync()
     {

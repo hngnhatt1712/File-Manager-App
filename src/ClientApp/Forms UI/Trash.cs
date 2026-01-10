@@ -26,13 +26,18 @@ namespace ClientApp.Forms_UI
         private async void trash_Load(object sender, EventArgs e)
         {
             fileList1.SetClient(_client);
+            fileList1.SetTrashMode(true);
             string json = await _client.GetFileListAsync("/");
-            var allFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
+            if (!string.IsNullOrEmpty(json) && json != "[]")
+            {
+                var allFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
 
-            var top10Files = allFiles.Take(10).ToList();
+                // LỌC: Chỉ lấy file có IsDeleted == true
+                var deletedFiles = allFiles.Where(f => f.IsDeleted == true).ToList();
 
-            // Gọi hàm Render trực tiếp
-            fileList1.RenderFileList(top10Files);
+                // Hiển thị toàn bộ file trong thùng rác
+                fileList1.RenderFileList(deletedFiles);
+            }
         }
     }
 }

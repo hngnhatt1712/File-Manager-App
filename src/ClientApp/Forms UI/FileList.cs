@@ -46,6 +46,10 @@ namespace ClientApp.Forms_UI
 
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
+        public void SetTrashMode(bool isTrash)
+        {
+            _isTrashMode = isTrash;
+        }
 
         // Public method to search files by keyword and update UI
         public void SearchFiles(string keyword)
@@ -174,7 +178,7 @@ namespace ClientApp.Forms_UI
                 item.Margin = new Padding(0, 0, 0, 2);
 
                 // Gán sự kiện
-                item.OnDeleteClicked += (s, f) => XoaFile(f);
+                item.OnDeleteClicked += (s, f) => OnTrashIconClick(f);
                 item.OnDownloadClicked += (s, f) => TaiFile(f);
                 item.OnRenameClicked += async (s, f) => await DoiTenFile(item, f);
                 item.OnStarClicked += (s, f) => DanhDauSao(s, f);
@@ -443,6 +447,92 @@ namespace ClientApp.Forms_UI
                 {
                     MessageBox.Show("Đã xóa vĩnh viễn!");
                     await LoadFilesFromServer(_currentPath);
+                }
+            }
+        }
+
+
+        // xử lí xóa file
+        // --- HÀM XỬ LÝ SỰ KIỆN CLICK NÚT THÙNG RÁC ---
+        private void OnTrashIconClick(FileMetadata file)
+        {
+            if (file == null) return;
+
+            // TRƯỜNG HỢP 1: ĐANG Ở HOME (IsTrashMode == false)
+            // Hành động: Chuyển file vào thùng rác (Soft Delete)
+            if (_isTrashMode)
+            {
+                XoaMem_DuaVaoThungRac(file);
+            }
+            // TRƯỜNG HỢP 2: ĐANG Ở TRASH (IsTrashMode == true)
+            // Hành động: Hiện bảng chọn Khôi phục hoặc Xóa vĩnh viễn
+            else
+            {
+                XuLyTrongThungRac(file);
+            }
+        }
+
+        // 1. Logic ở Home: Đưa vào thùng rác
+        private async void XoaMem_DuaVaoThungRac(FileMetadata file)
+        {
+            var result = MessageBox.Show(
+                $"Bạn có muốn chuyển '{file.FileName}' vào thùng rác không?",
+                "Chuyển vào thùng rác",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                // Gọi lệnh MOVE_TO_TRASH
+                bool thanhCong = await _fileClient.MoveToTrashAsync(file.FileId);
+
+                if (thanhCong)
+                {
+                    MessageBox.Show("Đã chuyển vào thùng rác!");
+                    await LoadFilesFromServer(_currentPath); // Reload Home -> File sẽ biến mất
+                }
+                else
+                {
+                    MessageBox.Show("Lỗi kết nối server.");
+                }
+            }
+        }
+
+        // 2. Logic ở Trash: Chọn Khôi phục hoặc Xóa vĩnh viễn
+        private async void XuLyTrongThungRac(FileMetadata file)
+        {
+            // Tạo hộp thoại custom hoặc dùng MessageBox chọn Yes/No
+            // Quy ước: Yes = Khôi phục, No = Xóa vĩnh viễn, Cancel = Hủy
+            var result = MessageBox.Show(
+                $"Bạn muốn làm gì với file '{file.FileName}'?\n\n" +
+                "YES: Khôi phục lại (về Trang chủ)\n" +
+                "NO: Xóa vĩnh viễn (Không thể lấy lại)",
+                "Tùy chọn Thùng Rác",
+                MessageBoxButtons.YesNoCancel,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                // --- KHÔI PHỤC ---
+                bool thanhCong = await _fileClient.RestoreFileAsync(file.FileId);
+                if (thanhCong)
+                {
+                    MessageBox.Show("Đã khôi phục file thành công!");
+                    await LoadFilesFromServer(_currentPath); // Reload Trash -> File biến mất khỏi Trash
+                }
+            }
+            else if (result == DialogResult.No)
+            {
+                // --- XÓA VĨNH VIỄN ---
+                // Xác nhận lần cuối cho chắc ăn
+                if (MessageBox.Show("Bạn chắc chắn muốn xóa vĩnh viễn chứ?", "Cảnh báo", MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.OK)
+                {
+                    bool thanhCong = await _fileClient.DeletePermanentlyAsync(file.FileId);
+                    if (thanhCong)
+                    {
+                        MessageBox.Show("Đã xóa vĩnh viễn!");
+                        await LoadFilesFromServer(_currentPath); // Reload Trash -> File biến mất
+                    }
                 }
             }
         }

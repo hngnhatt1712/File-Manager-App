@@ -100,9 +100,6 @@ public class ClientHandler
                     case ProtocolCommands.DOWNLOAD:
                         await HandleDownloadAsync(parts);
                         break;
-                    case ProtocolCommands.DELETE_FILE:
-                         await HandleDeleteFileAsync();
-                        break;
                     case ProtocolCommands.LIST_FILES:
                          await HandleListFilesAsync(parts);
                         break;
@@ -254,6 +251,34 @@ public class ClientHandler
                             await HandleGetStorageInfoAsync();
                         }
                         break;
+                    case ProtocolCommands.MOVE_TO_TRASH:
+                        {
+                            string fileId = await _reader.ReadLineAsync(); // Đọc FileId gửi kèm
+                                                                           // Chuyển isDeleted thành TRUE (vào thùng rác)
+                            bool success = await _firestoreService.UpdateFileDeleteStatusAsync(fileId, true);
+                            await _writer.WriteLineAsync(success ? ProtocolCommands.MOVE_TO_TRASH_SUCCESS : "FAIL");
+                            break;
+                        }
+
+                    case ProtocolCommands.RESTORE_FILE:
+                        {
+                            string fileId = await _reader.ReadLineAsync();
+                            // Chuyển isDeleted thành FALSE (khôi phục)
+                            bool success = await _firestoreService.UpdateFileDeleteStatusAsync(fileId, false);
+                            await _writer.WriteLineAsync(success ? ProtocolCommands.RESTORE_SUCCESS : "FAIL");
+                            break;
+                        }
+                    case ProtocolCommands.DELETE_FILE:
+                        {
+                            string fileId = await _reader.ReadLineAsync(); // Đọc FileId cần xóa
+
+                            // Gọi hàm xóa vĩnh viễn trong DB
+                            bool success = await _firestoreService.DeleteFilePermanentlyAsync(fileId);
+
+                            // Phản hồi về Client
+                            await _writer.WriteLineAsync(success ? ProtocolCommands.DELETE_SUCCESS : ProtocolCommands.DELETE_FAIL);
+                            break;
+                        }
                     default:
                         await _writer.WriteLineAsync(ProtocolCommands.UNKNOWN_COMMAND);
                         break;
