@@ -152,7 +152,7 @@ namespace ServerApp
                 { "storagePath", fileData.StoragePath }, 
                 { "path", fileData.Path ?? "/" },
                 { "uploadedDate", DateTime.UtcNow.ToString("o") },
-                { "IsDeleted", false },  // 🔥 LUÔN KHỞI TẠO LÀ FALSE
+                { "isDeleted", false },  // 🔥 LUÔN KHỞI TẠO LÀ FALSE
             };
 
                 await col.AddAsync(data);
@@ -280,10 +280,10 @@ namespace ServerApp
         {
             try
             {
-                DocumentReference docRef = _firestoreDb.Collection("files").Document(fileId);
+                DocumentReference docRef = _firestoreDb.Collection("Files").Document(fileId);
                 Dictionary<string, object> updates = new Dictionary<string, object>
         {
-            { "IsDeleted", isDeleted }
+            { "isDeleted", isDeleted }
         };
                 await docRef.UpdateAsync(updates);
                 return true;
@@ -297,7 +297,7 @@ namespace ServerApp
             try
             {
                 // 1. Chỉ lấy những file của User đó VÀ đã bị đánh dấu IsDeleted = true
-                Query query = _firestoreDb.Collection("files")
+                Query query = _firestoreDb.Collection("Files")
                     .WhereEqualTo("ownerUid", uid)
                     .WhereEqualTo("isDeleted", true);
 
@@ -325,7 +325,7 @@ namespace ServerApp
         {
             try
             {
-                var docRef = _firestoreDb.Collection("files").Document(fileId);
+                var docRef = _firestoreDb.Collection("Files").Document(fileId);
                 var snapshot = await docRef.GetSnapshotAsync();
 
                 if (!snapshot.Exists)
@@ -431,7 +431,7 @@ namespace ServerApp
             try
             {
                 // Xóa document trong Collection "Files" dựa vào FileId
-                await _firestoreDb.Collection("files").Document(fileId).DeleteAsync();
+                await _firestoreDb.Collection("Files").Document(fileId).DeleteAsync();
 
                 // (Nâng cao: Nếu muốn xóa cả file ảnh/doc trong Storage thì cần code thêm phần xóa Storage ở đây)
 

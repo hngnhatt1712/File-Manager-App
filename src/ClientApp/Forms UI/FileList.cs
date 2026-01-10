@@ -100,6 +100,54 @@ namespace ClientApp.Forms_UI
         // 2. Hàm Tải dữ liệu từ Server 
         public async Task LoadFilesFromServer(string path = "/")
         {
+
+            Console.WriteLine($"[FileList] LoadFilesFromServer bắt đầu, path={path}");
+
+            if (_fileClient == null) return;
+
+            _currentPath = path;
+            try
+            {
+                string json = await _fileClient.GetFileListAsync(path);
+
+                if (string.IsNullOrEmpty(json) || json == "[]")
+                {
+                    _allFiles = new List<FileMetadata>();
+                    RenderFileList(_allFiles);
+                    return;
+                }
+
+                // 1. Chỉ Deserialize MỘT LẦN duy nhất
+                var fullList = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
+
+                if (fullList != null)
+                {
+                    // 2. Kiểm tra chế độ: Nếu là Thùng rác thì lọc IsDeleted = true, 
+                    //    Nếu là Home thì lọc IsDeleted = false
+                    if (_isTrashMode)
+                    {
+                        _allFiles = fullList.Where(f => f.IsDeleted == true).ToList();
+                    }
+                    else
+                    {
+                        _allFiles = fullList.Where(f => f.IsDeleted == false).ToList();
+                    }
+
+                    // 3. Hiển thị danh sách sau khi đã lọc chuẩn
+                    RenderFileList(_allFiles);
+                    IsLoaded = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[FileList] Lỗi: {ex.Message}");
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
+
+            /*
             Console.WriteLine($"[FileList] LoadFilesFromServer bắt đầu, path={path}");
             
             if (_fileClient == null)
@@ -113,7 +161,14 @@ namespace ClientApp.Forms_UI
             {
                 // Gọi Client lấy JSON
                 string json = await _fileClient.GetFileListAsync(path);
-                
+                var allFilesFromServer = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
+                if (allFilesFromServer != null)
+                {
+                    // 🔥 QUAN TRỌNG: Chỉ lấy những file CHƯA bị xóa (IsDeleted == false)
+                    _allFiles = allFilesFromServer.Where(f => f.IsDeleted == false).ToList();
+
+                    RenderFileList(_allFiles);
+                }
                 Console.WriteLine($"[FileList] JSON nhận được: {(string.IsNullOrEmpty(json) ? "NULL/EMPTY" : json.Length + " chars")}");
                 
                 if (string.IsNullOrEmpty(json) || json == "[]")
@@ -158,8 +213,9 @@ namespace ClientApp.Forms_UI
                 // QUAN TRỌNG: Dù thành công hay thất bại, bắt buộc dừng xoay chuột
                 Cursor.Current = Cursors.Default;
                 Console.WriteLine($"[FileList] LoadFilesFromServer kết thúc, _allFiles.Count = {_allFiles.Count}");
-            }
+            } */
         }
+
         // z: Hàm này dùng để vẽ các file tìm được lên màn hình
         private FileItem _currentSelectedItem = null;
         public async void RenderFileList(List<FileMetadata> danhSachFile)
@@ -574,9 +630,14 @@ namespace ClientApp.Forms_UI
 
         public async Task LoadTrashFromServer()
         {
+            _allFiles.Clear();
             var trashFiles = await _fileClient.GetTrashFilesAsync();
-            _allFiles = trashFiles;
-            RenderFileList(_allFiles);
+
+            if (trashFiles != null)
+            {
+                _allFiles = trashFiles;
+                RenderFileList(_allFiles);
+            }
         }
 
 

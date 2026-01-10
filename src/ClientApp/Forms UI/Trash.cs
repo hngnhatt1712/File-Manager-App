@@ -27,15 +27,22 @@ namespace ClientApp.Forms_UI
         {
             if (_client != null && fileList1 != null)
             {
-                // 1. Gán client cho fileList1 để nó có thể kết nối server
+                // 1. Cài đặt client và chế độ Thùng rác
                 fileList1.SetClient(_client);
-
-                // 2. Bật chế độ TrashMode = true 
-                // (Để nó biết là đang ở thùng rác, hiện nút 'Khôi phục' thay vì 'Xóa vào thùng rác')
                 fileList1.SetTrashMode(true);
 
-                // 3. Gọi hàm tải dữ liệu từ Server (hàm này bạn đã viết trong FileList.cs)
-                await fileList1.LoadTrashFromServer();
+                // 2. Lấy TOÀN BỘ danh sách file giống như tab Star đã làm
+                string json = await _client.GetFileListAsync("/");
+                var allFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
+
+                if (allFiles != null)
+                {
+                    // 3. Lọc lấy những file có IsDeleted == true (đã bị xóa)
+                    var trashFiles = allFiles.Where(f => f.IsDeleted == true).ToList();
+
+                    // 4. Hiển thị lên giao diện
+                    fileList1.RenderFileList(trashFiles);
+                }
             }
         }
 
