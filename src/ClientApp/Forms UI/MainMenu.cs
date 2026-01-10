@@ -30,7 +30,7 @@ namespace ClientApp
         private readonly UserAuth _authService;
         private bool _isTrashMode = false; // Mặc định là không phải thùng rác
         private UserControl _currentPage = null; // Lưu UserControl hiện tại đang hiển thị
-            
+        private Sort _sortControl = null; // Lưu reference của Sort control
         public MainMenu(FileTransferClient fileClient, UserAuth authService)
         {
             InitializeComponent();
@@ -424,9 +424,12 @@ namespace ClientApp
 
             if (ucSort == null)
             {
-                ucSort = new Sort();
-                ucSort.Parent = panel4; // Gắn vào panel4
-                panel4.Controls.Add(ucSort);
+                _sortControl = new Sort();
+                _sortControl.Parent = panel4; // Gắn vào panel4
+                panel4.Controls.Add(_sortControl);
+
+                // Lắng nghe sự kiện OnSortChanged từ Sort control
+                _sortControl.OnSortChanged += Sort_OnSortChanged;
 
                 // Gọi hàm điều chỉnh kích thước để nó tự nhảy vào đúng vị trí bên phải
                 DieuChinhKichThuoc();
@@ -434,6 +437,18 @@ namespace ClientApp
             else
             {
                 ucSort.Visible = !ucSort.Visible;
+            }
+        }
+
+        /// <summary>
+        /// Sự kiện được gọi khi người dùng chọn một tùy chọn sắp xếp từ Sort control
+        /// </summary>
+        private void Sort_OnSortChanged(string option)
+        {
+            // Kiểm tra UserControl hiện tại có implement ISortable không
+            if (_currentPage is ISortable sortablePage)
+            {
+                sortablePage.ApplySort(option);
             }
         }
 

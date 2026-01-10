@@ -14,7 +14,7 @@ using SharedLibrary;
 
 namespace ClientApp.Forms_UI
 {
-    public partial class TXT : UserControl, ISearchable
+    public partial class TXT : UserControl, ISearchable, ISortable
     {
         private FileTransferClient _client;
         private List<FileMetadata> _cachedFiles = new List<FileMetadata>();
@@ -34,6 +34,11 @@ namespace ClientApp.Forms_UI
         public void SearchFiles(string keyword)
         {
             fileList1.SearchFiles(keyword);
+        }
+
+        public void ApplySort(string option)
+        {
+            fileList1.ApplySort(option);
         }
     }
 }
