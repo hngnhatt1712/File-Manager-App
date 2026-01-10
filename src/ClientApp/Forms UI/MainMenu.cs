@@ -141,8 +141,9 @@ namespace ClientApp
             flowLayoutPanel1.Controls.Clear();
             _isTrashMode = true; // Đánh dấu đang xem Thùng rác
 
-            var danhSachFileRac = await _fileClient.GetTrashFilesAsync();
-
+            // Tạo Trash userControl và hiển thị
+            trash trashControl = new trash(_fileClient);
+            ShowPage(trashControl);
         }
 
        

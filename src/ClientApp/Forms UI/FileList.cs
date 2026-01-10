@@ -54,9 +54,12 @@ namespace ClientApp.Forms_UI
         // Public method to search files by keyword and update UI
         public void SearchFiles(string keyword)
         {
+            Console.WriteLine($"[FileList.SearchFiles] keyword='{keyword}', _allFiles.Count={_allFiles.Count}");
+            
             // Nếu keyword rỗng, hiện tất cả file
             if (string.IsNullOrWhiteSpace(keyword))
             {
+                Console.WriteLine($"[FileList.SearchFiles] Keyword rỗng, hiển thị toàn bộ {_allFiles.Count} file");
                 RenderFileList(_allFiles);
                 return;
             }
@@ -77,6 +80,7 @@ namespace ClientApp.Forms_UI
                 })
                 .ToList();
 
+            Console.WriteLine($"[FileList.SearchFiles] Tìm được {filtered.Count} file khớp '{keyword}'");
             RenderFileList(filtered);
         }
         public FileList()
@@ -96,14 +100,25 @@ namespace ClientApp.Forms_UI
         // 2. Hàm Tải dữ liệu từ Server 
         public async Task LoadFilesFromServer(string path = "/")
         {
-            if (_fileClient == null) return;
+            Console.WriteLine($"[FileList] LoadFilesFromServer bắt đầu, path={path}");
+            
+            if (_fileClient == null)
+            {
+                MessageBox.Show("[DEBUG] _fileClient là NULL! Không thể load file.");
+                return;
+            }
+            
             _currentPath = path;
             try
             {
                 // Gọi Client lấy JSON
                 string json = await _fileClient.GetFileListAsync(path);
+                
+                Console.WriteLine($"[FileList] JSON nhận được: {(string.IsNullOrEmpty(json) ? "NULL/EMPTY" : json.Length + " chars")}");
+                
                 if (string.IsNullOrEmpty(json) || json == "[]")
                 {
+                    Console.WriteLine("[FileList] Server trả về danh sách rỗng");
                     _allFiles = new List<FileMetadata>();
                     IsLoaded = true;
                     RenderFileList(new List<FileMetadata>());
@@ -111,26 +126,46 @@ namespace ClientApp.Forms_UI
                 }
               
                 var listFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
+                
+                if (listFiles == null)
+                {
+                    Console.WriteLine("[FileList] Deserialize thất bại, listFiles = NULL");
+                    _allFiles = new List<FileMetadata>();
+                    IsLoaded = true;
+                    RenderFileList(new List<FileMetadata>());
+                    return;
+                }
+                
+                Console.WriteLine($"[FileList] Deserialize thành công, {listFiles.Count} file");
+                
                 _allFiles = listFiles;
                 IsLoaded = true;
-                SetFiles(listFiles);
+                
+                // ✅ Gọi RenderFileList TRỰC TIẾP, không gọi SetFiles (vì SetFiles cũng gọi RenderFileList)
+                RenderFileList(_allFiles);
+                
+                Console.WriteLine($"[FileList] _allFiles.Count = {_allFiles.Count}, RenderFileList đã gọi");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải file: " + ex.Message);
+                Console.WriteLine($"[FileList] Exception: {ex.Message}");
+                MessageBox.Show($"[DEBUG] Lỗi tải file: {ex.Message}\n\n{ex.StackTrace}");
                 _allFiles = new List<FileMetadata>();
-                IsLoaded = true; // Set = true dù có lỗi, để search function vẫn hoạt động
+                IsLoaded = true;
             }
             finally
             {
                 // QUAN TRỌNG: Dù thành công hay thất bại, bắt buộc dừng xoay chuột
                 Cursor.Current = Cursors.Default;
+                Console.WriteLine($"[FileList] LoadFilesFromServer kết thúc, _allFiles.Count = {_allFiles.Count}");
             }
         }
         // z: Hàm này dùng để vẽ các file tìm được lên màn hình
         private FileItem _currentSelectedItem = null;
         public void RenderFileList(List<FileMetadata> danhSachFile)
         {
+            Console.WriteLine($"[FileList.RenderFileList] Bắt đầu, danhSachFile.Count = {(danhSachFile?.Count ?? 0)}");
+            
             // 1. Đảm bảo chạy trên UI Thread
             if (flowLayoutPanel1.InvokeRequired)
             {
@@ -150,6 +185,7 @@ namespace ClientApp.Forms_UI
                     .Where(f => !string.IsNullOrEmpty(f.FileName) &&
                                 AllowedExtensions.Contains(System.IO.Path.GetExtension(f.FileName).ToLower()))
                     .ToList();
+                Console.WriteLine($"[FileList.RenderFileList] Sau khi lọc AllowedExtensions: {filesToDisplay.Count} file");
             }
             // ----------------------------------------------
 
@@ -157,6 +193,7 @@ namespace ClientApp.Forms_UI
             // (Lưu ý: Phải kiểm tra trên filesToDisplay chứ không phải danhSachFile)
             if (filesToDisplay == null || filesToDisplay.Count == 0)
             {
+                Console.WriteLine("[FileList.RenderFileList] Danh sách rỗng, hiển thị thông báo 'Không tìm thấy file'");
                 Label lblEmpty = new Label();
                 lblEmpty.Text = "📂 Không tìm thấy file nào"; // Đổi text cho rõ nghĩa hơn
                 lblEmpty.AutoSize = false;
@@ -170,6 +207,7 @@ namespace ClientApp.Forms_UI
             }
 
             // 3. Vòng lặp chạy trên danh sách ĐÃ LỌC (filesToDisplay)
+            Console.WriteLine($"[FileList.RenderFileList] Vẽ {filesToDisplay.Count} file lên UI");
             foreach (var file in filesToDisplay)
             {
                 FileItem item = new FileItem(file);
@@ -194,6 +232,7 @@ namespace ClientApp.Forms_UI
 
                 flowLayoutPanel1.Controls.Add(item);
             }
+            Console.WriteLine($"[FileList.RenderFileList] Kết thúc");
         }
         // Xử lý khi bấm nút Tải xuống
 
@@ -460,7 +499,7 @@ namespace ClientApp.Forms_UI
 
             // TRƯỜNG HỢP 1: ĐANG Ở HOME (IsTrashMode == false)
             // Hành động: Chuyển file vào thùng rác (Soft Delete)
-            if (_isTrashMode)
+            if (!_isTrashMode)
             {
                 XoaMem_DuaVaoThungRac(file);
             }

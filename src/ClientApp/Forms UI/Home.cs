@@ -47,7 +47,24 @@ namespace ClientApp.Forms_UI
 
         private async void TrangChu_Load(object sender, EventArgs e)
         {
-           
+            Console.WriteLine("[Home] TrangChu_Load được gọi");
+            
+            // Đảm bảo HomeFileList được khởi tạo
+            if (homeFileList != null)
+            {
+                Console.WriteLine("[Home] homeFileList không null, tiến hành setup");
+                homeFileList.SetClient(_client);
+                homeFileList.SetTrashMode(false);
+                
+                Console.WriteLine("[Home] Bắt đầu LoadFilesFromServer");
+                await homeFileList.LoadFilesFromServer("/");
+                Console.WriteLine("[Home] LoadFilesFromServer kết thúc");
+            }
+            else
+            {
+                MessageBox.Show("[DEBUG] homeFileList là NULL! Không thể load.");
+                Console.WriteLine("[Home] ERROR: homeFileList là NULL");
+            }
         }
 
     }
