@@ -273,19 +273,27 @@ namespace ServerApp
             }
         }
 
-        public async Task<bool> UpdateFileDeleteStatusAsync(string fileId, bool status)
+        public async Task<bool> UpdateFileDeleteStatusAsync(string fileId, bool isDeleted)
         {
             try
             {
-                DocumentReference docRef = _firestoreDb.Collection("Files").Document(fileId);
+                var docRef = _firestoreDb.Collection("files").Document(fileId);
+                var snapshot = await docRef.GetSnapshotAsync();
 
-                // Cập nhật trường "isDeleted" (chữ thường) trong Firestore
-                await docRef.UpdateAsync("isDeleted", status);
+                if (!snapshot.Exists)
+                    return false;
+
+                // 🔥 DÒNG BẠN HỎI NẰM CHÍNH XÁC Ở ĐÂY
+                await docRef.UpdateAsync(new Dictionary<string, object>
+        {
+            { "isDeleted", isDeleted }
+        });
+
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Trash DB Error] {ex.Message}");
+                Console.WriteLine("[Firestore] UpdateFileDeleteStatusAsync error: " + ex.Message);
                 return false;
             }
         }

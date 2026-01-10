@@ -162,7 +162,7 @@ namespace ClientApp.Forms_UI
         }
         // z: Hàm này dùng để vẽ các file tìm được lên màn hình
         private FileItem _currentSelectedItem = null;
-        public void RenderFileList(List<FileMetadata> danhSachFile)
+        public async void RenderFileList(List<FileMetadata> danhSachFile)
         {
             Console.WriteLine($"[FileList.RenderFileList] Bắt đầu, danhSachFile.Count = {(danhSachFile?.Count ?? 0)}");
             
@@ -216,7 +216,16 @@ namespace ClientApp.Forms_UI
                 item.Margin = new Padding(0, 0, 0, 2);
 
                 // Gán sự kiện
-                item.OnDeleteClicked += (s, f) => OnTrashIconClick(f);
+                item.OnDeleteClicked += async (s, f) => {
+                    if (_isTrashMode)
+                    {
+                        XuLyTrongThungRac(f);
+                    }
+                    else
+                    {
+                        await XoaFileTaiHome(f);
+                    }
+                };
                 item.OnDownloadClicked += (s, f) => TaiFile(f);
                 item.OnRenameClicked += async (s, f) => await DoiTenFile(item, f);
                 item.OnStarClicked += (s, f) => DanhDauSao(s, f);
@@ -493,49 +502,7 @@ namespace ClientApp.Forms_UI
 
         // xử lí xóa file
         // --- HÀM XỬ LÝ SỰ KIỆN CLICK NÚT THÙNG RÁC ---
-        private void OnTrashIconClick(FileMetadata file)
-        {
-            if (file == null) return;
 
-            // TRƯỜNG HỢP 1: ĐANG Ở HOME (IsTrashMode == false)
-            // Hành động: Chuyển file vào thùng rác (Soft Delete)
-            if (!_isTrashMode)
-            {
-                XoaMem_DuaVaoThungRac(file);
-            }
-            // TRƯỜNG HỢP 2: ĐANG Ở TRASH (IsTrashMode == true)
-            // Hành động: Hiện bảng chọn Khôi phục hoặc Xóa vĩnh viễn
-            else
-            {
-                XuLyTrongThungRac(file);
-            }
-        }
-
-        // 1. Logic ở Home: Đưa vào thùng rác
-        private async void XoaMem_DuaVaoThungRac(FileMetadata file)
-        {
-            var result = MessageBox.Show(
-                $"Bạn có muốn chuyển '{file.FileName}' vào thùng rác không?",
-                "Chuyển vào thùng rác",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (result == DialogResult.Yes)
-            {
-                // Gọi lệnh MOVE_TO_TRASH
-                bool thanhCong = await _fileClient.MoveToTrashAsync(file.FileId);
-
-                if (thanhCong)
-                {
-                    MessageBox.Show("Đã chuyển vào thùng rác!");
-                    await LoadFilesFromServer(_currentPath); // Reload Home -> File sẽ biến mất
-                }
-                else
-                {
-                    MessageBox.Show("Lỗi kết nối server.");
-                }
-            }
-        }
 
         // 2. Logic ở Trash: Chọn Khôi phục hoặc Xóa vĩnh viễn
         private async void XuLyTrongThungRac(FileMetadata file)
@@ -575,5 +542,38 @@ namespace ClientApp.Forms_UI
                 }
             }
         }
+        private async Task XoaFileTaiHome(FileMetadata file)
+        {
+            var result = MessageBox.Show(
+                $"Bạn có chắc muốn chuyển '{file.FileName}' vào thùng rác?",
+                "Xác nhận",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                bool ok = await _fileClient.MoveToTrashAsync(file.FileId);
+
+                if (ok)
+                {
+                    // 🔥 CẬP NHẬT UI NGAY
+                    _allFiles.RemoveAll(f => f.FileId == file.FileId);
+                    RenderFileList(_allFiles);
+                }
+                else
+                {
+                    MessageBox.Show("Lỗi chuyển vào thùng rác");
+                }
+            }
+        }
+
+        public async Task LoadTrashFromServer()
+        {
+            var trashFiles = await _fileClient.GetTrashFilesAsync();
+            _allFiles = trashFiles;
+            RenderFileList(_allFiles);
+        }
+
+
     }
 }

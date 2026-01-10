@@ -137,7 +137,7 @@ public class FileTransferClient
         {
             await EnsureConnectedAsync();
             // 1. Gửi lệnh yêu cầu lấy file trong thùng rác
-            await _writer.WriteLineAsync("GET_TRASH_FILES");
+            await _writer.WriteLineAsync("LIST_TRASH_FILES");
             await _writer.FlushAsync();
 
             // 2. Đợi Server gửi chuỗi JSON chứa danh sách file

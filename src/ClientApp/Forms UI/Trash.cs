@@ -27,17 +27,8 @@ namespace ClientApp.Forms_UI
         {
             fileList1.SetClient(_client);
             fileList1.SetTrashMode(true);
-            string json = await _client.GetFileListAsync("/");
-            if (!string.IsNullOrEmpty(json) && json != "[]")
-            {
-                var allFiles = JsonConvert.DeserializeObject<List<FileMetadata>>(json);
-
-                // LỌC: Chỉ lấy file có IsDeleted == true
-                var deletedFiles = allFiles.Where(f => f.IsDeleted == true).ToList();
-
-                // Hiển thị toàn bộ file trong thùng rác
-                fileList1.RenderFileList(deletedFiles);
-            }
+            await fileList1.LoadTrashFromServer();
         }
+
     }
 }
